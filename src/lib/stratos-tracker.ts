@@ -178,7 +178,7 @@ class StratosTracker {
         ? parseInt(resultsElement.textContent || '0', 10) 
         : undefined
 
-      this.trackEvent('property_search', {
+      this.trackEvent('search', {
         search_params: searchParams,
         results_count: resultsCount,
       })

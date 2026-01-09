@@ -4,6 +4,9 @@
 // Main search page with filters and results
 // ========================================
 
+// Force server-side rendering for dynamic search results
+export const prerender = false
+
 import Layout from '../layouts/Layout.astro'
 import SearchFilters from '../components/search/SearchFilters.astro'
 import PropertyCard from '../components/properties/PropertyCard.astro'
@@ -185,7 +188,7 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
 
       // Track search event
       api.trackEvent({
-        event_type: 'property_search',
+        event_type: 'search',
         session_id: sessionId,
         timestamp: new Date().toISOString(),
         page_url: window.location.href,

@@ -208,7 +208,7 @@ export type ApiResponse<T = any> = ApiSuccess<T> | ApiError
 export type TrackingEventType =
   | 'page_view'
   | 'property_view'
-  | 'property_search'
+  | 'search'
   | 'property_detail_interaction'
   | 'enquiry_form_start'
   | 'enquiry_form_submit'

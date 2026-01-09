@@ -1,0 +1,349 @@
+---
+// ========================================
+// PROPERTY DETAIL PAGE
+// Dynamic route: /properties/[postcode]/[slug]-[id]
+// Example: /properties/sw1a-1aa/modern-apartment-abc123
+// ========================================
+
+// Force server-side rendering for this dynamic route
+export const prerender = false
+
+import Layout from '../../../layouts/Layout.astro'
+import ImageGallery from '../../../components/propertydetails/ImageGallery.astro'
+import EnquiryForm from '../../../components/forms/EnquiryForm.astro'
+import { getPropertyDetails } from '../../../lib/api'
+import {
+  extractPropertyIdFromUrl,
+  getDisplayPrice,
+  formatPropertyType,
+  formatDate,
+  formatArea,
+  getStatusBadgeText,
+  getStatusBadgeClass,
+  pluralize,
+} from '../../../lib/utils'
+
+// Extract property ID from URL (last segment after final dash)
+const propertyId = extractPropertyIdFromUrl(Astro.url.pathname)
+
+console.log('Property detail page - URL:', Astro.url.pathname)
+console.log('Property detail page - Extracted ID:', propertyId)
+
+if (!propertyId) {
+  console.error('No property ID found in URL')
+  return Astro.redirect('/search')
+}
+
+// Fetch property details
+const property = await getPropertyDetails(propertyId)
+
+console.log('Property detail page - Property fetched:', property ? 'Yes' : 'No')
+
+if (!property) {
+  console.error('Property not found:', propertyId)
+  return Astro.redirect('/search')
+}
+
+// Format data for display
+const displayPrice = getDisplayPrice(property)
+const propertyType = formatPropertyType(property.property_type)
+const listedDate = property.listed_date ? formatDate(property.listed_date) : null
+const statusText = getStatusBadgeText(property.listing_status)
+const statusClass = getStatusBadgeClass(property.listing_status)
+
+// Build structured data for SEO (Schema.org)
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': property.listing_type === 'sale' ? 'RealEstateListing' : 'Apartment',
+  name: property.display_address,
+  description: property.description || property.summary,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: property.address_line_1,
+    addressLocality: property.city,
+    addressRegion: property.county,
+    postalCode: property.postcode,
+    addressCountry: property.country_code,
+  },
+  ...(property.asking_price && {
+    offers: {
+      '@type': 'Offer',
+      price: property.asking_price,
+      priceCurrency: 'GBP',
+    },
+  }),
+  numberOfRooms: property.bedrooms,
+  floorSize: property.internal_area ? {
+    '@type': 'QuantitativeValue',
+    value: property.internal_area,
+    unitCode: property.area_unit === 'sqft' ? 'FTK' : 'MTK',
+  } : undefined,
+}
+---
+
+<Layout 
+  title={`${property.display_address} - ${propertyType} ${property.listing_type === 'sale' ? 'For Sale' : 'To Rent'}`}
+  description={property.summary || `${propertyType} ${property.listing_type === 'sale' ? 'for sale' : 'to rent'} in ${property.city || property.postcode}`}
+>
+  <!-- Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+  <div class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Breadcrumbs -->
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm">
+          <li>
+            <a href="/" class="text-gray-500 hover:text-gray-700">Home</a>
+          </li>
+          <li class="text-gray-400">/</li>
+          <li>
+            <a 
+              href={`/search?listing_type=${property.listing_type}`}
+              class="text-gray-500 hover:text-gray-700"
+            >
+              {property.listing_type === 'sale' ? 'For Sale' : 'To Rent'}
+            </a>
+          </li>
+          <li class="text-gray-400">/</li>
+          <li class="text-gray-900 font-medium">{property.display_address}</li>
+        </ol>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content (Left) -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Image Gallery -->
+          <ImageGallery 
+            images={property.property_media || []} 
+            propertyAddress={property.display_address}
+          />
+
+          <!-- Property Header -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                  {property.display_address}
+                </h1>
+                <p class="text-gray-600">
+                  {property.city && `${property.city}, `}{property.postcode}
+                </p>
+              </div>
+              {property.listing_status !== 'available' && (
+                <span class:list={['px-4 py-2 rounded-full text-sm font-semibold', statusClass]}>
+                  {statusText}
+                </span>
+              )}
+            </div>
+
+            <!-- Price and Key Features -->
+            <div class="flex flex-wrap items-center gap-6 py-4 border-t border-b border-gray-200">
+              <div>
+                <p class="text-3xl font-bold text-blue-600">{displayPrice}</p>
+                <p class="text-sm text-gray-600">
+                  {property.listing_type === 'sale' ? 'For Sale' : 'To Rent'}
+                </p>
+              </div>
+              
+              <div class="flex gap-6 text-gray-700">
+                <div class="flex items-center gap-2">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                  </svg>
+                  <span class="font-semibold">{property.bedrooms}</span>
+                  <span class="text-sm">{pluralize(property.bedrooms, 'bed')}</span>
+                </div>
+
+                {property.bathrooms > 0 && (
+                  <div class="flex items-center gap-2">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
+                    </svg>
+                    <span class="font-semibold">{property.bathrooms}</span>
+                    <span class="text-sm">{pluralize(property.bathrooms, 'bath')}</span>
+                  </div>
+                )}
+
+                {property.receptions && property.receptions > 0 && (
+                  <div class="flex items-center gap-2">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                    <span class="font-semibold">{property.receptions}</span>
+                    <span class="text-sm">{pluralize(property.receptions, 'reception')}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Property Type and Listed Date -->
+            <div class="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+              <span>{propertyType}</span>
+              {property.tenure && <span>• {property.tenure}</span>}
+              {listedDate && <span>• Listed {listedDate}</span>}
+            </div>
+          </div>
+
+          <!-- Description -->
+          {property.description && (
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <h2 class="text-2xl font-bold text-gray-900 mb-4">Description</h2>
+              <div class="prose max-w-none text-gray-700 whitespace-pre-line">
+                {property.description}
+              </div>
+            </div>
+          )}
+
+          <!-- Key Features -->
+          {property.key_features && property.key_features.length > 0 && (
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <h2 class="text-2xl font-bold text-gray-900 mb-4">Key Features</h2>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {property.key_features.map(feature => (
+                  <li class="flex items-start">
+                    <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-gray-700">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- Property Details -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Property Details</h2>
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="border-b border-gray-200 pb-2">
+                <dt class="text-sm text-gray-600">Property Type</dt>
+                <dd class="text-base font-medium text-gray-900">{propertyType}</dd>
+              </div>
+              
+              <div class="border-b border-gray-200 pb-2">
+                <dt class="text-sm text-gray-600">Bedrooms</dt>
+                <dd class="text-base font-medium text-gray-900">{property.bedrooms}</dd>
+              </div>
+
+              {property.bathrooms > 0 && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">Bathrooms</dt>
+                  <dd class="text-base font-medium text-gray-900">{property.bathrooms}</dd>
+                </div>
+              )}
+
+              {property.receptions && property.receptions > 0 && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">Reception Rooms</dt>
+                  <dd class="text-base font-medium text-gray-900">{property.receptions}</dd>
+                </div>
+              )}
+
+              {property.internal_area && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">Internal Area</dt>
+                  <dd class="text-base font-medium text-gray-900">
+                    {formatArea(property.internal_area, property.area_unit)}
+                  </dd>
+                </div>
+              )}
+
+              {property.tenure && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">Tenure</dt>
+                  <dd class="text-base font-medium text-gray-900">{property.tenure}</dd>
+                </div>
+              )}
+
+              {property.council_tax_band && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">Council Tax Band</dt>
+                  <dd class="text-base font-medium text-gray-900">{property.council_tax_band}</dd>
+                </div>
+              )}
+
+              {property.epc_rating && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">EPC Rating</dt>
+                  <dd class="text-base font-medium text-gray-900">{property.epc_rating}</dd>
+                </div>
+              )}
+
+              {property.parking && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">Parking</dt>
+                  <dd class="text-base font-medium text-gray-900">{property.parking}</dd>
+                </div>
+              )}
+
+              {property.furnishing && (
+                <div class="border-b border-gray-200 pb-2">
+                  <dt class="text-sm text-gray-600">Furnishing</dt>
+                  <dd class="text-base font-medium text-gray-900">{property.furnishing}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+
+          <!-- Map Placeholder -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Location</h2>
+            {property.latitude && property.longitude ? (
+              <div class="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+                <p class="text-gray-500">Map placeholder - integrate with Google Maps or Mapbox</p>
+              </div>
+            ) : (
+              <p class="text-gray-600">{property.display_address}, {property.postcode}</p>
+            )}
+          </div>
+        </div>
+
+        <!-- Sidebar (Right) -->
+        <div class="lg:col-span-1">
+          <div class="sticky top-24 space-y-6">
+            <!-- Enquiry Form -->
+            <EnquiryForm property={property} />
+
+            <!-- Share -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Share this property</h3>
+              <div class="flex gap-3">
+                <button
+                  class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+                  onclick="navigator.share({title: document.title, url: window.location.href})"
+                >
+                  Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { api } from '../../../lib/api'
+  import { getSessionId } from '../../../lib/session'
+
+  // Track property view
+  document.addEventListener('DOMContentLoaded', () => {
+    const sessionId = getSessionId()
+    const propertyId = window.location.pathname.split('-').pop()
+
+    if (propertyId) {
+      api.trackEvent({
+        event_type: 'property_view',
+        session_id: sessionId,
+        timestamp: new Date().toISOString(),
+        page_url: window.location.href,
+        page_path: window.location.pathname,
+        page_title: document.title,
+        referrer: document.referrer || undefined,
+        property_id: propertyId,
+      })
+    }
+  })
+</script>
