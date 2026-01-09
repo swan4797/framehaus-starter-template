@@ -1,0 +1,137 @@
+---
+interface Props {
+  properties: any[]
+}
+
+const { properties } = Astro.props
+
+// Filter properties with coordinates
+const mappableProperties = properties.filter(p => p.latitude && p.longitude)
+---
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[800px]">
+  <!-- Map Container -->
+  <div class="relative bg-gray-200 rounded-lg overflow-hidden">
+    <div id="property-map" class="w-full h-full"></div>
+    
+    <!-- Map Controls -->
+    <div class="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-2 space-y-2">
+      <button
+        type="button"
+        id="zoom-in"
+        class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
+        aria-label="Zoom in"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        id="zoom-out"
+        class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
+        aria-label="Zoom out"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+        </svg>
+      </button>
+    </div>
+
+    {mappableProperties.length === 0 && (
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center">
+          <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+          </svg>
+          <p class="text-gray-600">No properties with location data</p>
+        </div>
+      </div>
+    )}
+  </div>
+
+  <!-- Property List Sidebar -->
+  <div class="overflow-y-auto space-y-4 pr-2">
+    {mappableProperties.map((property, index) => (
+      <div
+        class="property-map-item bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-all"
+        data-property-index={index}
+        data-lat={property.latitude}
+        data-lng={property.longitude}
+      >
+        <div class="flex gap-4">
+          {property.media?.[0] && (
+            <img
+              src={property.media[0].thumbnail_url || property.media[0].file_url}
+              alt={property.display_address}
+              class="w-24 h-24 object-cover rounded-lg"
+            />
+          )}
+          <div class="flex-1">
+            <p class="text-lg font-bold text-gray-900">
+              {property.listing_type === 'sale' 
+                ? `£${property.asking_price?.toLocaleString()}`
+                : `£${property.rent_amount?.toLocaleString()}/pcm`}
+            </p>
+            <h4 class="font-medium text-gray-900 line-clamp-1">
+              {property.display_address}
+            </h4>
+            <p class="text-sm text-gray-600">
+              {property.bedrooms} bed • {property.bathrooms} bath
+            </p>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  // This is a placeholder for map initialization
+  // In production, you'd use Google Maps, Mapbox, or Leaflet
+  
+  const properties = {properties: JSON.stringify(mappableProperties)}
+  
+  // Example using Leaflet (you'd need to add the library)
+  /*
+  import L from 'leaflet'
+  
+  const map = L.map('property-map').setView([51.5074, -0.1278], 12)
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map)
+  
+  properties.forEach((property, index) => {
+    const marker = L.marker([property.latitude, property.longitude])
+      .addTo(map)
+      .bindPopup(`
+        <div class="p-2">
+          <p class="font-bold">${property.display_address}</p>
+          <p class="text-sm">${property.price}</p>
+        </div>
+      `)
+    
+    marker.on('click', () => {
+      document.querySelector(`[data-property-index="${index}"]`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+    })
+  })
+  */
+  
+  // Click property in list to center map
+  document.querySelectorAll('.property-map-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const lat = parseFloat(item.getAttribute('data-lat') || '0')
+      const lng = parseFloat(item.getAttribute('data-lng') || '0')
+      
+      // Center map on this property
+      // map.setView([lat, lng], 15)
+    })
+  })
+</script>
+
+<!-- Add Leaflet CSS if using Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />

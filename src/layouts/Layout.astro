@@ -1,3 +1,15 @@
+---
+import "../styles/global.css";
+
+import TrackerScript from '../components/tracking/TrackerScript.astro'
+
+interface Props {
+  title: string
+  description?: string
+}
+
+const { title, description } = Astro.props
+---
 <!doctype html>
 <html lang="en">
 	<head>
@@ -9,6 +21,8 @@
 	</head>
 	<body>
 		<slot />
+		<!-- Tracking Script -->
+		<TrackerScript />
 	</body>
 </html>
 

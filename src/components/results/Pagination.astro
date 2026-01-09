@@ -1,0 +1,112 @@
+---
+interface Props {
+  currentPage: number
+  totalPages: number
+  searchParams: any
+}
+
+const { currentPage, totalPages, searchParams } = Astro.props
+
+// Build URL with page param
+function buildPageUrl(page: number) {
+  const params = new URLSearchParams()
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (key !== 'page' && value) {
+      if (Array.isArray(value)) {
+        value.forEach(v => params.append(key, v))
+      } else {
+        params.append(key, value as string)
+      }
+    }
+  })
+  params.set('page', page.toString())
+  return `/properties/search?${params.toString()}`
+}
+
+// Generate page numbers to show
+const maxVisible = 7
+let pages: (number | string)[] = []
+
+if (totalPages <= maxVisible) {
+  pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+} else {
+  if (currentPage <= 3) {
+    pages = [1, 2, 3, 4, '...', totalPages]
+  } else if (currentPage >= totalPages - 2) {
+    pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
+  } else {
+    pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages]
+  }
+}
+---
+
+<nav class="flex items-center justify-center gap-2" aria-label="Pagination">
+  <!-- Previous -->
+  {currentPage > 1 ? (
+    <a
+      href={buildPageUrl(currentPage - 1)}
+      class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+    >
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      <span class="hidden sm:inline">Previous</span>
+    </a>
+  ) : (
+    <button
+      disabled
+      class="px-4 py-2 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed flex items-center gap-2"
+    >
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      <span class="hidden sm:inline">Previous</span>
+    </button>
+  )}
+
+  <!-- Page Numbers -->
+  {pages.map(page => (
+    typeof page === 'number' ? (
+      <a
+        href={buildPageUrl(page)}
+        class={`px-4 py-2 rounded-lg transition-colors ${
+          page === currentPage
+            ? 'bg-[#064728] text-white font-semibold'
+            : 'border border-gray-300 hover:bg-gray-50'
+        }`}
+      >
+        {page}
+      </a>
+    ) : (
+      <span class="px-2 text-gray-400">...</span>
+    )
+  ))}
+
+  <!-- Next -->
+  {currentPage < totalPages ? (
+    <a
+      href={buildPageUrl(currentPage + 1)}
+      class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+    >
+      <span class="hidden sm:inline">Next</span>
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  ) : (
+    <button
+      disabled
+      class="px-4 py-2 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed flex items-center gap-2"
+    >
+      <span class="hidden sm:inline">Next</span>
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  )}
+</nav>
+
+<!-- Page info -->
+<p class="text-center text-sm text-gray-600 mt-4">
+  Page {currentPage} of {totalPages}
+</p>

@@ -1,0 +1,431 @@
+---
+// Property Register Form (Buyer / Tenant Registration)
+---
+
+<div class="form-container">
+    <form id="register-form" class="enquiry-form">
+      <h2 class="form-title">Register Your Property Requirements</h2>
+      <p class="form-description">
+        Register with us and we'll alert you when properties matching your criteria become available.
+      </p>
+  
+      <div class="form-group">
+        <label class="form-label">
+          I'm looking to <span class="required">*</span>
+        </label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="registration_type" value="buyer" required />
+            <span>Buy</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="registration_type" value="tenant" required />
+            <span>Rent</span>
+          </label>
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="register-budget-min" class="form-label">
+            Minimum Budget <span class="required">*</span>
+          </label>
+          <input
+            type="number"
+            id="register-budget-min"
+            name="budget_min"
+            class="form-input"
+            required
+            placeholder="250000"
+            min="0"
+            step="5000"
+          />
+        </div>
+  
+        <div class="form-group">
+          <label for="register-budget-max" class="form-label">
+            Maximum Budget <span class="required">*</span>
+          </label>
+          <input
+            type="number"
+            id="register-budget-max"
+            name="budget_max"
+            class="form-input"
+            required
+            placeholder="350000"
+            min="0"
+            step="5000"
+          />
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="register-bedrooms" class="form-label">
+            Minimum Bedrooms <span class="required">*</span>
+          </label>
+          <select id="register-bedrooms" name="bedrooms_min" class="form-input" required>
+            <option value="">Select</option>
+            <option value="1">1+ Bedroom</option>
+            <option value="2">2+ Bedrooms</option>
+            <option value="3">3+ Bedrooms</option>
+            <option value="4">4+ Bedrooms</option>
+            <option value="5">5+ Bedrooms</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="register-property-types" class="form-label">
+            Property Type(s) <span class="required">*</span>
+          </label>
+          <select id="register-property-types" name="property_types" class="form-input" multiple required>
+            <option value="detached">Detached</option>
+            <option value="semi-detached">Semi-Detached</option>
+            <option value="terraced">Terraced</option>
+            <option value="flat">Flat</option>
+            <option value="bungalow">Bungalow</option>
+            <option value="cottage">Cottage</option>
+          </select>
+          <small class="form-hint">Hold Ctrl/Cmd to select multiple</small>
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="register-areas" class="form-label">
+          Preferred Areas / Postcodes <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="register-areas"
+          name="preferred_areas"
+          class="form-input"
+          required
+          placeholder="e.g. SW1, Chelsea, Kensington"
+        />
+        <small class="form-hint">Separate multiple areas with commas</small>
+      </div>
+  
+      <div class="form-group">
+        <label for="register-position" class="form-label">
+          Your Position <span class="required">*</span>
+        </label>
+        <select id="register-position" name="buying_position" class="form-input" required>
+          <option value="">Select your position</option>
+          <option value="first_time_buyer">First Time Buyer</option>
+          <option value="chain_free">Chain Free</option>
+          <option value="in_chain">In a Chain</option>
+          <option value="investor">Investor / Buy-to-Let</option>
+          <option value="cash_buyer">Cash Buyer</option>
+          <option value="current_tenant">Current Tenant</option>
+          <option value="relocating">Relocating</option>
+        </select>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="register-name" class="form-label">
+            Full Name <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="register-name"
+            name="name"
+            class="form-input"
+            required
+            placeholder="John Smith"
+          />
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="register-email" class="form-label">
+            Email Address <span class="required">*</span>
+          </label>
+          <input
+            type="email"
+            id="register-email"
+            name="email"
+            class="form-input"
+            required
+            placeholder="john.smith@example.com"
+          />
+        </div>
+  
+        <div class="form-group">
+          <label for="register-phone" class="form-label">
+            Phone Number <span class="required">*</span>
+          </label>
+          <input
+            type="tel"
+            id="register-phone"
+            name="phone"
+            class="form-input"
+            required
+            placeholder="07700 900000"
+          />
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label class="form-checkbox">
+          <input type="checkbox" name="marketing_opt_in" value="true" checked />
+          <span>Send me property alerts when new properties match my criteria</span>
+        </label>
+      </div>
+  
+      <div class="form-group">
+        <label class="form-checkbox">
+          <input type="checkbox" name="gdpr_consent" required />
+          <span>
+            I agree to the <a href="/privacy-policy" target="_blank">Privacy Policy</a> 
+            and consent to my data being processed for this registration <span class="required">*</span>
+          </span>
+        </label>
+      </div>
+  
+      <div id="register-error" class="form-error" style="display: none;"></div>
+      <div id="register-success" class="form-success" style="display: none;">
+        Registration successful! We'll keep you updated with properties matching your criteria.
+      </div>
+  
+      <button type="submit" class="form-submit" id="register-submit">
+        Register Now
+      </button>
+    </form>
+  </div>
+  
+  <style>
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  
+    .enquiry-form {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+  
+    .form-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+      color: #1a1a1a;
+    }
+  
+    .form-description {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin: 0 0 1.5rem 0;
+    }
+  
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+  
+    @media (min-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  
+    .form-group {
+      margin-bottom: 1rem;
+    }
+  
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+  
+    .required {
+      color: #dc2626;
+    }
+  
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+    }
+  
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #d1d5db;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+    }
+  
+    .radio-option:has(input:checked) {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+  
+    .radio-option input[type="radio"] {
+      margin: 0;
+    }
+  
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      transition: border-color 0.2s;
+    }
+  
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+  
+    .form-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+  
+    .form-checkbox {
+      display: flex;
+      align-items: start;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+  
+    .form-checkbox input[type="checkbox"] {
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+    }
+  
+    .form-checkbox a {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+  
+    .form-error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+  
+    .form-success {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+  
+    .form-submit {
+      width: 100%;
+      background: #2563eb;
+      color: #ffffff;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+  
+    .form-submit:hover {
+      background: #1d4ed8;
+    }
+  
+    .form-submit:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+  </style>
+  
+  <script>
+    const form = document.getElementById('register-form') as HTMLFormElement;
+    const submitBtn = document.getElementById('register-submit') as HTMLButtonElement;
+    const errorDiv = document.getElementById('register-error') as HTMLDivElement;
+    const successDiv = document.getElementById('register-success') as HTMLDivElement;
+  
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+  
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+  
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Registering...';
+  
+      try {
+        const sessionData = localStorage.getItem('stratos_session');
+        const sessionId = sessionData ? JSON.parse(sessionData).sessionId : null;
+  
+        const formData = new FormData(form);
+        const data: any = {
+          enquiry_type: 'register',
+          session_id: sessionId,
+        };
+  
+        formData.forEach((value, key) => {
+          if (key === 'marketing_opt_in' || key === 'gdpr_consent') {
+            data[key] = value === 'true';
+          } else if (key === 'budget_min' || key === 'budget_max' || key === 'bedrooms_min') {
+            data[key] = parseInt(value as string);
+          } else if (key === 'property_types') {
+            if (!data[key]) data[key] = [];
+            data[key].push(value);
+          } else if (key === 'preferred_areas') {
+            data[key] = (value as string).split(',').map(s => s.trim());
+          } else {
+            data[key] = value;
+          }
+        });
+  
+        const apiKey = import.meta.env.PUBLIC_STRATOS_API_KEY;
+        const apiEndpoint = import.meta.env.PUBLIC_STRATOS_API_ENDPOINT;
+  
+        const response = await fetch(`${apiEndpoint}/enquiry`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey,
+          },
+          body: JSON.stringify(data),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to submit registration');
+        }
+  
+        successDiv.style.display = 'block';
+        form.reset();
+        successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  
+      } catch (error) {
+        console.error('Form submission error:', error);
+        errorDiv.textContent = 'There was an error submitting your registration. Please try again or contact us directly.';
+        errorDiv.style.display = 'block';
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Register Now';
+      }
+    });
+  </script>

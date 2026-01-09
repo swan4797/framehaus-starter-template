@@ -1,0 +1,179 @@
+---
+interface Props {
+  name: string
+  initialValue?: string
+  placeholder?: string
+}
+
+const { name, initialValue = '', placeholder = 'Location' } = Astro.props
+---
+
+<div class="relative location-autocomplete-wrapper">
+  <div class="relative">
+    <input
+      type="text"
+      name={name}
+      id="location-input"
+      placeholder={placeholder}
+      value={initialValue}
+      autocomplete="off"
+      class="w-full px-4 py-3 pl-11 border-2 border-gray-200 rounded-lg focus:border-[#064728] focus:ring-4 focus:ring-[#064728]/10 outline-none transition-all"
+    />
+    <svg 
+      class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"
+      fill="none" 
+      stroke="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  </div>
+
+  <!-- Autocomplete dropdown -->
+  <div 
+    id="location-dropdown"
+    class="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 hidden"
+  >
+    <ul id="location-suggestions" class="max-h-64 overflow-y-auto"></ul>
+  </div>
+
+  <!-- Loading indicator -->
+  <div id="location-loading" class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+    <svg class="animate-spin h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  </div>
+</div>
+
+<script>
+  const API_ENDPOINT = import.meta.env.PUBLIC_STRATOS_API_ENDPOINT
+  const API_KEY = import.meta.env.PUBLIC_STRATOS_API_KEY
+  const AGENCY_ID = import.meta.env.PUBLIC_AGENCY_ID
+
+  const input = document.getElementById('location-input') as HTMLInputElement
+  const dropdown = document.getElementById('location-dropdown')
+  const suggestions = document.getElementById('location-suggestions')
+  const loading = document.getElementById('location-loading')
+
+  let debounceTimer: number
+  let currentQuery = ''
+
+  input?.addEventListener('input', async (e) => {
+    const query = (e.target as HTMLInputElement).value.trim()
+    
+    if (query.length < 2) {
+      hideDropdown()
+      return
+    }
+
+    currentQuery = query
+
+    // Debounce API calls
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(async () => {
+      await fetchSuggestions(query)
+    }, 300)
+  })
+
+  async function fetchSuggestions(query: string) {
+    if (!suggestions) return
+
+    loading?.classList.remove('hidden')
+
+    try {
+      const response = await fetch(`${API_ENDPOINT}/autocomplete-locations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          query,
+          agency_id: AGENCY_ID,
+          limit: 10
+        })
+      })
+
+      const data = await response.json()
+
+      if (query === currentQuery) {
+        displaySuggestions(data.suggestions || [])
+      }
+    } catch (error) {
+      console.error('Autocomplete error:', error)
+    } finally {
+      loading?.classList.add('hidden')
+    }
+  }
+
+  function displaySuggestions(items: any[]) {
+    if (!suggestions || !dropdown) return
+
+    if (items.length === 0) {
+      hideDropdown()
+      return
+    }
+
+    suggestions.innerHTML = items.map(item => `
+      <li>
+        <button
+          type="button"
+          class="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between group"
+          data-value="${item.value}"
+          data-type="${item.type}"
+        >
+          <div class="flex items-center gap-3">
+            ${getLocationIcon(item.type)}
+            <div>
+              <div class="font-medium text-gray-900 group-hover:text-[#064728]">
+                ${item.value}
+              </div>
+              <div class="text-sm text-gray-500">
+                ${item.count} ${item.count === 1 ? 'property' : 'properties'}
+              </div>
+            </div>
+          </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-[#064728]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </li>
+    `).join('')
+
+    // Add click handlers
+    suggestions.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.getAttribute('data-value')
+        if (input && value) {
+          input.value = value
+          hideDropdown()
+        }
+      })
+    })
+
+    dropdown.classList.remove('hidden')
+  }
+
+  function getLocationIcon(type: string): string {
+    const icons = {
+      city: '<svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>',
+      county: '<svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>',
+      postcode: '<svg class="h-5 w-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>'
+    }
+    return icons[type] || icons.city
+  }
+
+  function hideDropdown() {
+    dropdown?.classList.add('hidden')
+  }
+
+  // Close on click outside
+  document.addEventListener('click', (e) => {
+    const wrapper = document.querySelector('.location-autocomplete-wrapper')
+    if (wrapper && !wrapper.contains(e.target as Node)) {
+      hideDropdown()
+    }
+  })
+</script>

@@ -1,0 +1,124 @@
+---
+interface Props {
+  property: any
+}
+
+const { property } = Astro.props
+---
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+  <h3 class="text-xl font-bold text-gray-900 mb-4">Location</h3>
+
+  <div class="space-y-6">
+    <!-- Address -->
+    <div>
+      <p class="text-gray-700 leading-relaxed">
+        {property.display_address}<br />
+        {property.city}, {property.county}<br />
+        {property.postcode}
+      </p>
+    </div>
+
+    <!-- Map -->
+    {property.latitude && property.longitude && (
+      <div class="relative h-96 bg-gray-200 rounded-lg overflow-hidden">
+        <div id="property-map" class="w-full h-full"></div>
+        
+        <!-- Map placeholder -->
+        <div id="map-placeholder" class="absolute inset-0 flex items-center justify-center">
+          <div class="text-center">
+            <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            <p class="text-gray-600">Loading map...</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- Transport & Amenities -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[#064728]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Local Amenities
+        </h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li>• Schools and nurseries nearby</li>
+          <li>• Shops and supermarkets</li>
+          <li>• Parks and recreation</li>
+          <li>• Restaurants and cafes</li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[#064728]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          Transport Links
+        </h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li>• Local bus routes</li>
+          <li>• Train station access</li>
+          <li>• Major road connections</li>
+          <li>• Airport proximity</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Directions Link -->
+    {property.latitude && property.longitude && (
+      <div class="pt-4 border-t border-gray-200">
+       <a 
+          href={`https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-[#064728] font-medium hover:text-[#0a5c35] transition-colors"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+          </svg>
+          Get directions
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+    )}
+  </div>
+</div>
+
+<script define:vars={{ latitude: property.latitude, longitude: property.longitude }}>
+  // Initialize map (using Leaflet as example)
+  // In production, you'd load this from CDN or install as package
+  
+  if (latitude && longitude) {
+    // Example using native fetch to load a static map image
+    const mapEl = document.getElementById('property-map')
+    const placeholder = document.getElementById('map-placeholder')
+    
+    // Using OpenStreetMap static image (free, no API key needed)
+    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`
+    
+    if (mapEl) {
+      const iframe = document.createElement('iframe')
+      iframe.width = '100%'
+      iframe.height = '100%'
+      iframe.frameBorder = '0'
+      iframe.src = mapUrl
+      iframe.style.border = '0'
+      
+      iframe.onload = () => {
+        placeholder?.classList.add('hidden')
+      }
+      
+      mapEl.appendChild(iframe)
+    }
+  }
+</script>
+
+<!-- Leaflet CSS (if using Leaflet) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />

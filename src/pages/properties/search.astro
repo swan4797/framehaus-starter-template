@@ -1,0 +1,51 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import SearchForm from '../../components/search/SearchForm.astro'
+import SearchResults from '../../components/search/SearchResults.astro'
+
+// Get search params from URL
+const searchParams = Astro.url.searchParams
+
+const title = 'Property Search | Estate Agents'
+const description = 'Search properties for sale and to rent. Find your perfect home with our advanced property search.'
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-gray-50">
+    <!-- Page Header -->
+    <div class="bg-white border-b border-gray-200">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          Property Search
+        </h1>
+        <p class="text-gray-600">
+          Find your dream home from our collection of properties
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Search Filters Sidebar -->
+        <aside class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-8">
+            <SearchForm />
+          </div>
+        </aside>
+
+        <!-- Results -->
+        <main class="lg:col-span-3">
+          <SearchResults />
+        </main>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Track search page view
+  if (window.StratosTracker) {
+    window.StratosTracker.trackPageView('/properties/search', 'Property Search')
+  }
+</script>

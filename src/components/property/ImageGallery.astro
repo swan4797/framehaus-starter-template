@@ -1,0 +1,255 @@
+---
+interface Props {
+  images: any[]
+  videos?: any[]
+  virtualTours?: any[]
+  address: string
+}
+
+const { images, videos = [], virtualTours = [], address } = Astro.props
+const totalMedia = images.length + videos.length + virtualTours.length
+---
+
+<div class="image-gallery">
+  <!-- Main Display -->
+  <div class="relative bg-black rounded-t-lg overflow-hidden aspect-[16/9]">
+    <img
+      id="gallery-main-image"
+      src={images[0]?.file_url}
+      alt={address}
+      class="w-full h-full object-contain"
+    />
+
+    <!-- Navigation Arrows -->
+    {images.length > 1 && (
+      <>
+        <button
+          type="button"
+          id="gallery-prev"
+          class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+          aria-label="Previous image"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          id="gallery-next"
+          class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+          aria-label="Next image"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </>
+    )}
+
+    <!-- Image Counter -->
+    <div class="absolute bottom-4 right-4 px-4 py-2 bg-black/70 text-white rounded-lg font-medium">
+      <span id="gallery-counter">1</span> / {totalMedia}
+    </div>
+
+    <!-- Fullscreen Button -->
+    <button
+      type="button"
+      id="gallery-fullscreen"
+      class="absolute top-4 right-4 w-10 h-10 bg-black/70 hover:bg-black/90 text-white rounded-lg flex items-center justify-center transition-all"
+      aria-label="View fullscreen"
+    >
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Thumbnail Strip -->
+  <div class="bg-white rounded-b-lg border-t border-gray-200 p-4">
+    <div class="flex gap-2 overflow-x-auto" id="gallery-thumbnails">
+      {images.map((image, index) => (
+        <button
+          type="button"
+          class="gallery-thumb flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all hover:border-[#064728]"
+          class:list={[index === 0 ? 'border-[#064728]' : 'border-gray-200']}
+          data-index={index}
+          data-type="image"
+        >
+          <img
+            src={image.thumbnail_url || image.file_url}
+            alt={`${address} - Image ${index + 1}`}
+            class="w-full h-full object-cover"
+          />
+        </button>
+      ))}
+
+      {videos.map((video, index) => (
+        <button
+          type="button"
+          class="gallery-thumb flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200 transition-all hover:border-[#064728] relative"
+          data-index={images.length + index}
+          data-type="video"
+          data-url={video.file_url}
+        >
+          <div class="w-full h-full bg-gray-900 flex items-center justify-center">
+            <svg class="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </button>
+      ))}
+
+      {virtualTours.map((tour, index) => (
+        <button
+          type="button"
+          class="gallery-thumb flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200 transition-all hover:border-[#064728] relative"
+          data-index={images.length + videos.length + index}
+          data-type="virtual_tour"
+          data-url={tour.file_url}
+        >
+          <div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+            <span class="text-white text-xs font-bold">360°</span>
+          </div>
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen Modal -->
+<div id="gallery-modal" class="fixed inset-0 bg-black z-50 hidden">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <img
+      id="modal-image"
+      src=""
+      alt=""
+      class="max-w-full max-h-full object-contain"
+    />
+
+    <button
+      type="button"
+      id="modal-close"
+      class="absolute top-4 right-4 w-12 h-12 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all"
+    >
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      id="modal-prev"
+      class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all"
+    >
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      id="modal-next"
+      class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-all"
+    >
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/70 text-white rounded-lg">
+      <span id="modal-counter">1</span> / {totalMedia}
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ images, videos, virtualTours }}>
+  let currentIndex = 0
+  const allMedia = [...images, ...videos, ...virtualTours]
+
+  const mainImage = document.getElementById('gallery-main-image')
+  const counter = document.getElementById('gallery-counter')
+  const thumbnails = document.querySelectorAll('.gallery-thumb')
+  
+  const modal = document.getElementById('gallery-modal')
+  const modalImage = document.getElementById('modal-image')
+  const modalCounter = document.getElementById('modal-counter')
+
+  function updateGallery(index) {
+    currentIndex = index
+    const media = allMedia[index]
+
+    if (media.media_type === 'image' || !media.media_type) {
+      mainImage.src = media.file_url
+      mainImage.style.display = 'block'
+    }
+
+    counter.textContent = index + 1
+    
+    // Update thumbnail borders
+    thumbnails.forEach((thumb, i) => {
+      if (i === index) {
+        thumb.classList.remove('border-gray-200')
+        thumb.classList.add('border-[#064728]')
+      } else {
+        thumb.classList.add('border-gray-200')
+        thumb.classList.remove('border-[#064728]')
+      }
+    })
+  }
+
+  // Thumbnail clicks
+  thumbnails.forEach((thumb, index) => {
+    thumb.addEventListener('click', () => {
+      updateGallery(index)
+    })
+  })
+
+  // Navigation buttons
+  document.getElementById('gallery-prev')?.addEventListener('click', () => {
+    const newIndex = currentIndex === 0 ? allMedia.length - 1 : currentIndex - 1
+    updateGallery(newIndex)
+  })
+
+  document.getElementById('gallery-next')?.addEventListener('click', () => {
+    const newIndex = currentIndex === allMedia.length - 1 ? 0 : currentIndex + 1
+    updateGallery(newIndex)
+  })
+
+  // Fullscreen
+  document.getElementById('gallery-fullscreen')?.addEventListener('click', () => {
+    modal.classList.remove('hidden')
+    modalImage.src = allMedia[currentIndex].file_url
+    modalCounter.textContent = currentIndex + 1
+  })
+
+  document.getElementById('modal-close')?.addEventListener('click', () => {
+    modal.classList.add('hidden')
+  })
+
+  document.getElementById('modal-prev')?.addEventListener('click', () => {
+    const newIndex = currentIndex === 0 ? allMedia.length - 1 : currentIndex - 1
+    updateGallery(newIndex)
+    modalImage.src = allMedia[newIndex].file_url
+    modalCounter.textContent = newIndex + 1
+  })
+
+  document.getElementById('modal-next')?.addEventListener('click', () => {
+    const newIndex = currentIndex === allMedia.length - 1 ? 0 : currentIndex + 1
+    updateGallery(newIndex)
+    modalImage.src = allMedia[newIndex].file_url
+    modalCounter.textContent = newIndex + 1
+  })
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('hidden')) return
+    
+    if (e.key === 'Escape') {
+      modal.classList.add('hidden')
+    } else if (e.key === 'ArrowLeft') {
+      document.getElementById('modal-prev')?.click()
+    } else if (e.key === 'ArrowRight') {
+      document.getElementById('modal-next')?.click()
+    }
+  })
+</script>

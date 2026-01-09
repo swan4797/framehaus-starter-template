@@ -1,0 +1,375 @@
+---
+// Valuation Request Form Component
+---
+
+<div class="form-container">
+    <form id="valuation-form" class="enquiry-form">
+      <h2 class="form-title">Request a Property Valuation</h2>
+      <p class="form-description">
+        Get a free, no-obligation valuation of your property from our expert team.
+      </p>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="valuation-address" class="form-label">
+            Property Address <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="valuation-address"
+            name="address"
+            class="form-input"
+            required
+            placeholder="123 High Street"
+          />
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="valuation-postcode" class="form-label">
+            Postcode <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="valuation-postcode"
+            name="postcode"
+            class="form-input"
+            required
+            placeholder="SW1A 1AA"
+            pattern="^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$"
+          />
+        </div>
+  
+        <div class="form-group">
+          <label for="valuation-property-type" class="form-label">
+            Property Type <span class="required">*</span>
+          </label>
+          <select id="valuation-property-type" name="property_type" class="form-input" required>
+            <option value="">Select property type</option>
+            <option value="detached">Detached House</option>
+            <option value="semi-detached">Semi-Detached House</option>
+            <option value="terraced">Terraced House</option>
+            <option value="flat">Flat / Apartment</option>
+            <option value="bungalow">Bungalow</option>
+            <option value="cottage">Cottage</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="valuation-bedrooms" class="form-label">
+            Number of Bedrooms <span class="required">*</span>
+          </label>
+          <select id="valuation-bedrooms" name="bedrooms" class="form-input" required>
+            <option value="">Select</option>
+            <option value="1">1 Bedroom</option>
+            <option value="2">2 Bedrooms</option>
+            <option value="3">3 Bedrooms</option>
+            <option value="4">4 Bedrooms</option>
+            <option value="5">5+ Bedrooms</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="valuation-ownership" class="form-label">
+            Ownership Status <span class="required">*</span>
+          </label>
+          <select id="valuation-ownership" name="ownership_status" class="form-input" required>
+            <option value="">Select</option>
+            <option value="owner">Owner (Looking to Sell)</option>
+            <option value="landlord">Landlord (Looking to Let)</option>
+          </select>
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="valuation-name" class="form-label">
+            Full Name <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="valuation-name"
+            name="name"
+            class="form-input"
+            required
+            placeholder="John Smith"
+          />
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label for="valuation-email" class="form-label">
+            Email Address <span class="required">*</span>
+          </label>
+          <input
+            type="email"
+            id="valuation-email"
+            name="email"
+            class="form-input"
+            required
+            placeholder="john.smith@example.com"
+          />
+        </div>
+  
+        <div class="form-group">
+          <label for="valuation-phone" class="form-label">
+            Phone Number <span class="required">*</span>
+          </label>
+          <input
+            type="tel"
+            id="valuation-phone"
+            name="phone"
+            class="form-input"
+            required
+            placeholder="07700 900000"
+          />
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="valuation-message" class="form-label">
+          Additional Information
+        </label>
+        <textarea
+          id="valuation-message"
+          name="message"
+          class="form-textarea"
+          rows="4"
+          placeholder="Tell us more about your property or any specific questions..."
+        ></textarea>
+      </div>
+  
+      <div class="form-group">
+        <label class="form-checkbox">
+          <input type="checkbox" name="marketing_opt_in" value="true" />
+          <span>I would like to receive property updates and marketing communications</span>
+        </label>
+      </div>
+  
+      <div class="form-group">
+        <label class="form-checkbox">
+          <input type="checkbox" name="gdpr_consent" required />
+          <span>
+            I agree to the <a href="/privacy-policy" target="_blank">Privacy Policy</a> 
+            and consent to my data being processed for this enquiry <span class="required">*</span>
+          </span>
+        </label>
+      </div>
+  
+      <div id="valuation-error" class="form-error" style="display: none;"></div>
+      <div id="valuation-success" class="form-success" style="display: none;">
+        Thank you! Your valuation request has been submitted. We'll contact you shortly to arrange a visit.
+      </div>
+  
+      <button type="submit" class="form-submit" id="valuation-submit">
+        Request Free Valuation
+      </button>
+    </form>
+  </div>
+  
+  <style>
+    /* Reuse styles from ViewingRequestForm */
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  
+    .enquiry-form {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+  
+    .form-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+      color: #1a1a1a;
+    }
+  
+    .form-description {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin: 0 0 1.5rem 0;
+    }
+  
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+  
+    @media (min-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  
+    .form-group {
+      margin-bottom: 1rem;
+    }
+  
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+  
+    .required {
+      color: #dc2626;
+    }
+  
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      transition: border-color 0.2s;
+    }
+  
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+  
+    .form-textarea {
+      resize: vertical;
+    }
+  
+    .form-checkbox {
+      display: flex;
+      align-items: start;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+  
+    .form-checkbox input[type="checkbox"] {
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+    }
+  
+    .form-checkbox a {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+  
+    .form-error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+  
+    .form-success {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+  
+    .form-submit {
+      width: 100%;
+      background: #2563eb;
+      color: #ffffff;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+  
+    .form-submit:hover {
+      background: #1d4ed8;
+    }
+  
+    .form-submit:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+  </style>
+  
+  <script>
+    const form = document.getElementById('valuation-form') as HTMLFormElement;
+    const submitBtn = document.getElementById('valuation-submit') as HTMLButtonElement;
+    const errorDiv = document.getElementById('valuation-error') as HTMLDivElement;
+    const successDiv = document.getElementById('valuation-success') as HTMLDivElement;
+  
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+  
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+  
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+  
+      try {
+        const sessionData = localStorage.getItem('stratos_session');
+        const sessionId = sessionData ? JSON.parse(sessionData).sessionId : null;
+  
+        const formData = new FormData(form);
+        const data: any = {
+          enquiry_type: 'valuation',
+          session_id: sessionId,
+        };
+  
+        formData.forEach((value, key) => {
+          if (key === 'marketing_opt_in' || key === 'gdpr_consent') {
+            data[key] = value === 'true';
+          } else if (key === 'bedrooms') {
+            data[key] = parseInt(value as string);
+          } else {
+            data[key] = value;
+          }
+        });
+  
+        const apiKey = import.meta.env.PUBLIC_STRATOS_API_KEY;
+        const apiEndpoint = import.meta.env.PUBLIC_STRATOS_API_ENDPOINT;
+  
+        const response = await fetch(`${apiEndpoint}/enquiry`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey,
+          },
+          body: JSON.stringify(data),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to submit enquiry');
+        }
+  
+        successDiv.style.display = 'block';
+        form.reset();
+        successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  
+      } catch (error) {
+        console.error('Form submission error:', error);
+        errorDiv.textContent = 'There was an error submitting your request. Please try again or contact us directly.';
+        errorDiv.style.display = 'block';
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request Free Valuation';
+      }
+    });
+  </script>

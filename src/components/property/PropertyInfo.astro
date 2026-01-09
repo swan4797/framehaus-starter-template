@@ -1,0 +1,137 @@
+---
+interface Props {
+  property: any
+}
+
+const { property } = Astro.props
+
+const price = property.listing_type === 'sale' 
+  ? `£${property.asking_price?.toLocaleString()}`
+  : `£${property.rent_amount?.toLocaleString()}/${property.rent_frequency === 'weekly' ? 'pw' : 'pcm'}`
+
+const priceReduced = property.previous_price && property.previous_price > (property.asking_price || property.rent_amount)
+---
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+  <!-- Price & Address -->
+  <div class="mb-6">
+    <div class="flex items-start justify-between mb-2">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-1">{price}</h1>
+        {priceReduced && (
+          <p class="text-lg text-gray-500 line-through">
+            £{property.previous_price?.toLocaleString()}
+          </p>
+        )}
+      </div>
+
+      {property.listing_status && (
+        <span class={`px-4 py-2 rounded-full text-sm font-bold ${
+          property.listing_status === 'available' ? 'bg-green-100 text-green-700' :
+          property.listing_status === 'under_offer' ? 'bg-orange-100 text-orange-700' :
+          'bg-purple-100 text-purple-700'
+        }`}>
+          {property.listing_status.replace('_', ' ').toUpperCase()}
+        </span>
+      )}
+    </div>
+
+    <h2 class="text-2xl font-semibold text-gray-900 mb-2">{property.display_address}</h2>
+    <p class="text-gray-600">{property.city}, {property.county} {property.postcode}</p>
+  </div>
+
+  <!-- Key Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-6 border-b border-gray-200">
+    {property.bedrooms && (
+      <div class="text-center">
+        <svg class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        <p class="text-2xl font-bold text-gray-900">{property.bedrooms}</p>
+        <p class="text-sm text-gray-600">Bedroom{property.bedrooms !== 1 ? 's' : ''}</p>
+      </div>
+    )}
+
+    {property.bathrooms && (
+      <div class="text-center">
+        <svg class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <p class="text-2xl font-bold text-gray-900">{property.bathrooms}</p>
+        <p class="text-sm text-gray-600">Bathroom{property.bathrooms !== 1 ? 's' : ''}</p>
+      </div>
+    )}
+
+    {property.receptions && (
+      <div class="text-center">
+        <svg class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <p class="text-2xl font-bold text-gray-900">{property.receptions}</p>
+        <p class="text-sm text-gray-600">Reception{property.receptions !== 1 ? 's' : ''}</p>
+      </div>
+    )}
+
+    {property.internal_area && (
+      <div class="text-center">
+        <svg class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+        <p class="text-2xl font-bold text-gray-900">{property.internal_area?.toLocaleString()}</p>
+        <p class="text-sm text-gray-600">{property.area_unit || 'sqft'}</p>
+      </div>
+    )}
+  </div>
+
+  <!-- Property Details -->
+  <div class="mt-6 space-y-4">
+    <h3 class="font-bold text-gray-900 text-lg">Property Details</h3>
+    
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <p class="text-gray-600 mb-1">Property Type</p>
+        <p class="font-medium text-gray-900 capitalize">
+          {property.property_type?.replace('_', ' ')}
+          {property.property_style ? ` - ${property.property_style.replace('_', ' ')}` : ''}
+        </p>
+      </div>
+
+      {property.tenure && (
+        <div>
+          <p class="text-gray-600 mb-1">Tenure</p>
+          <p class="font-medium text-gray-900 capitalize">{property.tenure.replace('_', ' ')}</p>
+        </div>
+      )}
+
+      {property.parking && (
+        <div>
+          <p class="text-gray-600 mb-1">Parking</p>
+          <p class="font-medium text-gray-900 capitalize">{property.parking.replace('_', ' ')}</p>
+        </div>
+      )}
+
+      {property.furnishing && (
+        <div>
+          <p class="text-gray-600 mb-1">Furnishing</p>
+          <p class="font-medium text-gray-900 capitalize">{property.furnishing.replace('_', ' ')}</p>
+        </div>
+      )}
+
+      {property.council_tax_band && (
+        <div>
+          <p class="text-gray-600 mb-1">Council Tax Band</p>
+          <p class="font-medium text-gray-900">Band {property.council_tax_band}</p>
+        </div>
+      )}
+
+      {property.available_date && (
+        <div>
+          <p class="text-gray-600 mb-1">Available From</p>
+          <p class="font-medium text-gray-900">
+            {new Date(property.available_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</div>

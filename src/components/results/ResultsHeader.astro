@@ -1,0 +1,104 @@
+---
+interface Props {
+  total: number
+  page: number
+  limit: number
+  filters: any
+}
+
+const { total, page, limit, filters } = Astro.props
+
+const start = ((page - 1) * limit) + 1
+const end = Math.min(page * limit, total)
+
+// Build filter summary
+const filterParts = []
+if (filters.listing_type) {
+  filterParts.push(filters.listing_type === 'sale' ? 'for sale' : 'to rent')
+}
+if (filters.location) {
+  filterParts.push(`in ${filters.location}`)
+}
+if (filters.bedrooms?.min) {
+  filterParts.push(`${filters.bedrooms.min}+ beds`)
+}
+if (filters.price?.min || filters.price?.max) {
+  const priceRange = []
+  if (filters.price.min) priceRange.push(`£${(filters.price.min / 1000).toFixed(0)}k`)
+  if (filters.price.max) priceRange.push(`£${(filters.price.max / 1000).toFixed(0)}k`)
+  filterParts.push(priceRange.join(' - '))
+}
+---
+
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+  <div class="flex items-start justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">
+        {total > 0 ? (
+          <>
+            {total.toLocaleString()} propert{total === 1 ? 'y' : 'ies'} found
+          </>
+        ) : (
+          'No properties found'
+        )}
+      </h1>
+      
+      {filterParts.length > 0 && (
+        <p class="text-gray-600">
+          {filterParts.join(' • ')}
+        </p>
+      )}
+
+      {total > 0 && (
+        <p class="text-sm text-gray-500 mt-2">
+          Showing {start.toLocaleString()} - {end.toLocaleString()} of {total.toLocaleString()}
+        </p>
+      )}
+    </div>
+
+    <!-- Filter badges (removable) -->
+    {(filters.property_type?.length > 0 || filters.bedrooms?.min) && (
+      <div class="flex flex-wrap gap-2">
+        {filters.property_type?.map((type: string) => (
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors remove-filter"
+            data-filter-type="property_type"
+            data-filter-value={type}
+          >
+            <span class="capitalize">{type}</span>
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+
+<script>
+  // Remove filter functionality
+  document.querySelectorAll('.remove-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filterType = btn.getAttribute('data-filter-type')
+      const filterValue = btn.getAttribute('data-filter-value')
+      
+      // Build new URL without this filter
+      const url = new URL(window.location.href)
+      
+      if (filterType === 'property_type') {
+        const currentTypes = url.searchParams.getAll('property_type')
+        url.searchParams.delete('property_type')
+        currentTypes.forEach(type => {
+          if (type !== filterValue) {
+            url.searchParams.append('property_type', type)
+          }
+        })
+      }
+      
+      // Reload with new params
+      window.location.href = url.toString()
+    })
+  })
+</script>

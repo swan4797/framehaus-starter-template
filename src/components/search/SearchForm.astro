@@ -1,0 +1,424 @@
+---
+// Search form with filters
+const searchParams = Astro.url.searchParams
+---
+
+<div class="p-6">
+  <h2 class="text-lg font-bold text-gray-900 mb-6">Refine Search</h2>
+
+  <form id="search-form" class="space-y-6">
+    <!-- Listing Type -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        I want to...
+      </label>
+      <div class="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          data-listing-type="sale"
+          class="listing-type-btn px-4 py-3 rounded-lg font-semibold text-sm transition-all border-2"
+        >
+          Buy
+        </button>
+        <button
+          type="button"
+          data-listing-type="let"
+          class="listing-type-btn px-4 py-3 rounded-lg font-semibold text-sm transition-all border-2"
+        >
+          Rent
+        </button>
+      </div>
+      <input type="hidden" name="listing_type" id="listing_type" value={searchParams.get('listing_type') || 'sale'} />
+    </div>
+
+    <!-- Location -->
+    <div>
+      <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+        Location
+      </label>
+      <input
+        type="text"
+        name="location"
+        id="location"
+        placeholder="City, county or postcode"
+        value={searchParams.get('location') || ''}
+        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+      />
+    </div>
+
+    <!-- Property Type -->
+    <div>
+      <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">
+        Property Type
+      </label>
+      <select
+        name="property_type"
+        id="property_type"
+        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+      >
+        <option value="all">All types</option>
+        <option value="house">House</option>
+        <option value="flat">Flat</option>
+        <option value="bungalow">Bungalow</option>
+        <option value="maisonette">Maisonette</option>
+        <option value="cottage">Cottage</option>
+        <option value="studio">Studio</option>
+        <option value="apartment">Apartment</option>
+      </select>
+    </div>
+
+    <!-- Bedrooms -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Bedrooms
+      </label>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="min_bedrooms" class="block text-xs text-gray-600 mb-1">Min</label>
+          <select
+            name="min_bedrooms"
+            id="min_bedrooms"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728] text-sm"
+          >
+            <option value="">No min</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5+</option>
+          </select>
+        </div>
+        <div>
+          <label for="max_bedrooms" class="block text-xs text-gray-600 mb-1">Max</label>
+          <select
+            name="max_bedrooms"
+            id="max_bedrooms"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728] text-sm"
+          >
+            <option value="">No max</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5+</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bathrooms -->
+    <div>
+      <label for="min_bathrooms" class="block text-sm font-medium text-gray-700 mb-2">
+        Min Bathrooms
+      </label>
+      <select
+        name="min_bathrooms"
+        id="min_bathrooms"
+        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+      >
+        <option value="">Any</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+      </select>
+    </div>
+
+    <!-- Price Range -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Price Range
+      </label>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="min_price" class="block text-xs text-gray-600 mb-1">Min</label>
+          <select
+            name="min_price"
+            id="min_price"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728] text-sm"
+          >
+            <option value="">No min</option>
+          </select>
+        </div>
+        <div>
+          <label for="max_price" class="block text-xs text-gray-600 mb-1">Max</label>
+          <select
+            name="max_price"
+            id="max_price"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728] text-sm"
+          >
+            <option value="">No max</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Filters (Collapsible) -->
+    <div>
+      <button
+        type="button"
+        id="toggle-additional-filters"
+        class="w-full flex items-center justify-between text-sm font-medium text-gray-700 hover:text-gray-900"
+      >
+        <span>Additional Filters</span>
+        <svg class="h-5 w-5 transform transition-transform" id="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <div id="additional-filters" class="mt-4 space-y-4 hidden">
+        <!-- Furnishing -->
+        <div>
+          <label for="furnishing" class="block text-sm font-medium text-gray-700 mb-2">
+            Furnishing
+          </label>
+          <select
+            name="furnishing"
+            id="furnishing"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+          >
+            <option value="all">Any</option>
+            <option value="furnished">Furnished</option>
+            <option value="unfurnished">Unfurnished</option>
+            <option value="part_furnished">Part Furnished</option>
+          </select>
+        </div>
+
+        <!-- Parking -->
+        <div>
+          <label for="parking" class="block text-sm font-medium text-gray-700 mb-2">
+            Parking
+          </label>
+          <select
+            name="parking"
+            id="parking"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+          >
+            <option value="all">Any</option>
+            <option value="garage">Garage</option>
+            <option value="off_street">Off Street</option>
+            <option value="on_street">On Street</option>
+          </select>
+        </div>
+
+        <!-- EPC Rating -->
+        <div>
+          <label for="epc_rating" class="block text-sm font-medium text-gray-700 mb-2">
+            Min EPC Rating
+          </label>
+          <select
+            name="epc_rating"
+            id="epc_rating"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+          >
+            <option value="all">Any</option>
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+            <option value="d">D</option>
+            <option value="e">E</option>
+          </select>
+        </div>
+
+        <!-- Boolean Filters -->
+        <div class="space-y-2">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              name="has_parking"
+              class="h-4 w-4 text-[#064728] focus:ring-[#064728] border-gray-300 rounded"
+            />
+            <span class="ml-2 text-sm text-gray-700">Must have parking</span>
+          </label>
+
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              name="retirement_home"
+              class="h-4 w-4 text-[#064728] focus:ring-[#064728] border-gray-300 rounded"
+            />
+            <span class="ml-2 text-sm text-gray-700">Retirement homes</span>
+          </label>
+
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              name="shared_ownership"
+              class="h-4 w-4 text-[#064728] focus:ring-[#064728] border-gray-300 rounded"
+            />
+            <span class="ml-2 text-sm text-gray-700">Shared ownership</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Button -->
+    <button
+      type="submit"
+      class="w-full px-6 py-3 bg-[#064728] text-white font-semibold rounded-lg hover:bg-[#0a5c35] transition-colors flex items-center justify-center gap-2"
+    >
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <span>Search Properties</span>
+    </button>
+
+    <!-- Clear Filters -->
+    <button
+      type="button"
+      id="clear-filters"
+      class="w-full px-6 py-2 text-gray-600 font-medium hover:text-gray-900 transition-colors"
+    >
+      Clear all filters
+    </button>
+  </form>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════════
+  // SEARCH FORM LOGIC
+  // ═══════════════════════════════════════════════════════════
+
+  const form = document.getElementById('search-form') as HTMLFormElement
+  const listingTypeInput = document.getElementById('listing_type') as HTMLInputElement
+  const listingTypeBtns = document.querySelectorAll('.listing-type-btn')
+  const minPriceSelect = document.getElementById('min_price') as HTMLSelectElement
+  const maxPriceSelect = document.getElementById('max_price') as HTMLSelectElement
+  const toggleFiltersBtn = document.getElementById('toggle-additional-filters')
+  const additionalFilters = document.getElementById('additional-filters')
+  const chevron = document.getElementById('chevron')
+  const clearFiltersBtn = document.getElementById('clear-filters')
+
+  // Price options
+  const salePrices = [
+    { value: '50000', label: '£50k' },
+    { value: '100000', label: '£100k' },
+    { value: '150000', label: '£150k' },
+    { value: '200000', label: '£200k' },
+    { value: '250000', label: '£250k' },
+    { value: '300000', label: '£300k' },
+    { value: '350000', label: '£350k' },
+    { value: '400000', label: '£400k' },
+    { value: '450000', label: '£450k' },
+    { value: '500000', label: '£500k' },
+    { value: '600000', label: '£600k' },
+    { value: '750000', label: '£750k' },
+    { value: '1000000', label: '£1m' },
+    { value: '1500000', label: '£1.5m' },
+    { value: '2000000', label: '£2m' },
+  ]
+
+  const rentPrices = [
+    { value: '400', label: '£400 pcm' },
+    { value: '500', label: '£500 pcm' },
+    { value: '600', label: '£600 pcm' },
+    { value: '700', label: '£700 pcm' },
+    { value: '800', label: '£800 pcm' },
+    { value: '900', label: '£900 pcm' },
+    { value: '1000', label: '£1,000 pcm' },
+    { value: '1250', label: '£1,250 pcm' },
+    { value: '1500', label: '£1,500 pcm' },
+    { value: '2000', label: '£2,000 pcm' },
+    { value: '2500', label: '£2,500 pcm' },
+    { value: '3000', label: '£3,000 pcm' },
+    { value: '4000', label: '£4,000 pcm' },
+    { value: '5000', label: '£5,000 pcm' },
+  ]
+
+  // Update price options based on listing type
+  function updatePriceOptions(listingType: string) {
+    const prices = listingType === 'sale' ? salePrices : rentPrices
+    
+    // Clear existing options except first
+    minPriceSelect.innerHTML = '<option value="">No min</option>'
+    maxPriceSelect.innerHTML = '<option value="">No max</option>'
+    
+    // Add options
+    prices.forEach(price => {
+      const minOption = document.createElement('option')
+      minOption.value = price.value
+      minOption.textContent = price.label
+      minPriceSelect.appendChild(minOption)
+
+      const maxOption = document.createElement('option')
+      maxOption.value = price.value
+      maxOption.textContent = price.label
+      maxPriceSelect.appendChild(maxOption)
+    })
+  }
+
+  // Listing type toggle
+  listingTypeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const listingType = btn.getAttribute('data-listing-type')!
+      
+      // Update button styles
+      listingTypeBtns.forEach(b => {
+        b.classList.remove('bg-[#064728]', 'text-white', 'border-[#064728]')
+        b.classList.add('bg-white', 'text-gray-700', 'border-gray-300')
+      })
+      btn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300')
+      btn.classList.add('bg-[#064728]', 'text-white', 'border-[#064728]')
+      
+      // Update hidden input
+      listingTypeInput.value = listingType
+      
+      // Update price options
+      updatePriceOptions(listingType)
+    })
+  })
+
+  // Toggle additional filters
+  toggleFiltersBtn?.addEventListener('click', () => {
+    additionalFilters?.classList.toggle('hidden')
+    chevron?.classList.toggle('rotate-180')
+  })
+
+  // Clear filters
+  clearFiltersBtn?.addEventListener('click', () => {
+    form.reset()
+    window.location.href = '/properties/search'
+  })
+
+  // Form submission
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault()
+
+    const formData = new FormData(form)
+    const params = new URLSearchParams()
+
+    // Add all form values to URL params
+    formData.forEach((value, key) => {
+      if (value && value !== '' && value !== 'all') {
+        params.append(key, value.toString())
+      }
+    })
+
+    // Redirect to search page with params
+    window.location.href = `/properties/search?${params.toString()}`
+  })
+
+  // Initialize on page load
+  const currentListingType = listingTypeInput.value || 'sale'
+  updatePriceOptions(currentListingType)
+  
+  // Set active listing type button
+  listingTypeBtns.forEach(btn => {
+    if (btn.getAttribute('data-listing-type') === currentListingType) {
+      btn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300')
+      btn.classList.add('bg-[#064728]', 'text-white', 'border-[#064728]')
+    }
+  })
+
+  // Restore form values from URL
+  const urlParams = new URLSearchParams(window.location.search)
+  urlParams.forEach((value, key) => {
+    const input = form.querySelector(`[name="${key}"]`) as HTMLInputElement
+    if (input) {
+      if (input.type === 'checkbox') {
+        input.checked = value === 'true' || value === 'on'
+      } else {
+        input.value = value
+      }
+    }
+  })
+</script>

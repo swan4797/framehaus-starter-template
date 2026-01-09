@@ -1,0 +1,138 @@
+---
+interface Props {
+  property: any
+}
+
+const { property } = Astro.props
+
+const API_ENDPOINT = import.meta.env.PUBLIC_STRATOS_API_ENDPOINT
+const API_KEY = import.meta.env.PUBLIC_STRATOS_API_KEY
+const AGENCY_ID = import.meta.env.PUBLIC_AGENCY_ID
+
+// Fetch similar properties with agency rules
+let similarData = null
+
+try {
+  const response = await fetch(`${API_ENDPOINT}/get-similar-properties`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${API_KEY}`
+    },
+    body: JSON.stringify({
+      property_id: property.id,
+      agency_id: AGENCY_ID
+    })
+  })
+
+  if (response.ok) {
+    similarData = await response.json()
+  }
+} catch (e) {
+  console.error('Failed to fetch similar properties:', e)
+}
+
+const properties = similarData?.properties || []
+---
+
+{properties.length > 0 && (
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <h3 class="text-2xl font-bold text-gray-900 mb-2">Similar Properties</h3>
+    <p class="text-gray-600 mb-6">
+      Based on location, price, and features
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {properties.map((prop: any) => (
+        <a
+          href={`/properties/${prop.id}-${prop.display_address?.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+          class="block bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group"
+        >
+          {/* Image */}
+          <div class="relative aspect-[4/3] overflow-hidden">
+            {prop.media?.[0] ? (
+              <img
+                src={prop.media[0].thumbnail_url || prop.media[0].file_url}
+                alt={prop.display_address}
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            ) : (
+              <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+            )}
+
+            {/* Match Score */}
+            {prop.match_score && (
+              <div class="absolute top-3 right-3 px-2 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
+                {prop.match_score}% match
+              </div>
+            )}
+          </div>
+
+          {/* Content */}
+          <div class="p-4">
+            {/* Price */}
+            <p class="text-xl font-bold text-gray-900 mb-2">
+              {prop.listing_type === 'sale' 
+                ? `£${prop.asking_price?.toLocaleString()}`
+                : `£${prop.rent_amount?.toLocaleString()}/pcm`}
+            </p>
+
+            {/* Address */}
+            <h4 class="font-medium text-gray-900 mb-1 line-clamp-1">{prop.display_address}</h4>
+            <p class="text-sm text-gray-600 mb-3">{prop.city}</p>
+
+            {/* Details */}
+            <div class="flex items-center gap-3 text-sm text-gray-600 mb-3">
+              {prop.bedrooms && (
+                <span class="flex items-center gap-1">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  {prop.bedrooms}
+                </span>
+              )}
+              {prop.bathrooms && (
+                <span class="flex items-center gap-1">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {prop.bathrooms}
+                </span>
+              )}
+            </div>
+
+            {/* Match Reasons */}
+            {prop.match_reasons && prop.match_reasons.length > 0 && (
+              <div class="flex flex-wrap gap-1">
+                {prop.match_reasons.slice(0, 2).map((reason: string) => (
+                  <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                    {reason}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+
+    {/* View All Link */}
+    {similarData.total_matched > properties.length && (
+      <div class="mt-6 text-center">
+        <a
+          href={`/properties/search?type=${property.listing_type}&location=${property.city}`}
+          class="inline-flex items-center gap-2 text-[#064728] font-medium hover:text-[#0a5c35] transition-colors"
+        >
+          View all {similarData.total_matched} similar properties
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    )}
+  </div>
+)}
