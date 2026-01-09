@@ -6,7 +6,7 @@
 
 import { siteConfig, apiConfig } from '../lib/config'
 import CookieConsent from '../components/CookieConsent.astro'
-
+import "../styles/global.css";
 interface Props {
   title?: string
   description?: string
@@ -278,7 +278,7 @@ const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.n
 
     <!-- Stratos Tracker Script (TypeScript) -->
     <script>
-      import '../utils/stratos-tracker'
+      import '../lib/stratos-tracker'
     </script>
 
     <!-- Cookie Consent -->
