@@ -322,9 +322,21 @@ const structuredData = {
       </div>
     </div>
   </div>
+
+  <!-- Track property view -->
+  <!-- Track property view -->
+  <script define:vars={{ propertyId: property.id }}>
+    if (window.StratosTracker) {
+      // Track that property was viewed
+      window.StratosTracker.trackPropertyView(propertyId);
+      
+      // Set up automatic duration tracking
+      window.StratosTracker.setupPropertyDurationTracking(propertyId);
+    }
+  </script>
 </Layout>
 
-<script>
+<!-- <script>
   import { api } from '../../../lib/api'
   import { getSessionId } from '../../../lib/session'
 
@@ -346,4 +358,5 @@ const structuredData = {
       })
     }
   })
-</script>
+  
+</script> -->

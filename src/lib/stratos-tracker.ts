@@ -1,187 +1,63 @@
-// ========================================
-// STRATOS TRACKER (TypeScript)
-// Client-side tracking for property views and events
-// This script is loaded on every page
-// ========================================
+/**
+ * Stratos Reach AI - Client-Side Tracker
+ * 
+ * Tracks visitor behavior on estate agent websites and sends events
+ * to Stratos Edge Functions for analytics and lead scoring.
+ * 
+ * Features:
+ * - Page view tracking
+ * - Property view tracking with duration
+ * - Session management
+ * - Event tracking (clicks, searches, etc.)
+ * - Automatic session duration calculation
+ * 
+ * @module stratos-tracker
+ */
+
+import { getSessionId, getVisitorId } from './session'
 
 // ========================================
-// IMPORTS
-// ========================================
-import { getSessionId, extendSession } from './session'
-
-// ========================================
-// TYPES & INTERFACES
+// TYPES
 // ========================================
 
-interface TrackerConfig {
+export interface TrackerConfig {
   apiUrl: string
   apiKey: string
-  trackingEnabled: boolean
+  trackingEnabled?: boolean
+  debug?: boolean
 }
 
-interface UTMParams {
-  utm_source?: string
-  utm_medium?: string
-  utm_campaign?: string
-  utm_content?: string
-  utm_term?: string
-}
-
-interface TrackingEventPayload {
+export interface EventData {
   event_type: string
   session_id: string
-  timestamp: string
+  visitor_id: string
   page_url: string
-  page_path: string
   page_title?: string
   referrer?: string
   property_id?: string
-  search_params?: Record<string, any>
-  results_count?: number
-  [key: string]: any // Allow additional custom properties
-}
-
-interface StratosTrackerAPI {
-  trackEvent: (eventType: string, data?: Record<string, any>) => Promise<void>
-  getSessionId: () => string
-}
-
-// Extend Window interface to include our tracker
-declare global {
-  interface Window {
-    STRATOS_API_URL?: string
-    STRATOS_API_KEY?: string
-    StratosTracker?: StratosTrackerAPI
-  }
+  event_data?: Record<string, any>
 }
 
 // ========================================
-// MAIN TRACKER CLASS
+// STRATOS TRACKER CLASS
 // ========================================
 
-class StratosTracker {
-  private config: TrackerConfig
+export class StratosTracker {
+  private config: Required<TrackerConfig>
+  private pageLoadTime: number = 0
+  private propertyViewStartTime: number = 0
+  private sessionStartTime: number = 0
+  private isInitialized: boolean = false
 
-  constructor() {
-    // Initialize configuration
+  constructor(config: TrackerConfig) {
     this.config = {
-      apiUrl: window.STRATOS_API_URL || '',
-      apiKey: window.STRATOS_API_KEY || '',
       trackingEnabled: true,
+      debug: false,
+      ...config,
     }
 
-    // Check if tracking is enabled
-    if (!this.config.trackingEnabled || !this.config.apiUrl || !this.config.apiKey) {
-      console.warn('Stratos Tracker: Tracking disabled or not configured')
-      this.config.trackingEnabled = false
-    }
-  }
-
-  // ========================================
-  // TRACKING
-  // ========================================
-
-  private extractUTMParams(): UTMParams {
-    const params = new URLSearchParams(window.location.search)
-    return {
-      utm_source: params.get('utm_source') || undefined,
-      utm_medium: params.get('utm_medium') || undefined,
-      utm_campaign: params.get('utm_campaign') || undefined,
-      utm_content: params.get('utm_content') || undefined,
-      utm_term: params.get('utm_term') || undefined,
-    }
-  }
-
-  public async trackEvent(eventType: string, data: Record<string, any> = {}): Promise<void> {
-    if (!this.config.trackingEnabled) {
-      return
-    }
-
-    try {
-      // Get session ID and extend session on activity
-      const sessionId = getSessionId()
-      extendSession()
-
-      const utmParams = this.extractUTMParams()
-
-      const payload: TrackingEventPayload = {
-        event_type: eventType,
-        session_id: sessionId,
-        timestamp: new Date().toISOString(),
-        page_url: window.location.href,
-        page_path: window.location.pathname,
-        page_title: document.title,
-        referrer: document.referrer || undefined,
-        ...utmParams,
-        ...data,
-      }
-
-      const response = await fetch(`${this.config.apiUrl}/functions/v1/track-event`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': this.config.apiKey,
-        },
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        console.warn('Stratos Tracker: Tracking failed', response.status)
-      }
-    } catch (error) {
-      console.error('Stratos Tracker: Error tracking event', error)
-    }
-  }
-
-  // ========================================
-  // PAGE VIEW TRACKING
-  // ========================================
-
-  private trackPageView(): void {
-    this.trackEvent('page_view', {})
-  }
-
-  // ========================================
-  // PROPERTY TRACKING
-  // ========================================
-
-  private extractPropertyId(): string | null {
-    // Extract from URL: /properties/[postcode]/[slug]-[id]
-    const match = window.location.pathname.match(/\/properties\/[^\/]+\/[^\/]+-([a-f0-9-]{36})$/i)
-    return match ? match[1] : null
-  }
-
-  private trackPropertyView(): void {
-    const propertyId = this.extractPropertyId()
-    if (propertyId) {
-      this.trackEvent('property_view', { property_id: propertyId })
-    }
-  }
-
-  // ========================================
-  // SEARCH TRACKING
-  // ========================================
-
-  private trackPropertySearch(): void {
-    // Only track if we're on search page with params
-    if (window.location.pathname === '/search' && window.location.search) {
-      const params = new URLSearchParams(window.location.search)
-      const searchParams: Record<string, string> = {}
-
-      params.forEach((value, key) => {
-        searchParams[key] = value
-      })
-
-      // Count results if available
-      const resultsElement = document.querySelector('[data-results-count]')
-      const resultsCount = resultsElement 
-        ? parseInt(resultsElement.textContent || '0', 10) 
-        : undefined
-
-      this.trackEvent('search', {
-        search_params: searchParams,
-        results_count: resultsCount,
-      })
+    if (this.config.debug) {
+      console.log('[StratosTracker] Initialized with config:', this.config)
     }
   }
 
@@ -189,65 +65,427 @@ class StratosTracker {
   // INITIALIZATION
   // ========================================
 
+  /**
+   * Initialize tracker
+   * Call this once when page loads
+   */
   public init(): void {
-    if (!this.config.trackingEnabled) {
+    if (this.isInitialized) {
+      this.log('Already initialized')
       return
     }
 
-    // Initialize session (creates new session if needed)
-    getSessionId()
+    this.pageLoadTime = Date.now()
+    this.sessionStartTime = Date.now()
+    this.isInitialized = true
 
-    // Track page view
-    this.trackPageView()
+    // Set up automatic tracking
+    this.setupAutomaticTracking()
 
-    // Track property-specific events
-    if (window.location.pathname.startsWith('/properties/')) {
-      this.trackPropertyView()
-    }
+    this.log('Tracker initialized')
+  }
 
-    // Track search
-    if (window.location.pathname === '/search') {
-      this.trackPropertySearch()
-    }
-
-    // Track session end on page unload (optional)
+  /**
+   * Set up automatic tracking for page duration, exits, etc.
+   */
+  private setupAutomaticTracking(): void {
+    // Track page exit
     window.addEventListener('beforeunload', () => {
-      // We don't track session_end here as it would fire on every navigation
-      // Session expiry is handled by the timeout mechanism
+      this.trackPageExit()
+    })
+
+    // Also track on page hide (for mobile)
+    window.addEventListener('pagehide', () => {
+      this.trackPageExit()
+    })
+
+    // Track visibility changes (tab switching)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.trackPageExit()
+      }
     })
   }
 
   // ========================================
-  // PUBLIC API
+  // PAGE TRACKING
   // ========================================
 
-  public getPublicAPI(): StratosTrackerAPI {
-    return {
-      trackEvent: this.trackEvent.bind(this),
-      getSessionId: getSessionId, // Use imported function directly
+  /**
+   * Track page view
+   * Call this on every page load
+   */
+  public trackPageView(additionalData?: Record<string, any>): void {
+    if (!this.config.trackingEnabled) return
+
+    this.trackEvent('page_view', {
+      page_url: window.location.href,
+      page_title: document.title,
+      referrer: document.referrer || undefined,
+      screen_width: window.screen.width,
+      screen_height: window.screen.height,
+      viewport_width: window.innerWidth,
+      viewport_height: window.innerHeight,
+      ...additionalData,
+    })
+  }
+
+  /**
+   * Track page exit (sends time on page)
+   */
+  private trackPageExit(): void {
+    if (!this.config.trackingEnabled || !this.pageLoadTime) return
+
+    const timeOnPage = Math.floor((Date.now() - this.pageLoadTime) / 1000)
+
+    // Only track if they spent at least 3 seconds
+    if (timeOnPage < 3) return
+
+    // Use sendBeacon for reliable exit tracking
+    this.sendBeacon('page_exit', {
+      page_url: window.location.href,
+      time_on_page_seconds: timeOnPage,
+    })
+  }
+
+  // ========================================
+  // PROPERTY TRACKING
+  // ========================================
+
+  /**
+   * Track property view
+   * Call this when visitor views a property page
+   * 
+   * @param propertyId - The property ID
+   * @param additionalData - Additional event data
+   */
+  public trackPropertyView(propertyId: string, additionalData?: Record<string, any>): void {
+    if (!this.config.trackingEnabled) return
+
+    this.propertyViewStartTime = Date.now()
+
+    this.trackEvent('property_view', {
+      property_id: propertyId,
+      page_url: window.location.href,
+      ...additionalData,
+    })
+
+    this.log('Property view tracked:', propertyId)
+  }
+
+  /**
+   * Track property view duration
+   * Call this when visitor leaves property page or manually
+   * 
+   * @param propertyId - The property ID
+   */
+  public trackPropertyDuration(propertyId: string): void {
+    if (!this.config.trackingEnabled || !this.propertyViewStartTime) return
+
+    const duration = Math.floor((Date.now() - this.propertyViewStartTime) / 1000)
+
+    // Only track if they spent at least 3 seconds
+    if (duration < 3) return
+
+    this.sendBeacon('property_view', {
+      property_id: propertyId,
+      view_duration_seconds: duration,
+      page_url: window.location.href,
+    })
+
+    this.log('Property duration tracked:', propertyId, duration, 'seconds')
+  }
+
+  /**
+   * Set up automatic property duration tracking
+   * Call this on property pages to automatically track when visitor leaves
+   * 
+   * @param propertyId - The property ID
+   */
+  public setupPropertyDurationTracking(propertyId: string): void {
+    this.propertyViewStartTime = Date.now()
+
+    const trackDuration = () => {
+      this.trackPropertyDuration(propertyId)
+    }
+
+    // Track on page exit
+    window.addEventListener('beforeunload', trackDuration)
+    window.addEventListener('pagehide', trackDuration)
+
+    // Track on visibility change (tab switch)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        trackDuration()
+      }
+    })
+
+    this.log('Property duration tracking setup for:', propertyId)
+  }
+
+  // ========================================
+  // INTERACTION TRACKING
+  // ========================================
+
+  /**
+   * Track phone click
+   */
+  public trackPhoneClick(phoneNumber?: string): void {
+    this.trackEvent('phone_click', {
+      phone_number: phoneNumber,
+      page_url: window.location.href,
+    })
+  }
+
+  /**
+   * Track email click
+   */
+  public trackEmailClick(email?: string): void {
+    this.trackEvent('email_click', {
+      email_address: email,
+      page_url: window.location.href,
+    })
+  }
+
+  /**
+   * Track search
+   */
+  public trackSearch(searchData: Record<string, any>): void {
+    this.trackEvent('search', {
+      page_url: window.location.href,
+      search_params: searchData,
+    })
+  }
+
+  /**
+   * Track filter change
+   */
+  public trackFilterChange(filterName: string, filterValue: any): void {
+    this.trackEvent('filter_change', {
+      page_url: window.location.href,
+      filter_name: filterName,
+      filter_value: filterValue,
+    })
+  }
+
+  /**
+   * Track CTA click (Call to Action)
+   */
+  public trackCtaClick(ctaName: string, ctaData?: Record<string, any>): void {
+    this.trackEvent('cta_click', {
+      page_url: window.location.href,
+      cta_name: ctaName,
+      ...ctaData,
+    })
+  }
+
+  /**
+   * Track favorite/save
+   */
+  public trackFavorite(propertyId: string): void {
+    this.trackEvent('favorite', {
+      property_id: propertyId,
+      page_url: window.location.href,
+    })
+  }
+
+  /**
+   * Track share
+   */
+  public trackShare(propertyId: string, shareMethod: string): void {
+    this.trackEvent('share', {
+      property_id: propertyId,
+      share_method: shareMethod,
+      page_url: window.location.href,
+    })
+  }
+
+  // ========================================
+  // GENERIC EVENT TRACKING
+  // ========================================
+
+  /**
+   * Track custom event
+   * 
+   * @param eventType - Event type (e.g., 'page_view', 'property_view')
+   * @param eventData - Event data
+   */
+  public trackEvent(eventType: string, eventData?: Record<string, any>): void {
+    if (!this.config.trackingEnabled) {
+      this.log('Tracking disabled, skipping event:', eventType)
+      return
+    }
+
+    const sessionId = getSessionId()
+    const visitorId = getVisitorId()
+
+    const payload: EventData = {
+      event_type: eventType,
+      session_id: sessionId,
+      visitor_id: visitorId,
+      page_url: window.location.href,
+      page_title: document.title,
+      referrer: document.referrer || undefined,
+      event_data: eventData,
+    }
+
+    // Add property_id to top level if present
+    if (eventData?.property_id) {
+      payload.property_id = eventData.property_id
+    }
+
+    this.sendEvent(payload)
+  }
+
+  // ========================================
+  // API COMMUNICATION
+  // ========================================
+
+  /**
+   * Send event to Stratos API
+   */
+  private async sendEvent(payload: EventData): Promise<void> {
+    try {
+      const url = `${this.config.apiUrl}/functions/v1/track-event`
+      
+      this.log('Sending event:', payload.event_type, payload)
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': this.config.apiKey,
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('[StratosTracker] Event failed:', error)
+        return
+      }
+
+      const result = await response.json()
+      this.log('Event sent successfully:', result)
+    } catch (error) {
+      console.error('[StratosTracker] Error sending event:', error)
+    }
+  }
+
+  /**
+   * Send event using sendBeacon (for page exit events)
+   * More reliable than fetch for unload events
+   */
+  private sendBeacon(eventType: string, eventData?: Record<string, any>): void {
+    const sessionId = getSessionId()
+    const visitorId = getVisitorId()
+
+    const payload: EventData = {
+      event_type: eventType,
+      session_id: sessionId,
+      visitor_id: visitorId,
+      page_url: window.location.href,
+      page_title: document.title,
+      event_data: eventData,
+    }
+
+    if (eventData?.property_id) {
+      payload.property_id = eventData.property_id
+    }
+
+    const url = `${this.config.apiUrl}/functions/v1/track-event`
+    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' })
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, blob)
+      this.log('Beacon sent:', eventType)
+    } else {
+      // Fallback for browsers without sendBeacon
+      this.sendEvent(payload)
+    }
+  }
+
+  // ========================================
+  // SESSION MANAGEMENT
+  // ========================================
+
+  /**
+   * Get current session ID
+   */
+  public getSessionId(): string {
+    return getSessionId()
+  }
+
+  /**
+   * Get current visitor ID
+   */
+  public getVisitorId(): string {
+    return getVisitorId()
+  }
+
+  /**
+   * Calculate session duration in seconds
+   */
+  public getSessionDuration(): number {
+    if (!this.sessionStartTime) return 0
+    return Math.floor((Date.now() - this.sessionStartTime) / 1000)
+  }
+
+  // ========================================
+  // UTILITIES
+  // ========================================
+
+  /**
+   * Enable/disable tracking
+   */
+  public setTrackingEnabled(enabled: boolean): void {
+    this.config.trackingEnabled = enabled
+    this.log('Tracking', enabled ? 'enabled' : 'disabled')
+  }
+
+  /**
+   * Enable/disable debug logging
+   */
+  public setDebug(debug: boolean): void {
+    this.config.debug = debug
+  }
+
+  /**
+   * Log message (only if debug enabled)
+   */
+  private log(...args: any[]): void {
+    if (this.config.debug) {
+      console.log('[StratosTracker]', ...args)
     }
   }
 }
 
 // ========================================
-// INITIALIZATION
+// CONVENIENCE FUNCTIONS
 // ========================================
 
-(function() {
-  'use strict'
+/**
+ * Create and initialize tracker
+ * 
+ * @param config - Tracker configuration
+ * @returns Tracker instance
+ */
+export function createTracker(config: TrackerConfig): StratosTracker {
+  const tracker = new StratosTracker(config)
+  tracker.init()
+  return tracker
+}
 
-  const tracker = new StratosTracker()
+/**
+ * Get global tracker instance
+ * Useful for accessing tracker from inline scripts
+ */
+export function getGlobalTracker(): StratosTracker | undefined {
+  return (window as any).StratosTracker
+}
 
-  // Expose public API
-  window.StratosTracker = tracker.getPublicAPI()
+// ========================================
+// EXPORT DEFAULT
+// ========================================
 
-  // Initialize on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => tracker.init())
-  } else {
-    tracker.init()
-  }
-})()
-
-// Export for module usage (if needed)
-export {}
+export default StratosTracker

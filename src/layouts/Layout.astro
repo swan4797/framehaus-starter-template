@@ -262,24 +262,33 @@ const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.n
     </script>
 
     <!-- Session Management -->
+    <!-- Initialize Stratos Tracker -->
     <script>
-      import { initSessionManagement } from '../lib/session'
-      
-      // Initialize session on page load
-      initSessionManagement()
-    </script>
-
-    <!-- Tracker Configuration -->
-    <script define:vars={{ apiUrl: apiConfig.baseUrl, apiKey: apiConfig.apiKey }}>
-      // Set global config for tracker
-      window.STRATOS_API_URL = apiUrl
-      window.STRATOS_API_KEY = apiKey
-    </script>
-
-    <!-- Stratos Tracker Script (TypeScript) -->
-    <script>
-      import '../lib/stratos-tracker'
-    </script>
+		import { StratosTracker } from '../lib/stratos-tracker';
+		import { initSession } from '../lib/session';
+		
+		// Initialize session management
+		initSession();
+		
+		// Create tracker instance
+		const tracker = new StratosTracker({
+		  apiUrl: import.meta.env.PUBLIC_SUPABASE_URL,
+		  apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY,
+		  trackingEnabled: true,
+		  debug: import.meta.env.DEV, // Debug in development only
+		});
+		
+		// Initialize tracker
+		tracker.init();
+		
+		// Track page view on every page
+		tracker.trackPageView();
+		
+		// Make tracker globally available
+		window.StratosTracker = tracker;
+		
+		console.log('Stratos Tracker initialized');
+	  </script>
 
     <!-- Cookie Consent -->
     <CookieConsent />

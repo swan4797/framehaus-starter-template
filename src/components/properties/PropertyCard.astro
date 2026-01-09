@@ -148,3 +148,10 @@ const listedDate = property.listed_date ? formatRelativeDate(property.listed_dat
     overflow: hidden;
   }
 </style>
+<script define:vars={{ propertyId: property.id }}>
+    document.querySelector('.property-card')?.addEventListener('click', () => {
+      window.StratosTracker?.trackEvent('property_card_click', {
+        property_id: propertyId,
+      });
+    });
+</script>
