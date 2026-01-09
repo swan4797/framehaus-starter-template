@@ -12,9 +12,9 @@ import PropertyActions from '../../components/property/PropertyActions.astro'
 import RelatedProperties from '../../components/property/RelatedProperties.astro'
 import PropertyBreadcrumb from '../../components/property/PropertyBreadcrumb.astro'
 
-const { slug } = Astro.params
 
-// Extract property ID from slug (format: {id}-{address-slug})
+
+const { slug } = Astro.params
 const propertyId = slug?.split('-')[0]
 
 if (!propertyId) {
@@ -23,9 +23,9 @@ if (!propertyId) {
 
 const AGENCY_ID = import.meta.env.PUBLIC_AGENCY_ID
 const API_ENDPOINT = import.meta.env.PUBLIC_STRATOS_API_ENDPOINT
-const API_KEY = import.meta.env.PUBLIC_STRATOS_API_KEY
+const ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+const AGENCY_API_KEY = import.meta.env.PUBLIC_AGENCY_API_KEY
 
-// Fetch property details (SSR)
 let propertyData = null
 let error = null
 
@@ -34,7 +34,8 @@ try {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`
+      'Authorization': `Bearer ${ANON_KEY}`,
+      'X-Agency-API-Key': AGENCY_API_KEY
     },
     body: JSON.stringify({
       property_id: propertyId,
@@ -56,6 +57,7 @@ try {
 if (!propertyData || error) {
   return Astro.redirect('/properties/search')
 }
+
 
 const { property, similar_properties } = propertyData
 

@@ -1,67 +1,696 @@
 ---
+// ========================================
+// HOMEPAGE
+// UK Estate Agent Homepage - Stratos Reach AI
+// ========================================
+
 import Layout from '../layouts/Layout.astro'
-import Hero from '../components/home/hero.astro'
-import FeaturedProperties from '../components/home/FeaturedProperties.astro'
-import WhyChooseUs from '../components/home/WhyChooseUs.astro'
-// import RecentReviews from '../components/home/RecentReviews.astro'
-import CallToAction from '../components/home/CallToAction.astro'
+import { searchProperties } from '../lib/api'
+import PropertyCard from '../components/properties/PropertyCard.astro'
+import { siteConfig } from '../lib/config'
 
-const API_ENDPOINT = import.meta.env.PUBLIC_STRATOS_API_ENDPOINT
-const API_KEY = import.meta.env.PUBLIC_STRATOS_API_KEY
-const AGENCY_ID = import.meta.env.PUBLIC_AGENCY_ID
+// Fetch featured and recent properties
+const [featuredResponse, saleResponse, letResponse] = await Promise.all([
+  searchProperties({ listing_type: 'sale', limit: 6, sort_by: 'newest' }),
+  searchProperties({ listing_type: 'sale', limit: 3, sort_by: 'newest' }),
+  searchProperties({ listing_type: 'let', limit: 3, sort_by: 'newest' }),
+])
 
-// Fetch featured properties (SSR)
-let featuredProperties = []
+const featuredProperties = featuredResponse?.properties.filter(p => p.is_featured).slice(0, 3) || []
+const saleProperties = saleResponse?.properties || []
+const letProperties = letResponse?.properties || []
 
-try {
-  const response = await fetch(`${API_ENDPOINT}/get-featured-properties`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': API_KEY,  // ✅ Use 'apikey'
-    },
-    body: JSON.stringify({
-      agency_id: AGENCY_ID,
-      limit: 6,
-    }),
-  })
-
-  if (response.ok) {
-    const data = await response.json()
-    featuredProperties = data.properties || []
-  }
-} catch (error) {
-  console.error('Failed to fetch featured properties:', error)
-}
-
-// Page metadata
-const title = 'Find Your Dream Home | Premier Estate Agents'
-const description = 'Browse properties for sale and to rent. Expert estate agents helping you find your perfect home in Manchester and surrounding areas.'
+// Get total property counts
+const totalForSale = featuredResponse?.total || 0
+const totalToLet = 0 // Would need separate count query
 ---
 
-<Layout title={title} description={description}>
+<Layout>
   <!-- Hero Section with Search -->
-  <Hero />
+  <section class="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
+      <div class="text-center mb-12">
+        <!-- Tagline -->
+        <p class="text-blue-300 font-semibold text-sm md:text-base mb-4 tracking-wide uppercase">
+          Your Local Property Experts
+        </p>
+        
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+          Find Your Perfect<br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+            Home in London
+          </span>
+        </h1>
+        
+        <p class="text-xl md:text-2xl mb-4 text-slate-200 max-w-3xl mx-auto">
+          Expert guidance from property search to completion
+        </p>
+        
+        <p class="text-slate-400 mb-10">
+          {totalForSale > 0 && `${totalForSale.toLocaleString()} properties available`}
+        </p>
+
+        <!-- Advanced Search Panel -->
+        <div class="max-w-5xl mx-auto">
+          <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8">
+            <form action="/search" method="get" class="space-y-6">
+              <!-- Listing Type Tabs -->
+              <div class="flex gap-2 mb-6">
+                <label class="flex-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="listing_type"
+                    value="sale"
+                    checked
+                    class="peer sr-only"
+                  />
+                  <div class="text-center py-3 px-6 rounded-lg border-2 border-slate-200 text-slate-700 font-semibold peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white transition-all">
+                    For Sale
+                  </div>
+                </label>
+                <label class="flex-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="listing_type"
+                    value="let"
+                    class="peer sr-only"
+                  />
+                  <div class="text-center py-3 px-6 rounded-lg border-2 border-slate-200 text-slate-700 font-semibold peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white transition-all">
+                    To Rent
+                  </div>
+                </label>
+              </div>
+
+              <!-- Search Inputs Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Location -->
+                <div class="lg:col-span-2">
+                  <label for="location" class="block text-sm font-medium text-slate-700 mb-2">
+                    Location or Postcode
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    id="location"
+                    placeholder="e.g. Clapham, SW4"
+                    class="w-full px-4 py-3 text-slate-900 rounded-lg border-2 border-slate-200 focus:border-blue-600 focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <!-- Min Price -->
+                <div>
+                  <label for="min_price" class="block text-sm font-medium text-slate-700 mb-2">
+                    Min Price
+                  </label>
+                  <select
+                    name="min_price"
+                    id="min_price"
+                    class="w-full px-4 py-3 text-slate-900 rounded-lg border-2 border-slate-200 focus:border-blue-600 focus:outline-none transition-colors bg-white"
+                  >
+                    <option value="">No min</option>
+                    <option value="100000">£100,000</option>
+                    <option value="200000">£200,000</option>
+                    <option value="300000">£300,000</option>
+                    <option value="400000">£400,000</option>
+                    <option value="500000">£500,000</option>
+                    <option value="750000">£750,000</option>
+                    <option value="1000000">£1,000,000</option>
+                  </select>
+                </div>
+
+                <!-- Max Price -->
+                <div>
+                  <label for="max_price" class="block text-sm font-medium text-slate-700 mb-2">
+                    Max Price
+                  </label>
+                  <select
+                    name="max_price"
+                    id="max_price"
+                    class="w-full px-4 py-3 text-slate-900 rounded-lg border-2 border-slate-200 focus:border-blue-600 focus:outline-none transition-colors bg-white"
+                  >
+                    <option value="">No max</option>
+                    <option value="200000">£200,000</option>
+                    <option value="300000">£300,000</option>
+                    <option value="400000">£400,000</option>
+                    <option value="500000">£500,000</option>
+                    <option value="750000">£750,000</option>
+                    <option value="1000000">£1,000,000</option>
+                    <option value="2000000">£2,000,000</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Additional Filters Row -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Bedrooms -->
+                <div>
+                  <label for="beds" class="block text-sm font-medium text-slate-700 mb-2">
+                    Bedrooms
+                  </label>
+                  <select
+                    name="beds"
+                    id="beds"
+                    class="w-full px-4 py-3 text-slate-900 rounded-lg border-2 border-slate-200 focus:border-blue-600 focus:outline-none transition-colors bg-white"
+                  >
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                    <option value="5">5+</option>
+                  </select>
+                </div>
+
+                <!-- Property Type -->
+                <div class="col-span-2">
+                  <label for="property_type" class="block text-sm font-medium text-slate-700 mb-2">
+                    Property Type
+                  </label>
+                  <select
+                    name="property_type"
+                    id="property_type"
+                    class="w-full px-4 py-3 text-slate-900 rounded-lg border-2 border-slate-200 focus:border-blue-600 focus:outline-none transition-colors bg-white"
+                  >
+                    <option value="">All Types</option>
+                    <option value="flat">Flats</option>
+                    <option value="house">Houses</option>
+                    <option value="detached">Detached</option>
+                    <option value="semi-detached">Semi-Detached</option>
+                    <option value="terraced">Terraced</option>
+                    <option value="bungalow">Bungalow</option>
+                  </select>
+                </div>
+
+                <!-- Search Button -->
+                <div class="flex items-end">
+                  <button
+                    type="submit"
+                    class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all font-semibold shadow-lg shadow-blue-600/30"
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="mt-8 flex flex-wrap justify-center gap-3 text-sm">
+          <a
+            href="/search?listing_type=sale&property_type=flat&location=Clapham"
+            class="text-blue-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-blue-400/30 hover:border-blue-400 backdrop-blur-sm"
+          >
+            Flats in Clapham
+          </a>
+          <a
+            href="/search?listing_type=sale&property_type=house&beds=3"
+            class="text-blue-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-blue-400/30 hover:border-blue-400 backdrop-blur-sm"
+          >
+            3 Bed Houses
+          </a>
+          <a
+            href="/search?listing_type=let"
+            class="text-blue-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-blue-400/30 hover:border-blue-400 backdrop-blur-sm"
+          >
+            Properties to Rent
+          </a>
+          <a
+            href="/valuation"
+            class="text-blue-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-blue-400/30 hover:border-blue-400 backdrop-blur-sm"
+          >
+            Free Valuation
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Featured Properties -->
-  <FeaturedProperties properties={featuredProperties} />
+  {featuredProperties.length > 0 && (
+    <section class="py-16 md:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10">
+          <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+              Featured Properties
+            </h2>
+            <p class="text-lg text-slate-600">
+              Carefully selected homes that won't last long
+            </p>
+          </div>
+          <a
+            href="/search"
+            class="hidden md:inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+          >
+            View all properties
+            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
 
-  <!-- Why Choose Us -->
-  <WhyChooseUs />
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {featuredProperties.map(property => (
+            <PropertyCard property={property} featured={true} />
+          ))}
+        </div>
 
-  <!-- Recent Reviews -->
-  <!-- <RecentReviews /> -->
+        <div class="text-center mt-10 md:hidden">
+          <a
+            href="/search"
+            class="inline-flex items-center bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-lg shadow-blue-600/20"
+          >
+            View All Properties
+            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
 
-  <!-- Call to Action -->
-  <CallToAction />
+  <!-- Properties For Sale -->
+  {saleProperties.length > 0 && (
+    <section class="py-16 md:py-20 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10">
+          <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+              Recently Added For Sale
+            </h2>
+            <p class="text-lg text-slate-600">
+              The latest properties on the market
+            </p>
+          </div>
+          <a
+            href="/search?listing_type=sale"
+            class="hidden md:inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+          >
+            View all for sale
+            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {saleProperties.map(property => (
+            <PropertyCard property={property} />
+          ))}
+        </div>
+
+        <div class="text-center mt-10 md:hidden">
+          <a
+            href="/search?listing_type=sale"
+            class="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+          >
+            View all for sale
+            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Properties To Rent -->
+  {letProperties.length > 0 && (
+    <section class="py-16 md:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10">
+          <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+              Recently Added To Rent
+            </h2>
+            <p class="text-lg text-slate-600">
+              Available rental properties
+            </p>
+          </div>
+          <a
+            href="/search?listing_type=let"
+            class="hidden md:inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+          >
+            View all to rent
+            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {letProperties.map(property => (
+            <PropertyCard property={property} />
+          ))}
+        </div>
+
+        <div class="text-center mt-10 md:hidden">
+          <a
+            href="/search?listing_type=let"
+            class="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+          >
+            View all to rent
+            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Why Choose Us / Services -->
+  <section class="py-16 md:py-20 bg-slate-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Why Instruct Us?
+        </h2>
+        <p class="text-xl text-slate-300 max-w-2xl mx-auto">
+          Expert local knowledge combined with innovative marketing
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Local Expertise -->
+        <div class="text-center">
+          <div class="bg-gradient-to-br from-blue-600 to-blue-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/30">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">
+            Local Experts
+          </h3>
+          <p class="text-slate-400">
+            In-depth knowledge of the area, schools, transport and amenities
+          </p>
+        </div>
+
+        <!-- Performance Data -->
+        <div class="text-center">
+          <div class="bg-gradient-to-br from-blue-600 to-blue-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/30">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">
+            Data-Driven Marketing
+          </h3>
+          <p class="text-slate-400">
+            Track your property's performance with detailed analytics
+          </p>
+        </div>
+
+        <!-- Professional Photography -->
+        <div class="text-center">
+          <div class="bg-gradient-to-br from-blue-600 to-blue-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/30">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">
+            Professional Media
+          </h3>
+          <p class="text-slate-400">
+            High-quality photography, floor plans and virtual tours
+          </p>
+        </div>
+
+        <!-- Dedicated Support -->
+        <div class="text-center">
+          <div class="bg-gradient-to-br from-blue-600 to-blue-700 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/30">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">
+            Personal Service
+          </h3>
+          <p class="text-slate-400">
+            Dedicated agent guiding you from valuation to completion
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Area Guide / Stats Section -->
+  <section class="py-16 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Content -->
+        <div>
+          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+            Expert Knowledge of South London Property
+          </h2>
+          <p class="text-lg text-slate-600 mb-6">
+            With years of experience in the local market, we understand what makes properties sell. 
+            Our team combines traditional estate agency values with modern technology to deliver 
+            results that exceed expectations.
+          </p>
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="border-l-4 border-blue-600 pl-4">
+              <div class="text-3xl font-bold text-slate-900 mb-1">500+</div>
+              <div class="text-sm text-slate-600">Properties Sold</div>
+            </div>
+            <div class="border-l-4 border-blue-600 pl-4">
+              <div class="text-3xl font-bold text-slate-900 mb-1">98%</div>
+              <div class="text-sm text-slate-600">Customer Satisfaction</div>
+            </div>
+            <div class="border-l-4 border-blue-600 pl-4">
+              <div class="text-3xl font-bold text-slate-900 mb-1">£450M+</div>
+              <div class="text-sm text-slate-600">Properties Transacted</div>
+            </div>
+            <div class="border-l-4 border-blue-600 pl-4">
+              <div class="text-3xl font-bold text-slate-900 mb-1">15+</div>
+              <div class="text-sm text-slate-600">Years Experience</div>
+            </div>
+          </div>
+          <a
+            href="/about"
+            class="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+          >
+            Learn more about us
+            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Image/Placeholder -->
+        <div class="relative">
+          <div class="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl overflow-hidden shadow-xl">
+            <!-- Replace with actual image -->
+            <div class="w-full h-full flex items-center justify-center text-slate-400">
+              <svg class="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+          </div>
+          <!-- Decorative element -->
+          <div class="absolute -bottom-6 -right-6 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -z-10"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Valuation CTA -->
+  <section class="relative py-20 md:py-28 overflow-hidden">
+    <!-- Gradient Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900"></div>
+    
+    <!-- Pattern Overlay -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    </div>
+
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+      <div class="mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm mb-6">
+          <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        </div>
+        <h2 class="text-3xl md:text-5xl font-bold mb-4">
+          Thinking of Selling or Letting?
+        </h2>
+        <p class="text-xl md:text-2xl mb-2 text-blue-100">
+          Get an instant online valuation in 60 seconds
+        </p>
+        <p class="text-lg text-blue-200">
+          Or book a free home visit from one of our expert valuers
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+        <a
+          href="/valuation"
+          class="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition-all font-semibold text-lg shadow-xl shadow-black/20 group"
+        >
+          Get Free Valuation
+          <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a
+          href="/contact"
+          class="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg hover:bg-white/20 transition-all font-semibold text-lg border-2 border-white/30 group"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          Call Us Today
+        </a>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-blue-200">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          No obligation
+        </div>
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Instant results
+        </div>
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Expert local valuers
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter / Updates Section -->
+  <section class="py-16 bg-slate-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+        Stay Updated on Local Property
+      </h2>
+      <p class="text-lg text-slate-600 mb-8">
+        Get the latest properties and market insights delivered to your inbox
+      </p>
+      <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <input
+          type="email"
+          placeholder="Your email address"
+          class="flex-1 px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-blue-600 focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold whitespace-nowrap"
+        >
+          Subscribe
+        </button>
+      </form>
+      <p class="text-sm text-slate-500 mt-4">
+        We respect your privacy. Unsubscribe at any time.
+      </p>
+    </div>
+  </section>
 </Layout>
 
 <script>
-  // Track homepage view
-  if (window.StratosTracker) {
-    window.StratosTracker.track('page_view', {
-      page: '/',
-      title: 'Home'
+  // Dynamic price range switching between sale and rent
+  document.addEventListener('DOMContentLoaded', () => {
+    const listingTypeInputs = document.querySelectorAll('input[name="listing_type"]')
+    const minPriceSelect = document.getElementById('min_price') as HTMLSelectElement
+    const maxPriceSelect = document.getElementById('max_price') as HTMLSelectElement
+
+    if (!minPriceSelect || !maxPriceSelect) return
+
+    // Sale price ranges
+    const salePrices = {
+      min: [
+        { value: '', label: 'No min' },
+        { value: '100000', label: '£100,000' },
+        { value: '200000', label: '£200,000' },
+        { value: '300000', label: '£300,000' },
+        { value: '400000', label: '£400,000' },
+        { value: '500000', label: '£500,000' },
+        { value: '750000', label: '£750,000' },
+        { value: '1000000', label: '£1,000,000' },
+      ],
+      max: [
+        { value: '', label: 'No max' },
+        { value: '200000', label: '£200,000' },
+        { value: '300000', label: '£300,000' },
+        { value: '400000', label: '£400,000' },
+        { value: '500000', label: '£500,000' },
+        { value: '750000', label: '£750,000' },
+        { value: '1000000', label: '£1,000,000' },
+        { value: '2000000', label: '£2,000,000' },
+      ],
+    }
+
+    // Rent price ranges (monthly)
+    const rentPrices = {
+      min: [
+        { value: '', label: 'No min' },
+        { value: '500', label: '£500 pcm' },
+        { value: '750', label: '£750 pcm' },
+        { value: '1000', label: '£1,000 pcm' },
+        { value: '1250', label: '£1,250 pcm' },
+        { value: '1500', label: '£1,500 pcm' },
+        { value: '2000', label: '£2,000 pcm' },
+        { value: '2500', label: '£2,500 pcm' },
+      ],
+      max: [
+        { value: '', label: 'No max' },
+        { value: '750', label: '£750 pcm' },
+        { value: '1000', label: '£1,000 pcm' },
+        { value: '1250', label: '£1,250 pcm' },
+        { value: '1500', label: '£1,500 pcm' },
+        { value: '2000', label: '£2,000 pcm' },
+        { value: '2500', label: '£2,500 pcm' },
+        { value: '3000', label: '£3,000 pcm' },
+      ],
+    }
+
+    function updatePriceRanges(listingType: 'sale' | 'let') {
+      const prices = listingType === 'sale' ? salePrices : rentPrices
+
+      // Update min price options
+      minPriceSelect.innerHTML = ''
+      prices.min.forEach(option => {
+        const opt = document.createElement('option')
+        opt.value = option.value
+        opt.textContent = option.label
+        minPriceSelect.appendChild(opt)
+      })
+
+      // Update max price options
+      maxPriceSelect.innerHTML = ''
+      prices.max.forEach(option => {
+        const opt = document.createElement('option')
+        opt.value = option.value
+        opt.textContent = option.label
+        maxPriceSelect.appendChild(opt)
+      })
+    }
+
+    // Listen for listing type changes
+    listingTypeInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement
+        updatePriceRanges(target.value as 'sale' | 'let')
+      })
     })
-  }
+  })
 </script>

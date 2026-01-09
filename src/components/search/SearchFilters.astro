@@ -1,141 +1,231 @@
 ---
+// ========================================
+// SEARCH FILTERS COMPONENT
+// Filters for property search page
+// ========================================
+
+import type { PropertySearchParams } from '../../types/database'
+
 interface Props {
-  initialValues?: any
+  currentParams: PropertySearchParams
 }
 
-const { initialValues = {} } = Astro.props
+const { currentParams } = Astro.props
+
+// Get current values with fallbacks
+const listingType = currentParams.listing_type || 'sale'
+const location = currentParams.location || ''
+const minPrice = currentParams.min_price || ''
+const maxPrice = currentParams.max_price || ''
+const beds = currentParams.beds || ''
+const propertyType = currentParams.property_type || ''
+
+// Price ranges for sale
+const salePriceRanges = [
+  { value: '', label: 'No min' },
+  { value: '100000', label: '£100,000' },
+  { value: '150000', label: '£150,000' },
+  { value: '200000', label: '£200,000' },
+  { value: '250000', label: '£250,000' },
+  { value: '300000', label: '£300,000' },
+  { value: '400000', label: '£400,000' },
+  { value: '500000', label: '£500,000' },
+  { value: '750000', label: '£750,000' },
+  { value: '1000000', label: '£1,000,000' },
+]
+
+// Price ranges for rent (monthly)
+const rentPriceRanges = [
+  { value: '', label: 'No min' },
+  { value: '500', label: '£500' },
+  { value: '750', label: '£750' },
+  { value: '1000', label: '£1,000' },
+  { value: '1250', label: '£1,250' },
+  { value: '1500', label: '£1,500' },
+  { value: '2000', label: '£2,000' },
+  { value: '2500', label: '£2,500' },
+  { value: '3000', label: '£3,000' },
+  { value: '5000', label: '£5,000' },
+]
+
+const maxPriceRanges = listingType === 'sale' 
+  ? [...salePriceRanges.slice(1), { value: '', label: 'No max' }]
+  : [...rentPriceRanges.slice(1), { value: '', label: 'No max' }]
+
+const propertyTypes = [
+  { value: '', label: 'All Types' },
+  { value: 'detached', label: 'Detached' },
+  { value: 'semi-detached', label: 'Semi-Detached' },
+  { value: 'terraced', label: 'Terraced' },
+  { value: 'flat', label: 'Flat' },
+  { value: 'apartment', label: 'Apartment' },
+  { value: 'bungalow', label: 'Bungalow' },
+  { value: 'cottage', label: 'Cottage' },
+]
+
+const bedroomOptions = [
+  { value: '', label: 'Any' },
+  { value: '1', label: '1+' },
+  { value: '2', label: '2+' },
+  { value: '3', label: '3+' },
+  { value: '4', label: '4+' },
+  { value: '5', label: '5+' },
+]
 ---
 
-<div id="advanced-filters" class="hidden mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
-  <h3 class="text-lg font-semibold text-gray-900 mb-4">Advanced Filters</h3>
-  
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Bathrooms -->
+<form method="get" action="/search" class="bg-white rounded-lg shadow-md p-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+    <!-- Listing Type -->
+    <div class="lg:col-span-3">
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        I'm looking to...
+      </label>
+      <div class="flex gap-4">
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="listing_type"
+            value="sale"
+            checked={listingType === 'sale'}
+            class="mr-2"
+          />
+          <span class="text-sm">Buy</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="listing_type"
+            value="let"
+            checked={listingType === 'let'}
+            class="mr-2"
+          />
+          <span class="text-sm">Rent</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="lg:col-span-3">
+      <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+        Location
+      </label>
+      <input
+        type="text"
+        id="location"
+        name="location"
+        value={location}
+        placeholder="e.g. London, SW16, Streatham"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      />
+    </div>
+
+    <!-- Min Price -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+      <label for="min_price" class="block text-sm font-medium text-gray-700 mb-2">
+        Min Price
+      </label>
       <select
-        name="min_bathrooms"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+        id="min_price"
+        name="min_price"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
-        <option value="">Any</option>
-        <option value="1">1+</option>
-        <option value="2">2+</option>
-        <option value="3">3+</option>
+        {(listingType === 'sale' ? salePriceRanges : rentPriceRanges).map(range => (
+          <option value={range.value} selected={minPrice.toString() === range.value}>
+            {range.label}
+          </option>
+        ))}
       </select>
     </div>
 
-    <!-- Receptions -->
+    <!-- Max Price -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Reception rooms</label>
+      <label for="max_price" class="block text-sm font-medium text-gray-700 mb-2">
+        Max Price
+      </label>
       <select
-        name="min_receptions"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+        id="max_price"
+        name="max_price"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
-        <option value="">Any</option>
-        <option value="1">1+</option>
-        <option value="2">2+</option>
-        <option value="3">3+</option>
+        {maxPriceRanges.map(range => (
+          <option value={range.value} selected={maxPrice.toString() === range.value}>
+            {range.label}
+          </option>
+        ))}
       </select>
     </div>
 
-    <!-- Furnishing -->
+    <!-- Bedrooms -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Furnishing</label>
+      <label for="beds" class="block text-sm font-medium text-gray-700 mb-2">
+        Bedrooms
+      </label>
       <select
-        name="furnishing"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+        id="beds"
+        name="beds"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
-        <option value="">Any</option>
-        <option value="furnished">Furnished</option>
-        <option value="unfurnished">Unfurnished</option>
-        <option value="part_furnished">Part Furnished</option>
+        {bedroomOptions.map(option => (
+          <option value={option.value} selected={beds.toString() === option.value}>
+            {option.label}
+          </option>
+        ))}
       </select>
     </div>
 
-    <!-- Tenure -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Tenure</label>
+    <!-- Property Type -->
+    <div class="lg:col-span-2">
+      <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">
+        Property Type
+      </label>
       <select
-        name="tenure"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
+        id="property_type"
+        name="property_type"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
-        <option value="">Any</option>
-        <option value="freehold">Freehold</option>
-        <option value="leasehold">Leasehold</option>
-        <option value="share_of_freehold">Share of Freehold</option>
-      </select>
-    </div>
-
-    <!-- Parking -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Parking</label>
-      <select
-        name="parking"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
-      >
-        <option value="">Any</option>
-        <option value="off_street">Off Street</option>
-        <option value="garage">Garage</option>
-        <option value="allocated">Allocated</option>
-      </select>
-    </div>
-
-    <!-- EPC Rating -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">EPC Rating</label>
-      <select
-        name="epc_rating"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#064728] focus:border-[#064728]"
-      >
-        <option value="">Any</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
+        {propertyTypes.map(type => (
+          <option value={type.value} selected={propertyType === type.value}>
+            {type.label}
+          </option>
+        ))}
       </select>
     </div>
   </div>
 
-  <!-- Boolean filters -->
-  <div class="mt-6 flex flex-wrap gap-4">
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input
-        type="checkbox"
-        name="garden"
-        value="true"
-        class="w-5 h-5 text-[#064728] border-gray-300 rounded focus:ring-[#064728]"
-      />
-      <span class="text-sm font-medium text-gray-700">Garden</span>
-    </label>
-
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input
-        type="checkbox"
-        name="new_build"
-        value="true"
-        class="w-5 h-5 text-[#064728] border-gray-300 rounded focus:ring-[#064728]"
-      />
-      <span class="text-sm font-medium text-gray-700">New build</span>
-    </label>
-
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input
-        type="checkbox"
-        name="shared_ownership"
-        value="true"
-        class="w-5 h-5 text-[#064728] border-gray-300 rounded focus:ring-[#064728]"
-      />
-      <span class="text-sm font-medium text-gray-700">Shared ownership</span>
-    </label>
-
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input
-        type="checkbox"
-        name="retirement_home"
-        value="true"
-        class="w-5 h-5 text-[#064728] border-gray-300 rounded focus:ring-[#064728]"
-      />
-      <span class="text-sm font-medium text-gray-700">Retirement home</span>
-    </label>
+  <!-- Buttons -->
+  <div class="flex gap-3">
+    <button
+      type="submit"
+      class="flex-1 bg-blue-600 text-white font-medium py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+    >
+      Search Properties
+    </button>
+    <a
+      href="/search"
+      class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+    >
+      Reset
+    </a>
   </div>
-</div>
+</form>
+
+<script>
+  // Update price ranges when listing type changes
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form')
+    const listingTypeInputs = document.querySelectorAll('input[name="listing_type"]')
+    
+    if (form && listingTypeInputs.length > 0) {
+      listingTypeInputs.forEach(input => {
+        input.addEventListener('change', () => {
+          // Clear price filters when switching listing type
+          const minPriceSelect = form.querySelector('#min_price') as HTMLSelectElement
+          const maxPriceSelect = form.querySelector('#max_price') as HTMLSelectElement
+          
+          if (minPriceSelect) minPriceSelect.value = ''
+          if (maxPriceSelect) maxPriceSelect.value = ''
+        })
+      })
+    }
+  })
+</script>

@@ -1,0 +1,357 @@
+---
+// ========================================
+// ENQUIRY FORM COMPONENT
+// Contact form for property enquiries
+// ========================================
+
+import type { Property } from '../../types/database'
+
+interface Props {
+  property?: Property
+  enquiryType?: 'viewing_request' | 'property_question' | 'general_enquiry' | 'valuation_request' | 'callback_request'
+  title?: string
+}
+
+const {
+  property,
+  enquiryType = property ? 'viewing_request' : 'general_enquiry',
+  title = property ? 'Request a Viewing' : 'Get in Touch'
+} = Astro.props
+---
+
+<div class="bg-white rounded-lg shadow-md p-6">
+  <h2 class="text-2xl font-bold text-gray-900 mb-6">{title}</h2>
+
+  <form id="enquiry-form" class="space-y-4">
+    <!-- Honeypot (hidden field for bot detection) -->
+    <input
+      type="text"
+      name="website"
+      id="website"
+      tabindex="-1"
+      autocomplete="off"
+      style="position: absolute; left: -9999px;"
+    />
+
+    <!-- Property ID (hidden) -->
+    {property && (
+      <input type="hidden" name="property_id" value={property.id} />
+    )}
+
+    <!-- Enquiry Type (hidden or visible based on context) -->
+    <input type="hidden" name="enquiry_type" value={enquiryType} id="enquiry_type" />
+
+    <!-- Name -->
+    <div>
+      <label for="contact_name" class="block text-sm font-medium text-gray-700 mb-1">
+        Full Name <span class="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        id="contact_name"
+        name="contact_name"
+        required
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        placeholder="John Smith"
+      />
+      <p class="text-red-500 text-sm mt-1 hidden" id="error-contact_name"></p>
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-1">
+        Email Address <span class="text-red-500">*</span>
+      </label>
+      <input
+        type="email"
+        id="contact_email"
+        name="contact_email"
+        required
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        placeholder="john@example.com"
+      />
+      <p class="text-red-500 text-sm mt-1 hidden" id="error-contact_email"></p>
+    </div>
+
+    <!-- Phone -->
+    <div>
+      <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-1">
+        Phone Number
+      </label>
+      <input
+        type="tel"
+        id="contact_phone"
+        name="contact_phone"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        placeholder="07123 456789"
+      />
+      <p class="text-red-500 text-sm mt-1 hidden" id="error-contact_phone"></p>
+    </div>
+
+    <!-- Preferred Contact Method -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Preferred Contact Method
+      </label>
+      <div class="flex gap-4">
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="preferred_contact_method"
+            value="email"
+            checked
+            class="mr-2"
+          />
+          <span class="text-sm">Email</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="preferred_contact_method"
+            value="phone"
+            class="mr-2"
+          />
+          <span class="text-sm">Phone</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="radio"
+            name="preferred_contact_method"
+            value="either"
+            class="mr-2"
+          />
+          <span class="text-sm">Either</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Viewing Date (conditional) -->
+    {enquiryType === 'viewing_request' && (
+      <div>
+        <label for="preferred_viewing_date" class="block text-sm font-medium text-gray-700 mb-1">
+          Preferred Viewing Date
+        </label>
+        <input
+          type="date"
+          id="preferred_viewing_date"
+          name="preferred_viewing_date"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          min={new Date().toISOString().split('T')[0]}
+        />
+      </div>
+    )}
+
+    <!-- Message -->
+    <div>
+      <label for="message" class="block text-sm font-medium text-gray-700 mb-1">
+        Message <span class="text-red-500">*</span>
+      </label>
+      <textarea
+        id="message"
+        name="message"
+        required
+        rows="4"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        placeholder={enquiryType === 'viewing_request' 
+          ? "I'd like to arrange a viewing for this property..."
+          : "Your message here..."}
+      ></textarea>
+      <p class="text-red-500 text-sm mt-1 hidden" id="error-message"></p>
+    </div>
+
+    <!-- Marketing Opt-in -->
+    <div class="bg-gray-50 p-4 rounded-md">
+      <label class="flex items-start">
+        <input
+          type="checkbox"
+          name="marketing_opt_in"
+          id="marketing_opt_in"
+          class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <span class="text-sm text-gray-700">
+          I'd like to receive marketing communications about similar properties and services. You can unsubscribe at any time.
+        </span>
+      </label>
+    </div>
+
+    <!-- GDPR Notice -->
+    <div class="text-xs text-gray-600 bg-blue-50 p-3 rounded-md">
+      <p>
+        By submitting this form, you agree to our 
+        <a href="/privacy-policy" class="text-blue-600 hover:underline">Privacy Policy</a>
+        and consent to us contacting you about your enquiry. We will process your data in accordance with GDPR regulations.
+      </p>
+    </div>
+
+    <!-- Submit Button -->
+    <button
+      type="submit"
+      id="submit-btn"
+      class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Send Enquiry
+    </button>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="hidden text-center py-4">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <p class="text-gray-600 mt-2">Sending your enquiry...</p>
+    </div>
+
+    <!-- Success Message -->
+    <div id="success" class="hidden bg-green-50 border border-green-200 rounded-md p-4">
+      <div class="flex items-start">
+        <svg class="h-6 w-6 text-green-500 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <h3 class="text-green-800 font-semibold mb-1">Enquiry Sent Successfully!</h3>
+          <p class="text-green-700 text-sm">
+            Thank you for your enquiry. We'll be in touch shortly.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="error" class="hidden bg-red-50 border border-red-200 rounded-md p-4">
+      <div class="flex items-start">
+        <svg class="h-6 w-6 text-red-500 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <h3 class="text-red-800 font-semibold mb-1">Error Sending Enquiry</h3>
+          <p class="text-red-700 text-sm" id="error-message-text">
+            Please try again or contact us directly.
+          </p>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  import { submitEnquiry } from '../../lib/api'
+  import { getSessionId } from '../../lib/session'
+  import { isValidEmail, isValidUKPhone } from '../../lib/utils'
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('enquiry-form') as HTMLFormElement
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement
+    const loading = document.getElementById('loading')
+    const success = document.getElementById('success')
+    const error = document.getElementById('error')
+    const errorMessageText = document.getElementById('error-message-text')
+
+    if (!form) return
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      // Clear previous errors
+      document.querySelectorAll('[id^="error-"]').forEach(el => {
+        el.classList.add('hidden')
+        el.textContent = ''
+      })
+      success?.classList.add('hidden')
+      error?.classList.add('hidden')
+
+      // Get form data
+      const formData = new FormData(form)
+      
+      // Client-side validation
+      const contactName = formData.get('contact_name') as string
+      const contactEmail = formData.get('contact_email') as string
+      const contactPhone = formData.get('contact_phone') as string
+      const message = formData.get('message') as string
+
+      let hasErrors = false
+
+      if (!contactName || contactName.trim().length < 2) {
+        showFieldError('contact_name', 'Please enter a valid name')
+        hasErrors = true
+      }
+
+      if (!contactEmail || !isValidEmail(contactEmail)) {
+        showFieldError('contact_email', 'Please enter a valid email address')
+        hasErrors = true
+      }
+
+      if (contactPhone && !isValidUKPhone(contactPhone)) {
+        showFieldError('contact_phone', 'Please enter a valid UK phone number')
+        hasErrors = true
+      }
+
+      if (!message || message.trim().length < 10) {
+        showFieldError('message', 'Please enter a message (minimum 10 characters)')
+        hasErrors = true
+      }
+
+      if (hasErrors) return
+
+      // Show loading
+      submitBtn.disabled = true
+      loading?.classList.remove('hidden')
+
+      try {
+        // Get session ID
+        const sessionId = getSessionId()
+
+        // Build enquiry object
+        const enquiryData = {
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone || undefined,
+          preferred_contact_method: formData.get('preferred_contact_method') as any,
+          enquiry_type: formData.get('enquiry_type') as any,
+          message: message,
+          property_id: formData.get('property_id') as string || undefined,
+          preferred_viewing_date: formData.get('preferred_viewing_date') as string || undefined,
+          marketing_opt_in: formData.get('marketing_opt_in') === 'on',
+        }
+
+        // Submit enquiry
+        const response = await submitEnquiry(enquiryData, sessionId)
+
+        if (response.success) {
+          // Show success
+          success?.classList.remove('hidden')
+          form.reset()
+          
+          // Scroll to success message
+          success?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else {
+          // Show errors
+          if (response.errors) {
+            Object.entries(response.errors).forEach(([field, messages]) => {
+              showFieldError(field, messages[0])
+            })
+          }
+          
+          // Show general error
+          if (errorMessageText) {
+            errorMessageText.textContent = response.message || 'Please check the form and try again.'
+          }
+          error?.classList.remove('hidden')
+        }
+      } catch (err) {
+        console.error('Enquiry error:', err)
+        if (errorMessageText) {
+          errorMessageText.textContent = 'An unexpected error occurred. Please try again.'
+        }
+        error?.classList.remove('hidden')
+      } finally {
+        submitBtn.disabled = false
+        loading?.classList.add('hidden')
+      }
+    })
+
+    function showFieldError(field: string, message: string) {
+      const errorEl = document.getElementById(`error-${field}`)
+      if (errorEl) {
+        errorEl.textContent = message
+        errorEl.classList.remove('hidden')
+      }
+    }
+  })
+</script>

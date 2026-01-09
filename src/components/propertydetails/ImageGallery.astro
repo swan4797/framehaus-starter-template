@@ -1,0 +1,286 @@
+---
+// ========================================
+// IMAGE GALLERY COMPONENT
+// Lightbox gallery for property images
+// ========================================
+
+import type { PropertyMedia } from '../../types/database'
+
+interface Props {
+  images: PropertyMedia[]
+  propertyAddress: string
+}
+
+const { images, propertyAddress } = Astro.props
+
+// Sort by display order
+const sortedImages = [...images]
+  .filter(img => img.media_type === 'image')
+  .sort((a, b) => a.display_order - b.display_order)
+
+const hasImages = sortedImages.length > 0
+const primaryImage = sortedImages[0]
+---
+
+<div class="property-gallery">
+  {hasImages ? (
+    <>
+      <!-- Main Image -->
+      <div class="main-image-container mb-4">
+        <img
+          src={primaryImage.file_url}
+          alt={primaryImage.alt_text || `${propertyAddress} - Main Image`}
+          class="w-full h-[500px] object-cover rounded-lg cursor-pointer"
+          id="main-image"
+          data-index="0"
+        />
+        
+        <!-- Image Counter -->
+        <div class="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-md text-sm">
+          <span id="current-image">1</span> / {sortedImages.length}
+        </div>
+
+        <!-- Navigation Arrows (only if multiple images) -->
+        {sortedImages.length > 1 && (
+          <>
+            <button
+              class="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all"
+              id="prev-btn"
+              aria-label="Previous image"
+            >
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              class="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all"
+              id="next-btn"
+              aria-label="Next image"
+            >
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
+      </div>
+
+      <!-- Thumbnail Grid -->
+      {sortedImages.length > 1 && (
+        <div class="thumbnail-grid grid grid-cols-4 md:grid-cols-6 gap-2">
+          {sortedImages.map((image, index) => (
+            <button
+              class="thumbnail aspect-square overflow-hidden rounded-md cursor-pointer hover:opacity-75 transition-opacity border-2 border-transparent hover:border-blue-500"
+              data-index={index}
+              aria-label={`View image ${index + 1}`}
+            >
+              <img
+                src={image.thumbnail_url || image.file_url}
+                alt={image.alt_text || `${propertyAddress} - Image ${index + 1}`}
+                class="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      <!-- Lightbox Modal -->
+      <div
+        id="lightbox"
+        class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center p-4"
+      >
+        <button
+          id="close-lightbox"
+          class="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+          aria-label="Close lightbox"
+        >
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <button
+          id="lightbox-prev"
+          class="absolute left-4 text-white hover:text-gray-300 z-10"
+          aria-label="Previous image"
+        >
+          <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button
+          id="lightbox-next"
+          class="absolute right-4 text-white hover:text-gray-300 z-10"
+          aria-label="Next image"
+        >
+          <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <img
+          id="lightbox-image"
+          src=""
+          alt=""
+          class="max-w-full max-h-full object-contain"
+        />
+
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm">
+          <span id="lightbox-counter">1 / {sortedImages.length}</span>
+        </div>
+      </div>
+    </>
+  ) : (
+    <div class="w-full h-[500px] bg-gray-200 rounded-lg flex items-center justify-center">
+      <div class="text-center text-gray-500">
+        <svg class="w-16 h-16 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <p>No images available</p>
+      </div>
+    </div>
+  )}
+</div>
+
+<script define:vars={{ sortedImages }}>
+  // Gallery State
+  let currentIndex = 0
+  const images = sortedImages
+
+  // Elements
+  const mainImage = document.getElementById('main-image')
+  const currentImageSpan = document.getElementById('current-image')
+  const prevBtn = document.getElementById('prev-btn')
+  const nextBtn = document.getElementById('next-btn')
+  const thumbnails = document.querySelectorAll('.thumbnail')
+  
+  // Lightbox
+  const lightbox = document.getElementById('lightbox')
+  const lightboxImage = document.getElementById('lightbox-image')
+  const lightboxCounter = document.getElementById('lightbox-counter')
+  const closeLightbox = document.getElementById('close-lightbox')
+  const lightboxPrev = document.getElementById('lightbox-prev')
+  const lightboxNext = document.getElementById('lightbox-next')
+
+  // Update main image
+  function updateMainImage(index) {
+    currentIndex = index
+    if (mainImage && images[index]) {
+      mainImage.src = images[index].file_url
+      mainImage.alt = images[index].alt_text || `Image ${index + 1}`
+      mainImage.dataset.index = index.toString()
+    }
+    if (currentImageSpan) {
+      currentImageSpan.textContent = (index + 1).toString()
+    }
+    
+    // Update thumbnail active state
+    thumbnails.forEach((thumb, i) => {
+      if (i === index) {
+        thumb.classList.add('border-blue-500')
+      } else {
+        thumb.classList.remove('border-blue-500')
+      }
+    })
+  }
+
+  // Navigate
+  function navigate(direction) {
+    const newIndex = direction === 'next' 
+      ? (currentIndex + 1) % images.length
+      : (currentIndex - 1 + images.length) % images.length
+    updateMainImage(newIndex)
+  }
+
+  // Open lightbox
+  function openLightbox(index) {
+    currentIndex = index
+    if (lightbox && lightboxImage && images[index]) {
+      lightboxImage.src = images[index].file_url
+      lightboxImage.alt = images[index].alt_text || `Image ${index + 1}`
+      lightbox.classList.remove('hidden')
+      lightbox.classList.add('flex')
+      updateLightboxCounter()
+      document.body.style.overflow = 'hidden'
+    }
+  }
+
+  // Close lightbox
+  function closeLightboxFunc() {
+    if (lightbox) {
+      lightbox.classList.add('hidden')
+      lightbox.classList.remove('flex')
+      document.body.style.overflow = ''
+    }
+  }
+
+  // Update lightbox counter
+  function updateLightboxCounter() {
+    if (lightboxCounter) {
+      lightboxCounter.textContent = `${currentIndex + 1} / ${images.length}`
+    }
+  }
+
+  // Navigate lightbox
+  function navigateLightbox(direction) {
+    const newIndex = direction === 'next'
+      ? (currentIndex + 1) % images.length
+      : (currentIndex - 1 + images.length) % images.length
+    currentIndex = newIndex
+    if (lightboxImage && images[newIndex]) {
+      lightboxImage.src = images[newIndex].file_url
+      lightboxImage.alt = images[newIndex].alt_text || `Image ${newIndex + 1}`
+      updateLightboxCounter()
+    }
+  }
+
+  // Event Listeners
+  if (prevBtn) prevBtn.addEventListener('click', () => navigate('prev'))
+  if (nextBtn) nextBtn.addEventListener('click', () => navigate('next'))
+  
+  thumbnails.forEach((thumb, index) => {
+    thumb.addEventListener('click', () => updateMainImage(index))
+  })
+
+  if (mainImage) {
+    mainImage.addEventListener('click', () => {
+      const index = parseInt(mainImage.dataset.index || '0')
+      openLightbox(index)
+    })
+  }
+
+  if (closeLightbox) closeLightbox.addEventListener('click', closeLightboxFunc)
+  if (lightboxPrev) lightboxPrev.addEventListener('click', () => navigateLightbox('prev'))
+  if (lightboxNext) lightboxNext.addEventListener('click', () => navigateLightbox('next'))
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (lightbox && !lightbox.classList.contains('hidden')) {
+      if (e.key === 'ArrowLeft') navigateLightbox('prev')
+      if (e.key === 'ArrowRight') navigateLightbox('next')
+      if (e.key === 'Escape') closeLightboxFunc()
+    }
+  })
+
+  // Click outside to close
+  if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightboxFunc()
+    })
+  }
+</script>
+
+<style>
+  .main-image-container {
+    position: relative;
+  }
+
+  .thumbnail.border-blue-500 {
+    border-color: #3b82f6;
+  }
+
+  #lightbox {
+    backdrop-filter: blur(4px);
+  }
+</style>

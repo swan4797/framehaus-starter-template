@@ -1,36 +1,301 @@
 ---
-import "../styles/global.css";
+// ========================================
+// BASE LAYOUT
+// Main layout with navigation, SEO, and footer
+// ========================================
 
-import TrackerScript from '../components/tracking/TrackerScript.astro'
+import { siteConfig, apiConfig } from '../lib/config'
+import CookieConsent from '../components/CookieConsent.astro'
 
 interface Props {
-  title: string
+  title?: string
   description?: string
+  ogImage?: string
+  canonicalUrl?: string
+  noIndex?: boolean
 }
 
-const { title, description } = Astro.props
+const {
+  title = siteConfig.name,
+  description = siteConfig.description,
+  ogImage = '/images/og-default.jpg',
+  canonicalUrl = Astro.url.href,
+  noIndex = false,
+} = Astro.props
+
+const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`
 ---
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-		<!-- Tracking Script -->
-		<TrackerScript />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO Meta Tags -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={fullTitle} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="min-h-screen flex flex-col bg-gray-50">
+    <!-- Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div class="flex-shrink-0">
+            <a href="/" class="flex items-center">
+              <span class="text-2xl font-bold text-blue-600">{siteConfig.name}</span>
+            </a>
+          </div>
+
+          <!-- Navigation Links -->
+          <div class="hidden md:flex md:space-x-8">
+            <a
+              href="/search?listing_type=sale"
+              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+            >
+              For Sale
+            </a>
+            <a
+              href="/search?listing_type=let"
+              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+            >
+              To Rent
+            </a>
+            <a
+              href="/valuation"
+              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+            >
+              Get a Valuation
+            </a>
+            <a
+              href="/contact"
+              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden">
+            <button
+              type="button"
+              class="text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-md p-2"
+              id="mobile-menu-button"
+              aria-expanded="false"
+            >
+              <span class="sr-only">Open menu</span>
+              <svg
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden" id="mobile-menu">
+          <div class="px-2 pt-2 pb-3 space-y-1">
+            <a
+              href="/search?listing_type=sale"
+              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              For Sale
+            </a>
+            <a
+              href="/search?listing_type=let"
+              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              To Rent
+            </a>
+            <a
+              href="/valuation"
+              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              Get a Valuation
+            </a>
+            <a
+              href="/contact"
+              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <!-- Company Info -->
+          <div class="col-span-1">
+            <h3 class="text-lg font-semibold mb-4">{siteConfig.name}</h3>
+            <p class="text-gray-400 text-sm">
+              Your trusted property partner
+            </p>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="col-span-1">
+            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">Quick Links</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="/search?listing_type=sale" class="text-gray-400 hover:text-white text-sm transition-colors">
+                  Properties for Sale
+                </a>
+              </li>
+              <li>
+                <a href="/search?listing_type=let" class="text-gray-400 hover:text-white text-sm transition-colors">
+                  Properties to Rent
+                </a>
+              </li>
+              <li>
+                <a href="/valuation" class="text-gray-400 hover:text-white text-sm transition-colors">
+                  Request Valuation
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Legal -->
+          <div class="col-span-1">
+            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">Legal</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="/privacy-policy" class="text-gray-400 hover:text-white text-sm transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="/cookie-policy" class="text-gray-400 hover:text-white text-sm transition-colors">
+                  Cookie Policy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" class="text-gray-400 hover:text-white text-sm transition-colors">
+                  Terms & Conditions
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact -->
+          <div class="col-span-1">
+            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">Contact Us</h4>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li>Email: hello@example.com</li>
+              <li>Phone: 020 1234 5678</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
+          <p>&copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Mobile Menu Toggle Script -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const button = document.getElementById('mobile-menu-button')
+        const menu = document.getElementById('mobile-menu')
+
+        if (button && menu) {
+          button.addEventListener('click', () => {
+            const isHidden = menu.classList.contains('hidden')
+            if (isHidden) {
+              menu.classList.remove('hidden')
+              button.setAttribute('aria-expanded', 'true')
+            } else {
+              menu.classList.add('hidden')
+              button.setAttribute('aria-expanded', 'false')
+            }
+          })
+        }
+      })
+    </script>
+
+    <!-- Session Management -->
+    <script>
+      import { initSessionManagement } from '../lib/session'
+      
+      // Initialize session on page load
+      initSessionManagement()
+    </script>
+
+    <!-- Tracker Configuration -->
+    <script define:vars={{ apiUrl: apiConfig.baseUrl, apiKey: apiConfig.apiKey }}>
+      // Set global config for tracker
+      window.STRATOS_API_URL = apiUrl
+      window.STRATOS_API_KEY = apiKey
+    </script>
+
+    <!-- Stratos Tracker Script (TypeScript) -->
+    <script>
+      import '../utils/stratos-tracker'
+    </script>
+
+    <!-- Cookie Consent -->
+    <CookieConsent />
+  </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
 </style>
