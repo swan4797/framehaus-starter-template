@@ -73,7 +73,7 @@ const bedroomOptions = [
 ]
 ---
 
-<form method="get" action="/search" class="bg-white rounded-lg shadow-md p-6">
+<form method="get" action="/search" class="bg-white rounded-lg shadow-md p-6" id="search-filters-form">
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
     <!-- Listing Type -->
     <div class="lg:col-span-3">
@@ -127,7 +127,7 @@ const bedroomOptions = [
       <select
         id="min_price"
         name="min_price"
-        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
         {(listingType === 'sale' ? salePriceRanges : rentPriceRanges).map(range => (
           <option value={range.value} selected={minPrice.toString() === range.value}>
@@ -145,7 +145,7 @@ const bedroomOptions = [
       <select
         id="max_price"
         name="max_price"
-        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
         {maxPriceRanges.map(range => (
           <option value={range.value} selected={maxPrice.toString() === range.value}>
@@ -163,7 +163,7 @@ const bedroomOptions = [
       <select
         id="beds"
         name="beds"
-        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
         {bedroomOptions.map(option => (
           <option value={option.value} selected={beds.toString() === option.value}>
@@ -181,7 +181,7 @@ const bedroomOptions = [
       <select
         id="property_type"
         name="property_type"
-        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
         {propertyTypes.map(type => (
           <option value={type.value} selected={propertyType === type.value}>
@@ -210,11 +210,45 @@ const bedroomOptions = [
 </form>
 
 <script>
-  // Update price ranges when listing type changes
   document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form')
+    const form = document.getElementById('search-filters-form')
     const listingTypeInputs = document.querySelectorAll('input[name="listing_type"]')
+    const filterInputs = document.querySelectorAll('.filter-input')
     
+    // ✅ TRACKING: Search form submission
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        const formData = new FormData(form as HTMLFormElement)
+        
+        // Track search event
+        if (window.StratosTracker) {
+          window.StratosTracker.trackSearch({
+            listing_type: formData.get('listing_type'),
+            location: formData.get('location'),
+            min_price: formData.get('min_price'),
+            max_price: formData.get('max_price'),
+            beds: formData.get('beds'),
+            property_type: formData.get('property_type'),
+          })
+        }
+      })
+    }
+    
+    // ✅ TRACKING: Filter changes
+    filterInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement
+        
+        if (window.StratosTracker) {
+          window.StratosTracker.trackFilterChange(
+            target.name,
+            target.value
+          )
+        }
+      })
+    })
+    
+    // Update price ranges when listing type changes
     if (form && listingTypeInputs.length > 0) {
       listingTypeInputs.forEach(input => {
         input.addEventListener('change', () => {

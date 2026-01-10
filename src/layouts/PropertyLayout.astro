@@ -1,18 +1,21 @@
 ---
 // ========================================
-// BASE LAYOUT
-// Main layout with navigation, SEO, and footer
+// PROPERTY LAYOUT
+// Specialized layout for property detail pages
+// Disables auto page tracking to allow manual property_view tracking
 // ========================================
 
 import { siteConfig, apiConfig } from '../lib/config'
 import CookieConsent from '../components/CookieConsent.astro'
 import "../styles/global.css";
+
 interface Props {
   title?: string
   description?: string
   ogImage?: string
   canonicalUrl?: string
   noIndex?: boolean
+  propertyId: string  // ✅ Required for property pages
 }
 
 const {
@@ -21,6 +24,7 @@ const {
   ogImage = '/images/og-default.jpg',
   canonicalUrl = Astro.url.href,
   noIndex = false,
+  propertyId, // ✅ Extract property ID
 } = Astro.props
 
 const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`
@@ -261,32 +265,64 @@ const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.n
       })
     </script>
 
-    <!-- Session Management -->
-    <!-- Initialize Stratos Tracker -->
+    <!-- ========================================
+         PROPERTY TRACKING (NO AUTO PAGE VIEW)
+         ======================================== -->
+    <!-- Session Management & Tracker Initialization -->
     <script>
-		import { StratosTracker } from '../lib/stratos-tracker';
-		import { initSession } from '../lib/session';
-		
-		// Initialize session management
-		initSession();
-		
-		// Create tracker instance
-		const tracker = new StratosTracker({
-		  apiUrl: import.meta.env.PUBLIC_SUPABASE_URL,
-		  apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY,
-		  trackingEnabled: true,
-		  debug: import.meta.env.DEV, // Debug in development only
-		});
-		window.StratosTracker = tracker;
-		// Initialize tracker
-		tracker.init();
-		// Track page view on every page
-		tracker.trackPageView();
-		// Make tracker globally available
-		
+      import { StratosTracker } from '../lib/stratos-tracker';
+      import { initSession } from '../lib/session';
+      
+      // Initialize session management
+      initSession();
+      
+      // Create tracker instance
+      const tracker = new StratosTracker({
+        apiUrl: import.meta.env.PUBLIC_SUPABASE_URL,
+        apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY,
+        trackingEnabled: true,
+        debug: import.meta.env.DEV, // Debug in development only
+      });
+      
+      // Initialize tracker
+      tracker.init();
+      
+      // ❌ DO NOT track page view here - property pages handle their own tracking
+      // tracker.trackPageView(); // ← Removed!
+      
+      // Make tracker globally available
+      window.StratosTracker = tracker;
+      
+      console.log('✅ Stratos Tracker initialized (Property Layout - No auto page tracking)');
+    </script>
 
-		console.log('Stratos Tracker initialized');
-	  </script>
+    <!-- Property-Specific Tracking -->
+     
+    <script define:vars={{ propertyId }}>
+      // Wait for tracker to be ready
+      const trackProperty = () => {
+        if (window.StratosTracker) {
+          console.log('🏠 Tracking property view:', propertyId);
+          
+          // Track property view (not page view!)
+          window.StratosTracker.trackPropertyView(propertyId);
+          
+          // Setup duration tracking
+          window.StratosTracker.setupPropertyDurationTracking(propertyId);
+          
+          console.log('✅ Property tracking initialized');
+        } else {
+          console.error('❌ StratosTracker not found');
+        }
+      };
+
+      // Try immediately, or wait for DOMContentLoaded
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', trackProperty);
+      } else {
+        trackProperty();
+      }
+    </script>
 
     <!-- Cookie Consent -->
     <CookieConsent />

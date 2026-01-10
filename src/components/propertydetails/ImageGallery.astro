@@ -9,9 +9,10 @@ import type { PropertyMedia } from '../../types/database'
 interface Props {
   images: PropertyMedia[]
   propertyAddress: string
+  propertyId?: string
 }
 
-const { images, propertyAddress } = Astro.props
+const { images, propertyAddress, propertyId } = Astro.props
 
 // Sort by display order
 const sortedImages = [...images]
@@ -22,11 +23,11 @@ const hasImages = sortedImages.length > 0
 const primaryImage = sortedImages[0]
 ---
 
-<div class="property-gallery">
+<div class="property-gallery" data-property-id={propertyId}>
   {hasImages ? (
     <>
       <!-- Main Image -->
-      <div class="main-image-container mb-4">
+      <div class="main-image-container mb-4 relative">
         <img
           src={primaryImage.file_url}
           alt={primaryImage.alt_text || `${propertyAddress} - Main Image`}
@@ -143,10 +144,11 @@ const primaryImage = sortedImages[0]
   )}
 </div>
 
-<script define:vars={{ sortedImages }}>
+<script define:vars={{ sortedImages, propertyId }}>
   // Gallery State
   let currentIndex = 0
   const images = sortedImages
+  const propId = propertyId
 
   // Elements
   const mainImage = document.getElementById('main-image')
@@ -162,6 +164,17 @@ const primaryImage = sortedImages[0]
   const closeLightbox = document.getElementById('close-lightbox')
   const lightboxPrev = document.getElementById('lightbox-prev')
   const lightboxNext = document.getElementById('lightbox-next')
+
+  // ✅ TRACKING: Track image view
+  function trackImageView(index) {
+    if (window.StratosTracker && propId) {
+      window.StratosTracker.trackEvent('image_gallery_view', {
+        property_id: propId,
+        image_index: index,
+        image_count: images.length,
+      })
+    }
+  }
 
   // Update main image
   function updateMainImage(index) {
@@ -183,6 +196,9 @@ const primaryImage = sortedImages[0]
         thumb.classList.remove('border-blue-500')
       }
     })
+
+    // ✅ TRACKING: Track image navigation
+    trackImageView(index)
   }
 
   // Navigate
@@ -203,6 +219,14 @@ const primaryImage = sortedImages[0]
       lightbox.classList.add('flex')
       updateLightboxCounter()
       document.body.style.overflow = 'hidden'
+
+      // ✅ TRACKING: Track lightbox open
+      if (window.StratosTracker && propId) {
+        window.StratosTracker.trackEvent('lightbox_opened', {
+          property_id: propId,
+          image_index: index,
+        })
+      }
     }
   }
 
@@ -232,6 +256,9 @@ const primaryImage = sortedImages[0]
       lightboxImage.src = images[newIndex].file_url
       lightboxImage.alt = images[newIndex].alt_text || `Image ${newIndex + 1}`
       updateLightboxCounter()
+      
+      // ✅ TRACKING: Track lightbox navigation
+      trackImageView(newIndex)
     }
   }
 

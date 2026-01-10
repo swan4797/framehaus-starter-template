@@ -35,9 +35,10 @@ const listedDate = property.listed_date ? formatRelativeDate(property.listed_dat
 
 <article
   class:list={[
-    'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300',
+    'property-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300',
     { 'ring-2 ring-blue-500': featured }
   ]}
+  data-property-id={property.id}
 >
   <a href={propertyUrl} class="block group">
     <!-- Image -->
@@ -148,10 +149,21 @@ const listedDate = property.listed_date ? formatRelativeDate(property.listed_dat
     overflow: hidden;
   }
 </style>
+
+<!-- ✅ TRACKING: Property card click -->
 <script define:vars={{ propertyId: property.id }}>
-    document.querySelector('.property-card')?.addEventListener('click', () => {
-      window.StratosTracker?.trackEvent('property_card_click', {
-        property_id: propertyId,
+  document.addEventListener('DOMContentLoaded', () => {
+    // Find THIS specific card by its property ID
+    const card = document.querySelector(`[data-property-id="${propertyId}"]`);
+    
+    if (card) {
+      card.addEventListener('click', () => {
+        if (window.StratosTracker) {
+          window.StratosTracker.trackEvent('property_card_click', {
+            property_id: propertyId,
+          });
+        }
       });
-    });
+    }
+  });
 </script>

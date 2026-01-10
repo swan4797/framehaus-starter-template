@@ -1,10 +1,7 @@
 ---
-// ========================================
-// PROPERTY SEARCH PAGE
-// Main search page with filters and results
-// ========================================
+// File: src/pages/search.astro
+// UPDATED WITH TRACKING INTEGRATION
 
-// Force server-side rendering for dynamic search results
 export const prerender = false
 
 import Layout from '../layouts/Layout.astro'
@@ -31,19 +28,14 @@ const searchParams: PropertySearchParams = {
 // Fetch properties
 const searchResponse = await searchProperties(searchParams)
 
-// Handle error state
 const hasError = !searchResponse
 const properties = searchResponse?.properties || []
 const total = searchResponse?.total || 0
-const hasMore = searchResponse?.has_more || false
 const totalPages = Math.ceil(total / (searchParams.limit || 20))
 
-// Build page title
 const listingTypeText = searchParams.listing_type === 'sale' ? 'For Sale' : 'To Rent'
 const locationText = searchParams.location ? ` in ${searchParams.location}` : ''
 const pageTitle = `Properties ${listingTypeText}${locationText}`
-
-// Build meta description
 const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locationText}. ${total} properties available.`
 ---
 
@@ -61,41 +53,35 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Filters -->
+      <!-- ✅ Search Filters with tracking -->
       <div class="mb-8">
         <SearchFilters currentParams={searchParams} />
       </div>
 
-      <!-- Error State -->
       {hasError && (
         <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
           <h2 class="text-xl font-semibold text-gray-900 mb-2">
             Unable to Load Properties
           </h2>
           <p class="text-gray-600 mb-4">
-            We're experiencing technical difficulties. Please try again later.
+            Please try again later.
           </p>
           <a
             href="/search"
-            class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
           >
             Reset Search
           </a>
         </div>
       )}
 
-      <!-- Results -->
       {!hasError && (
         <>
           <!-- Results Header -->
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <div>
-              <h2 class="text-2xl font-semibold text-gray-900">
+              <h2 class="text-2xl font-semibold text-gray-900" data-results-count={total}>
                 {total === 0 ? 'No properties found' : `${total.toLocaleString()} ${total === 1 ? 'property' : 'properties'} found`}
               </h2>
               {searchParams.location && (
@@ -113,7 +99,7 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
               <select
                 id="sort_by"
                 name="sort_by"
-                class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
               >
                 <option value="newest" selected={searchParams.sort_by === 'newest'}>Newest</option>
                 <option value="price_asc" selected={searchParams.sort_by === 'price_asc'}>Price (Low to High)</option>
@@ -137,7 +123,7 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
               </p>
               <a
                 href="/search"
-                class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
+                class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700"
               >
                 Reset Search
               </a>
@@ -169,51 +155,43 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
 </Layout>
 
 <script>
-  import { api } from '../lib/api'
-  import { getSessionId } from '../lib/session'
-
-  // Track property search
   document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search)
+    const urlParams = new URLSearchParams(window.location.search);
     
-    // Only track if there are search parameters
-    if (urlParams.toString()) {
-      const sessionId = getSessionId()
-      
-      // Extract search params
-      const searchParams: Record<string, any> = {}
+    // ✅ TRACKING: Track search event (only if there are search parameters)
+    if (urlParams.toString() && window.StratosTracker) {
+      const searchParams: Record<string, any> = {};
       urlParams.forEach((value, key) => {
-        searchParams[key] = value
-      })
+        searchParams[key] = value;
+      });
 
-      // Track search event
-      api.trackEvent({
-        event_type: 'search',
-        session_id: sessionId,
-        timestamp: new Date().toISOString(),
-        page_url: window.location.href,
-        page_path: window.location.pathname,
-        page_title: document.title,
-        referrer: document.referrer || undefined,
+      const resultsCount = document.querySelector('[data-results-count]')?.textContent || '0';
+
+      window.StratosTracker.trackEvent('search', {
         search_params: searchParams,
-        results_count: parseInt(document.querySelector('[data-results-count]')?.textContent || '0'),
-      })
+        results_count: parseInt(resultsCount.match(/\d+/)?.[0] || '0'),
+      });
     }
-  })
 
-  // Handle sort change
-  const sortSelect = document.getElementById('sort_by') as HTMLSelectElement
-  if (sortSelect) {
-    sortSelect.addEventListener('change', (e) => {
-      const target = e.target as HTMLSelectElement
-      const urlParams = new URLSearchParams(window.location.search)
-      urlParams.set('sort_by', target.value)
-      urlParams.delete('page') // Reset to page 1 when sorting
-      window.location.href = `/search?${urlParams.toString()}`
-    })
-  }
+    // ✅ TRACKING: Handle sort change
+    const sortSelect = document.getElementById('sort_by') as HTMLSelectElement;
+    if (sortSelect) {
+      sortSelect.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement;
+        
+        // Track sort change
+        if (window.StratosTracker) {
+          window.StratosTracker.trackEvent('search_sort_change', {
+            sort_by: target.value,
+          });
+        }
+        
+        // Update URL
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('sort_by', target.value);
+        urlParams.delete('page'); // Reset to page 1
+        window.location.href = `/search?${urlParams.toString()}`;
+      });
+    }
+  });
 </script>
-
-<style>
-  /* Add custom styles if needed */
-</style>
