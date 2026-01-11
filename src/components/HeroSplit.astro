@@ -1,0 +1,202 @@
+---
+interface PropertyImage {
+  src: string;
+  alt: string;
+}
+
+interface Props {
+  headline: string;
+  description: string;
+  ctaText: string;
+  ctaLink: string;
+  propertyImages: PropertyImage[];
+  backgroundColor?: string;
+}
+
+const {
+  headline,
+  description,
+  ctaText,
+  ctaLink,
+  propertyImages,
+  backgroundColor = '#f5f5f5',
+} = Astro.props;
+---
+
+<section class="hero" style={`background-color: ${backgroundColor}`}>
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1 class="hero-headline">{headline}</h1>
+      <p class="hero-description">{description}</p>
+      <a href={ctaLink} class="hero-cta">{ctaText}</a>
+    </div>
+
+    <div class="hero-showcase">
+      <div class="showcase-grid">
+        {
+          propertyImages.slice(0, 4).map((image) => (
+            <div class="showcase-item">
+              <img src={image.src} alt={image.alt} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    width: 100%;
+    padding: 4rem 2rem 6rem;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .hero-content {
+    padding-right: 2rem;
+  }
+
+  .hero-headline {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-description {
+    font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+    color: #666;
+    margin: 0 0 2.5rem 0;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    font-size: 1.05rem;
+    color: white;
+    background: #1a1a1a;
+    border: none;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  .hero-cta:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .hero-showcase {
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .showcase-item {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #e0e0e0;
+  }
+
+  .showcase-item:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .showcase-item:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .showcase-item:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .showcase-item:nth-child(4) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .showcase-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .showcase-item:hover img {
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 1024px) {
+    .hero-container {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .hero-content {
+      padding-right: 0;
+      text-align: center;
+    }
+
+    .hero-showcase {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .hero-headline {
+      font-size: 2rem;
+    }
+
+    .hero-description {
+      font-size: 1rem;
+    }
+
+    .showcase-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .showcase-item {
+      aspect-ratio: 16 / 10;
+    }
+
+    .showcase-item:nth-child(n) {
+      grid-column: 1;
+      grid-row: auto;
+    }
+  }
+</style>

@@ -279,15 +279,142 @@ export class StratosTracker {
     })
   }
 
-  /**
-   * Track favorite/save
-   */
-  public trackFavorite(propertyId: string): void {
-    this.trackEvent('favorite', {
-      property_id: propertyId,
-      page_url: window.location.href,
-    })
+// ========================================
+// FAVOURITES METHODS
+// ========================================
+
+/**
+ * Toggle favourite (add/remove)
+ * Returns true if now favourited, false if unfavourited
+ */
+public async toggleFavourite(
+  propertyId: string,
+  source: string = 'unknown'
+): Promise<boolean> {
+  if (!this.config.trackingEnabled) {
+    this.log('Tracking disabled, skipping favourite toggle')
+    return false
   }
+
+  const visitorId = getVisitorId()
+  const sessionId = getSessionId()
+
+  try {
+    // Check current state
+    const isFavourited = await this.isFavourited(propertyId)
+    const action = isFavourited ? 'unfavourite' : 'favourite'
+
+    this.log('Toggling favourite:', action, propertyId)
+
+    // Call API
+    const response = await fetch(
+      `${this.config.apiUrl}/functions/v1/toggle-favourite`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': this.config.apiKey,
+        },
+        body: JSON.stringify({
+          visitor_id: visitorId,
+          session_id: sessionId,
+          property_id: propertyId,
+          action,
+          source,
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('[StratosTracker] Toggle favourite failed:', error)
+      return isFavourited // Return current state on error
+    }
+
+    const result = await response.json()
+    this.log('Favourite toggled:', result)
+
+    // Track as event for analytics
+    this.trackEvent(
+      action === 'favourite' ? 'property_favourited' : 'property_unfavourited',
+      {
+        property_id: propertyId,
+        source,
+      }
+    )
+
+    return result.is_favourited
+  } catch (error) {
+    console.error('[StratosTracker] Error toggling favourite:', error)
+    return false
+  }
+}
+
+/**
+ * Get all favourites for current visitor
+ */
+public async getFavourites(): Promise<any[]> {
+  if (!this.config.trackingEnabled) {
+    this.log('Tracking disabled, skipping get favourites')
+    return []
+  }
+
+  const visitorId = getVisitorId()
+
+  try {
+    this.log('Getting favourites for visitor:', visitorId)
+
+    const response = await fetch(
+      `${this.config.apiUrl}/functions/v1/get-favourites?visitor_id=${visitorId}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-api-key': this.config.apiKey,
+        },
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('[StratosTracker] Get favourites failed:', error)
+      return []
+    }
+
+    const result = await response.json()
+    this.log('Favourites retrieved:', result.count)
+
+    return result.favourites || []
+  } catch (error) {
+    console.error('[StratosTracker] Error getting favourites:', error)
+    return []
+  }
+}
+
+/**
+ * Check if a property is favourited
+ */
+public async isFavourited(propertyId: string): Promise<boolean> {
+  try {
+    const favourites = await this.getFavourites()
+    return favourites.some((f) => f.property.id === propertyId)
+  } catch (error) {
+    console.error('[StratosTracker] Error checking favourite status:', error)
+    return false
+  }
+}
+
+/**
+ * Get favourites count
+ */
+public async getFavouritesCount(): Promise<number> {
+  try {
+    const favourites = await this.getFavourites()
+    return favourites.length
+  } catch (error) {
+    console.error('[StratosTracker] Error getting favourites count:', error)
+    return 0
+  }
+}
 
   /**
    * Track share

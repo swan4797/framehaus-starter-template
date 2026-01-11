@@ -1,0 +1,233 @@
+---
+// ========================================
+// FAVOURITES PAGE
+// Display user's shortlisted properties
+// ========================================
+
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout 
+  title="Your Favourites"
+  description="View your saved properties"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">Your Favourites</h1>
+      <p class="text-gray-600">Properties you've saved for later</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="flex flex-col items-center justify-center py-20">
+      <svg class="animate-spin h-12 w-12 text-red-500 mb-4" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p class="text-gray-600">Loading your favourites...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-20">
+      <svg class="mx-auto h-24 w-24 text-gray-400 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">No properties saved yet</h2>
+      <p class="text-gray-600 mb-8">Start browsing and click the heart icon to save properties here!</p>
+      <a
+        href="/search"
+        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 transition-colors"
+      >
+        Browse Properties
+      </a>
+    </div>
+
+    <!-- Favourites Grid -->
+    <div id="favourites-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Properties will be inserted here -->
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { StratosTracker } from '../lib/stratos-tracker'
+  import { initSession } from '../lib/session'
+
+  // Initialize
+  initSession()
+  const tracker = new StratosTracker({
+    apiUrl: import.meta.env.PUBLIC_SUPABASE_URL,
+    apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY,
+    trackingEnabled: true,
+    debug: import.meta.env.DEV,
+  })
+  tracker.init()
+
+  // Track page view
+  tracker.trackPageView({ page_type: 'favourites' })
+
+  // Load favourites
+  async function loadFavourites() {
+    const loadingState = document.getElementById('loading-state')
+    const emptyState = document.getElementById('empty-state')
+    const grid = document.getElementById('favourites-grid')
+
+    try {
+      const favourites = await tracker.getFavourites()
+
+      // Hide loading
+      loadingState?.classList.add('hidden')
+
+      if (favourites.length === 0) {
+        // Show empty state
+        emptyState?.classList.remove('hidden')
+        return
+      }
+
+      // Show grid
+      grid?.classList.remove('hidden')
+
+      // Render properties
+      grid.innerHTML = favourites
+        .map((fav) => {
+          const property = fav.property
+          const price = property.asking_price
+            ? `£${(property.asking_price / 1000).toFixed(0)}k`
+            : property.rent_amount
+            ? `£${property.rent_amount} pcm`
+            : 'POA'
+
+          return `
+            <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group">
+              <!-- Image -->
+              <div class="relative h-56 bg-gray-900 overflow-hidden">
+                ${
+                  property.primary_image
+                    ? `<img src="${property.primary_image}" alt="${property.display_address}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />`
+                    : `<div class="w-full h-full flex items-center justify-center bg-gray-300">
+                         <svg class="h-20 w-20 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                         </svg>
+                       </div>`
+                }
+                
+                <!-- Remove Button -->
+                <button
+                  type="button"
+                  class="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border-2 border-red-500 flex items-center justify-center shadow-lg hover:bg-red-500 hover:scale-110 transition-all duration-300 group/btn z-10"
+                  data-property-id="${property.id}"
+                  data-action="remove"
+                  aria-label="Remove from favourites"
+                >
+                  <svg class="w-5 h-5 text-red-500 group-hover/btn:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
+                  </svg>
+                </button>
+
+                <!-- Badge -->
+                <div class="absolute bottom-3 left-3">
+                  <span class="px-3 py-1 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm ${
+                    property.listing_type === 'sale'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-purple-600 text-white'
+                  }">
+                    ${property.listing_type === 'sale' ? 'For Sale' : 'To Let'}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Content -->
+              <a href="/property/${property.id}" class="block p-5 hover:bg-gray-50 transition-colors">
+                <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
+                  ${property.display_address}
+                </h3>
+
+                <!-- Specs -->
+                <div class="flex items-center gap-2 flex-wrap mb-3">
+                  ${
+                    property.bedrooms
+                      ? `<div class="flex items-center gap-1.5 bg-gray-100 px-3 py-1 rounded-lg">
+                           <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                             <path d="M3 20h18v-2H3v2zm0-9v7h18v-7H3zm6-3v2h6V8H9zM3 7c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v2H3V7z"/>
+                           </svg>
+                           <span class="text-sm font-semibold">${property.bedrooms}</span>
+                         </div>`
+                      : ''
+                  }
+                  ${
+                    property.bathrooms
+                      ? `<div class="flex items-center gap-1.5 bg-gray-100 px-3 py-1 rounded-lg">
+                           <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                             <path d="M7 7h10v4H7V7zm-2 10h14v2H5v-2z"/>
+                           </svg>
+                           <span class="text-sm font-semibold">${property.bathrooms}</span>
+                         </div>`
+                      : ''
+                  }
+                </div>
+
+                <!-- Price -->
+                <p class="text-2xl font-bold text-green-600 mb-2">
+                  ${price}
+                </p>
+
+                <!-- Saved date -->
+                <p class="text-xs text-gray-500">
+                  Saved ${new Date(fav.favourited_at).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </p>
+              </a>
+            </div>
+          `
+        })
+        .join('')
+
+      // Attach remove handlers
+      attachRemoveHandlers()
+    } catch (error) {
+      console.error('Error loading favourites:', error)
+      loadingState?.classList.add('hidden')
+      emptyState?.classList.remove('hidden')
+      emptyState.querySelector('h2').textContent = 'Failed to load favourites'
+      emptyState.querySelector('p').textContent = 'Please try again later'
+    }
+  }
+
+  function attachRemoveHandlers() {
+    document.querySelectorAll('[data-action="remove"]').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const propertyId = btn.dataset.propertyId
+        if (!propertyId) return
+
+        // Confirm removal
+        if (!confirm('Remove this property from your favourites?')) {
+          return
+        }
+
+        try {
+          // Remove favourite
+          await tracker.toggleFavourite(propertyId, 'favourites_page')
+
+          // Reload the page
+          loadFavourites()
+        } catch (error) {
+          console.error('Error removing favourite:', error)
+          alert('Failed to remove property. Please try again.')
+        }
+      })
+    })
+  }
+
+  // Load on page ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadFavourites)
+  } else {
+    loadFavourites()
+  }
+</script>

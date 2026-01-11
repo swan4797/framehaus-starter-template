@@ -21,22 +21,253 @@ const {
 
 
 
-<form id="enquiry-form">
-  <input type="text" name="name" required placeholder="Your Name" />
-  <input type="email" name="email" required placeholder="Your Email" />
-  <input type="tel" name="phone" placeholder="Your Phone" />
-  <textarea name="message" placeholder="Your Message"></textarea>
-  <input type="hidden" name="property_id" value={property?.id} />
-  <button type="submit">Send Enquiry</button>
-</form>
+<div class="enquiry-form-container">
+  <div class="enquiry-form-card">
+    <div class="form-header">
+      <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <div>
+        <h3 class="form-title">Enquire Now</h3>
+        <p class="form-subtitle">Quick response</p>
+      </div>
+    </div>
 
-<div id="success-message" style="display: none;">
-  Thank you! We'll be in touch soon.
+    <form id="enquiry-form" class="enquiry-form">
+      <div class="form-group">
+        <input 
+          type="text" 
+          name="name" 
+          required 
+          placeholder="Your Name" 
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <input 
+          type="email" 
+          name="email" 
+          required 
+          placeholder="Your Email" 
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <input 
+          type="tel" 
+          name="phone" 
+          placeholder="Your Phone" 
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <textarea 
+          name="message" 
+          placeholder="Your Message" 
+          rows="3"
+          class="form-textarea"
+        ></textarea>
+      </div>
+
+      <input type="hidden" name="property_id" value={property?.id} />
+
+      <button type="submit" class="submit-btn">
+        <span>Send Enquiry</span>
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" x2="11" y1="2" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+
+    <div id="success-message" class="message message-success">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <p>Thank you! We'll be in touch soon.</p>
+    </div>
+
+    <div id="error-message" class="message message-error">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" x2="12" y1="8" y2="12"></line>
+        <line x1="12" x2="12.01" y1="16" y2="16"></line>
+      </svg>
+      <p>Something went wrong. Please try again.</p>
+    </div>
+  </div>
 </div>
 
-<div id="error-message" style="display: none;">
-  Something went wrong. Please try again.
-</div>
+<style>
+  .enquiry-form-container {
+    width: 100%;
+    max-width: 310px;
+  }
+
+  .enquiry-form-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .form-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  .form-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .form-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .form-subtitle {
+    font-size: 0.75rem;
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1;
+  }
+
+  .enquiry-form {
+    padding: 0.75rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.625rem;
+  }
+
+  .form-group:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 0.625rem;
+    font-size: 0.875rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    background: white;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    margin-top: 0.75rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .btn-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .message {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    margin: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .message.show {
+    display: flex;
+  }
+
+  .message-icon {
+    flex-shrink: 0;
+  }
+
+  .message p {
+    margin: 0;
+    flex: 1;
+  }
+
+  .message-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  .message-success .message-icon {
+    color: #10b981;
+  }
+
+  .message-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+
+  .message-error .message-icon {
+    color: #ef4444;
+  }
+
+  @media (max-width: 640px) {
+    .enquiry-form-container {
+      max-width: 100%;
+    }
+  }
+</style>
 
 <script>
   import { getSessionId } from '../../lib/session';

@@ -1,0 +1,272 @@
+---
+// ========================================
+// FAVOURITE BUTTON COMPONENT
+// Heart icon button for favouriting properties
+// ========================================
+
+interface Props {
+  propertyId: string
+  size?: 'sm' | 'md' | 'lg'
+  source?: string
+  showLabel?: boolean
+}
+
+const { 
+  propertyId, 
+  size = 'md', 
+  source = 'unknown',
+  showLabel = false 
+} = Astro.props
+
+const sizeClasses = {
+  sm: 'w-8 h-8',
+  md: 'w-10 h-10',
+  lg: 'w-12 h-12'
+}
+
+const iconSizes = {
+  sm: 'w-4 h-4',
+  md: 'w-5 h-5',
+  lg: 'w-6 h-6'
+}
+---
+
+<button
+  type="button"
+  class={`favourite-btn ${sizeClasses[size]} relative inline-flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group`}
+  data-property-id={propertyId}
+  data-source={source}
+  aria-label="Add to favourites"
+  title="Add to favourites"
+>
+  <!-- Heart Outline (default) -->
+  <svg
+    class={`heart-outline ${iconSizes[size]} text-gray-600 group-hover:text-red-500 transition-colors duration-300`}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    stroke-width="2"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+    />
+  </svg>
+
+  <!-- Heart Filled (when favourited) -->
+  <svg
+    class={`heart-filled ${iconSizes[size]} text-red-500 absolute inset-0 m-auto hidden`}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
+    />
+  </svg>
+
+  <!-- Loading Spinner -->
+  <svg
+    class={`loading-spinner ${iconSizes[size]} text-red-500 absolute inset-0 m-auto hidden animate-spin`}
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      class="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      stroke-width="4"
+    ></circle>
+    <path
+      class="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    ></path>
+  </svg>
+
+  {showLabel && (
+    <span class="ml-2 text-sm font-medium favourite-label">
+      Save
+    </span>
+  )}
+</button>
+
+<script>
+  // Wait for tracker to be available
+  const initFavouriteButtons = () => {
+    if (!window.StratosTracker) {
+      console.warn('StratosTracker not available yet')
+      return
+    }
+
+    const tracker = window.StratosTracker
+
+    // Handle all favourite buttons
+    document.querySelectorAll('.favourite-btn').forEach((btn) => {
+      const propertyId = btn.dataset.propertyId
+      const source = btn.dataset.source || 'unknown'
+
+      if (!propertyId) return
+
+      // Check initial state
+      checkFavouriteState(btn, propertyId, tracker)
+
+      // Toggle on click
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault()
+        e.stopPropagation() // Prevent parent link clicks
+
+        const isFavourited = btn.classList.contains('is-favourited')
+        
+        // Show loading
+        showLoading(btn, true)
+
+        try {
+          // Toggle favourite
+          const newState = await tracker.toggleFavourite(propertyId, source)
+
+          // Update UI
+          updateButtonState(btn, newState)
+
+          // Update navbar count
+          updateNavbarCount(tracker)
+
+          // Show feedback
+          showToast(newState ? '❤️ Added to favourites' : 'Removed from favourites')
+        } catch (error) {
+          console.error('Error toggling favourite:', error)
+          showToast('❌ Failed to update favourites', 'error')
+        } finally {
+          showLoading(btn, false)
+        }
+      })
+    })
+  }
+
+  async function checkFavouriteState(btn, propertyId, tracker) {
+    try {
+      const isFavourited = await tracker.isFavourited(propertyId)
+      updateButtonState(btn, isFavourited)
+    } catch (error) {
+      console.error('Error checking favourite state:', error)
+    }
+  }
+
+  function updateButtonState(btn, isFavourited) {
+    const heartOutline = btn.querySelector('.heart-outline')
+    const heartFilled = btn.querySelector('.heart-filled')
+    const label = btn.querySelector('.favourite-label')
+
+    if (isFavourited) {
+      btn.classList.add('is-favourited')
+      btn.setAttribute('aria-label', 'Remove from favourites')
+      btn.setAttribute('title', 'Remove from favourites')
+      heartOutline?.classList.add('hidden')
+      heartFilled?.classList.remove('hidden')
+      if (label) label.textContent = 'Saved'
+    } else {
+      btn.classList.remove('is-favourited')
+      btn.setAttribute('aria-label', 'Add to favourites')
+      btn.setAttribute('title', 'Add to favourites')
+      heartOutline?.classList.remove('hidden')
+      heartFilled?.classList.add('hidden')
+      if (label) label.textContent = 'Save'
+    }
+  }
+
+  function showLoading(btn, isLoading) {
+    const heartOutline = btn.querySelector('.heart-outline')
+    const heartFilled = btn.querySelector('.heart-filled')
+    const spinner = btn.querySelector('.loading-spinner')
+
+    if (isLoading) {
+      heartOutline?.classList.add('hidden')
+      heartFilled?.classList.add('hidden')
+      spinner?.classList.remove('hidden')
+      btn.disabled = true
+    } else {
+      spinner?.classList.add('hidden')
+      btn.disabled = false
+      // Hearts will be shown by updateButtonState
+    }
+  }
+
+  async function updateNavbarCount(tracker) {
+    try {
+      const count = await tracker.getFavouritesCount()
+      const countElements = document.querySelectorAll('.favourites-count')
+      countElements.forEach((el) => {
+        el.textContent = count.toString()
+        el.style.display = count > 0 ? 'flex' : 'none'
+      })
+    } catch (error) {
+      console.error('Error updating navbar count:', error)
+    }
+  }
+
+  function showToast(message, type = 'success') {
+    // Simple toast notification
+    const toast = document.createElement('div')
+    toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white ${
+      type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } animate-fade-in z-50`
+    toast.textContent = message
+
+    document.body.appendChild(toast)
+
+    setTimeout(() => {
+      toast.classList.add('animate-fade-out')
+      setTimeout(() => toast.remove(), 300)
+    }, 2000)
+  }
+
+  // Initialize when tracker is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFavouriteButtons)
+  } else {
+    initFavouriteButtons()
+  }
+
+  // Also retry after a short delay in case tracker loads late
+  setTimeout(initFavouriteButtons, 500)
+</script>
+
+<style>
+  .favourite-btn.is-favourited {
+    /* @apply border-red-500 bg-red-50; */
+  }
+
+  .favourite-btn:active {
+    @apply scale-95;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-fade-out {
+    animation: fade-out 0.3s ease-out;
+  }
+</style>

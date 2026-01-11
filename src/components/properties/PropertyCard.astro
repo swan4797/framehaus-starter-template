@@ -2,9 +2,11 @@
 // ========================================
 // PROPERTY CARD COMPONENT
 // Displays property summary in grid/list
+// Includes click tracking & favourite button
 // ========================================
 
 import type { Property } from '../../types/database'
+import FavouriteButton from '../FavouriteButton.astro'
 import {
   getPropertyUrl,
   getDisplayPrice,
@@ -19,9 +21,10 @@ import {
 interface Props {
   property: Property
   featured?: boolean
+  source?: string // Track where card is displayed: 'search_results', 'featured', 'similar', 'homepage'
 }
 
-const { property, featured = false } = Astro.props
+const { property, featured = false, source = 'search_results' } = Astro.props
 
 const propertyUrl = getPropertyUrl(property)
 const displayPrice = getDisplayPrice(property)
@@ -39,8 +42,9 @@ const listedDate = property.listed_date ? formatRelativeDate(property.listed_dat
     { 'ring-2 ring-blue-500': featured }
   ]}
   data-property-id={property.id}
+  data-source={source}
 >
-  <a href={propertyUrl} class="block group">
+  <a href={propertyUrl} class="property-card-link block group" data-property-url={propertyUrl}>
     <!-- Image -->
     <div class="relative h-64 bg-gray-200 overflow-hidden">
       <img
@@ -50,22 +54,31 @@ const listedDate = property.listed_date ? formatRelativeDate(property.listed_dat
         loading="lazy"
       />
       
+      <!-- ❤️ Favourite Button (Top Right) -->
+      <div class="absolute top-3 right-3 z-20" onclick="event.preventDefault(); event.stopPropagation();">
+        <FavouriteButton 
+          propertyId={property.id} 
+          size="md"
+          source={source}
+        />
+      </div>
+      
       <!-- Featured Badge -->
       {featured && (
-        <div class="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+        <div class="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
           Featured
         </div>
       )}
       
       <!-- Status Badge -->
       {property.listing_status !== 'available' && (
-        <div class:list={['absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full', statusClass]}>
+        <div class:list={['absolute top-16 left-3 text-xs font-semibold px-3 py-1 rounded-full z-10', statusClass]}>
           {statusText}
         </div>
       )}
       
       <!-- Listing Type Badge -->
-      <div class="absolute bottom-3 left-3 bg-black bg-opacity-70 text-white text-xs font-medium px-3 py-1 rounded">
+      <div class="absolute bottom-3 left-3 bg-black bg-opacity-70 text-white text-xs font-medium px-3 py-1 rounded z-10">
         For {property.listing_type === 'sale' ? 'Sale' : 'Rent'}
       </div>
     </div>
@@ -150,20 +163,55 @@ const listedDate = property.listed_date ? formatRelativeDate(property.listed_dat
   }
 </style>
 
-<!-- ✅ TRACKING: Property card click -->
-<script define:vars={{ propertyId: property.id }}>
+<!-- ========================================
+     ✅ CLICK TRACKING (Anti-Refresh)
+     Tracks property view on card click only
+     ======================================== -->
+<script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Find THIS specific card by its property ID
-    const card = document.querySelector(`[data-property-id="${propertyId}"]`);
-    
-    if (card) {
-      card.addEventListener('click', () => {
+    // Find all property card links
+    const cardLinks = document.querySelectorAll('.property-card-link')
+
+    cardLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        // Get property data
+        const card = link.closest('.property-card')
+        if (!card) return
+
+        const propertyId = card.dataset.propertyId
+        const source = card.dataset.source || 'unknown'
+        const propertyUrl = link.dataset.propertyUrl
+
+        if (!propertyId) return
+
+        // Track property view BEFORE navigation
         if (window.StratosTracker) {
-          window.StratosTracker.trackEvent('property_card_click', {
-            property_id: propertyId,
-          });
+          try {
+            // Track property view (click-based, not page load!)
+            window.StratosTracker.trackPropertyView(propertyId, {
+              source: source,
+              clicked_from: window.location.pathname,
+              referrer: document.referrer || 'direct',
+              timestamp: new Date().toISOString()
+            })
+
+            console.log('🖱️ Property click tracked:', {
+              property_id: propertyId,
+              source: source,
+              url: propertyUrl
+            })
+          } catch (error) {
+            console.error('Error tracking property click:', error)
+          }
+        } else {
+          console.warn('StratosTracker not available')
         }
-      });
-    }
-  });
+
+        // Let the navigation continue normally
+        // (no e.preventDefault() needed)
+      })
+    })
+
+    console.log(`✅ Property card tracking initialized for ${cardLinks.length} cards`)
+  })
 </script>
