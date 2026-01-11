@@ -1,0 +1,546 @@
+---
+// File: src/components/search/ModernSearchBar.astro
+// Reusable search component with modern design and animations
+
+interface Props {
+  currentParams?: {
+    listing_type?: 'sale' | 'let'
+    location?: string
+    postcode?: string
+    min_price?: number
+    max_price?: number
+    beds?: number
+    property_type?: string
+    sort_by?: string
+  }
+  compact?: boolean
+  showAdvanced?: boolean
+}
+
+const { 
+  currentParams = {}, 
+  compact = false,
+  showAdvanced = true 
+} = Astro.props
+
+const listingType = currentParams.listing_type || 'sale'
+---
+
+<div class={`modern-search-bar ${compact ? 'compact' : ''}`}>
+  <form action="/search" method="get" class="search-form">
+    <!-- Hidden listing type (can be toggled via tabs) -->
+    <input type="hidden" name="listing_type" id="listing_type" value={listingType} />
+
+    <div class="search-container">
+      {/* Listing Type Tabs */}
+      <div class="listing-tabs">
+        <button 
+          type="button" 
+          class={`tab-btn ${listingType === 'sale' ? 'active' : ''}`}
+          data-type="sale"
+        >
+          <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>Buy</span>
+        </button>
+        <button 
+          type="button" 
+          class={`tab-btn ${listingType === 'let' ? 'active' : ''}`}
+          data-type="let"
+        >
+          <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+            <path d="M7 7h.01"></path>
+            <path d="M17 7h.01"></path>
+            <path d="M7 17h.01"></path>
+            <path d="M17 17h.01"></path>
+          </svg>
+          <span>Rent</span>
+        </button>
+      </div>
+
+      {/* Main Search Fields */}
+      <div class="search-fields">
+        {/* Location Input */}
+        <div class="search-field location-field">
+          <svg class="field-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <input
+            type="text"
+            name="location"
+            placeholder="Location or postcode"
+            value={currentParams.location || ''}
+            class="field-input"
+          />
+        </div>
+
+        {/* Price Range */}
+        <div class="search-field dropdown-field">
+          <svg class="field-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" x2="12" y1="2" y2="22"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <select name="min_price" class="field-select">
+            <option value="">Min Price</option>
+            <option value="50000" selected={currentParams.min_price === 50000}>£50,000</option>
+            <option value="100000" selected={currentParams.min_price === 100000}>£100,000</option>
+            <option value="150000" selected={currentParams.min_price === 150000}>£150,000</option>
+            <option value="200000" selected={currentParams.min_price === 200000}>£200,000</option>
+            <option value="250000" selected={currentParams.min_price === 250000}>£250,000</option>
+            <option value="300000" selected={currentParams.min_price === 300000}>£300,000</option>
+            <option value="400000" selected={currentParams.min_price === 400000}>£400,000</option>
+            <option value="500000" selected={currentParams.min_price === 500000}>£500,000</option>
+          </select>
+          <span class="field-separator">to</span>
+          <select name="max_price" class="field-select">
+            <option value="">Max Price</option>
+            <option value="100000" selected={currentParams.max_price === 100000}>£100,000</option>
+            <option value="150000" selected={currentParams.max_price === 150000}>£150,000</option>
+            <option value="200000" selected={currentParams.max_price === 200000}>£200,000</option>
+            <option value="250000" selected={currentParams.max_price === 250000}>£250,000</option>
+            <option value="300000" selected={currentParams.max_price === 300000}>£300,000</option>
+            <option value="400000" selected={currentParams.max_price === 400000}>£400,000</option>
+            <option value="500000" selected={currentParams.max_price === 500000}>£500,000</option>
+            <option value="750000" selected={currentParams.max_price === 750000}>£750,000</option>
+            <option value="1000000" selected={currentParams.max_price === 1000000}>£1,000,000</option>
+          </select>
+        </div>
+
+        {/* Bedrooms */}
+        <div class="search-field dropdown-field">
+          <svg class="field-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 4v16"></path>
+            <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
+            <path d="M2 17h20"></path>
+            <path d="M6 8v9"></path>
+          </svg>
+          <select name="beds" class="field-select">
+            <option value="">Beds</option>
+            <option value="1" selected={currentParams.beds === 1}>1+</option>
+            <option value="2" selected={currentParams.beds === 2}>2+</option>
+            <option value="3" selected={currentParams.beds === 3}>3+</option>
+            <option value="4" selected={currentParams.beds === 4}>4+</option>
+            <option value="5" selected={currentParams.beds === 5}>5+</option>
+          </select>
+        </div>
+
+        {/* Search Button */}
+        <button type="submit" class="search-btn">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <span>Search</span>
+        </button>
+      </div>
+
+      {/* Advanced Filters Toggle */}
+      {showAdvanced && (
+        <button type="button" class="advanced-toggle" id="advanced-toggle">
+          <span>Advanced filters</span>
+          <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"></path>
+          </svg>
+        </button>
+      )}
+
+      {/* Advanced Filters Panel */}
+      {showAdvanced && (
+        <div class="advanced-panel" id="advanced-panel">
+          <div class="advanced-grid">
+            {/* Property Type */}
+            <div class="advanced-field">
+              <label class="field-label">Property Type</label>
+              <select name="property_type" class="field-select">
+                <option value="">Any</option>
+                <option value="house" selected={currentParams.property_type === 'house'}>House</option>
+                <option value="flat" selected={currentParams.property_type === 'flat'}>Flat</option>
+                <option value="bungalow" selected={currentParams.property_type === 'bungalow'}>Bungalow</option>
+                <option value="land" selected={currentParams.property_type === 'land'}>Land</option>
+                <option value="commercial" selected={currentParams.property_type === 'commercial'}>Commercial</option>
+              </select>
+            </div>
+
+            {/* Sort By */}
+            <div class="advanced-field">
+              <label class="field-label">Sort By</label>
+              <select name="sort_by" class="field-select">
+                <option value="newest" selected={currentParams.sort_by === 'newest'}>Newest</option>
+                <option value="price_asc" selected={currentParams.sort_by === 'price_asc'}>Price (Low to High)</option>
+                <option value="price_desc" selected={currentParams.sort_by === 'price_desc'}>Price (High to Low)</option>
+                <option value="beds_desc" selected={currentParams.sort_by === 'beds_desc'}>Most Bedrooms</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </form>
+</div>
+
+<style>
+  .modern-search-bar {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .search-form {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .search-container {
+    padding: 1rem;
+  }
+
+  /* Listing Type Tabs */
+  .listing-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.25rem;
+    background: #f3f4f6;
+    border-radius: 8px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tab-btn:hover {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .tab-btn.active {
+    background: white;
+    color: #2563eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .tab-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Search Fields */
+  .search-fields {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 120px;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .search-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .search-field:focus-within {
+    background: white;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .field-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: #9ca3af;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .field-input,
+  .field-select {
+    width: 100%;
+    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+    background: transparent;
+    border: none;
+    font-size: 0.875rem;
+    color: #111827;
+    outline: none;
+  }
+
+  .field-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .field-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+  }
+
+  .dropdown-field {
+    background: #f9fafb;
+  }
+
+  .field-separator {
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: 500;
+  }
+
+  /* Search Button */
+  .search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .search-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+
+  .search-btn:active {
+    transform: translateY(0);
+  }
+
+  .search-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Advanced Toggle */
+  .advanced-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    color: #2563eb;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .advanced-toggle:hover {
+    color: #1d4ed8;
+  }
+
+  .toggle-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+  }
+
+  .advanced-toggle.active .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Advanced Panel */
+  .advanced-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+
+  .advanced-panel.show {
+    max-height: 200px;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .advanced-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .advanced-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .field-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  /* Compact Mode */
+  .modern-search-bar.compact .search-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .modern-search-bar.compact .dropdown-field {
+    grid-column: 1;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .search-fields {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .location-field {
+      grid-column: 1 / -1;
+    }
+
+    .search-btn {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .search-container {
+      padding: 0.75rem;
+    }
+
+    .search-fields {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .field-separator {
+      display: none;
+    }
+
+    .tab-btn span {
+      display: none;
+    }
+
+    .search-btn span {
+      display: none;
+    }
+
+    .advanced-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ✅ TRACKING: Track search bar interactions
+    const trackSearchInteraction = (eventName: string, data: any) => {
+      if (window.StratosTracker) {
+        window.StratosTracker.trackEvent(eventName, data);
+      }
+    };
+
+    // Handle listing type toggle
+    const listingTypeInput = document.getElementById('listing_type') as HTMLInputElement;
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = (btn as HTMLElement).dataset.type as 'sale' | 'let';
+        
+        // Update active state
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update hidden input
+        if (listingTypeInput) {
+          listingTypeInput.value = type;
+        }
+
+        // Track listing type change
+        trackSearchInteraction('search_listing_type_change', { listing_type: type });
+      });
+    });
+
+    // Handle advanced filters toggle
+    const advancedToggle = document.getElementById('advanced-toggle');
+    const advancedPanel = document.getElementById('advanced-panel');
+    
+    if (advancedToggle && advancedPanel) {
+      advancedToggle.addEventListener('click', () => {
+        const isOpen = advancedPanel.classList.toggle('show');
+        advancedToggle.classList.toggle('active');
+        
+        // Track advanced filters toggle
+        trackSearchInteraction('search_advanced_toggle', { opened: isOpen });
+      });
+    }
+
+    // Track location input changes
+    const locationInput = document.querySelector('input[name="location"]') as HTMLInputElement;
+    if (locationInput) {
+      let locationTimeout: NodeJS.Timeout;
+      locationInput.addEventListener('input', () => {
+        clearTimeout(locationTimeout);
+        locationTimeout = setTimeout(() => {
+          if (locationInput.value) {
+            trackSearchInteraction('search_location_input', { 
+              location: locationInput.value 
+            });
+          }
+        }, 1000);
+      });
+    }
+
+    // Track filter changes
+    const filterSelects = document.querySelectorAll('.field-select');
+    filterSelects.forEach(select => {
+      select.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement;
+        trackSearchInteraction('search_filter_change', {
+          filter: target.name,
+          value: target.value
+        });
+      });
+    });
+
+    // Track search submission
+    const searchForm = document.querySelector('.search-form') as HTMLFormElement;
+    if (searchForm) {
+      searchForm.addEventListener('submit', (e) => {
+        const formData = new FormData(searchForm);
+        const searchParams: Record<string, any> = {};
+        
+        formData.forEach((value, key) => {
+          if (value) searchParams[key] = value;
+        });
+
+        trackSearchInteraction('search_submit', { search_params: searchParams });
+      });
+    }
+  });
+</script>

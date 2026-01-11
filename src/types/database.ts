@@ -1,6 +1,6 @@
 // ========================================
-// CLIENT-SIDE TYPES
-// Mirrors types from Edge Functions
+// CLIENT-SIDE TYPES - EXPANDED
+// Enhanced with additional search filters
 // ========================================
 
 // ========================================
@@ -32,6 +32,28 @@ export type ListingStatus =
   | 'let_agreed'
   | 'withdrawn'
   | 'archived'
+
+// ✅ NEW: EPC Ratings
+export type EPCRating = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
+
+// ✅ NEW: Council Tax Bands
+export type CouncilTaxBand = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H'
+
+// ✅ NEW: Parking Types
+export type ParkingType = 
+  | 'none'
+  | 'on_street'
+  | 'driveway'
+  | 'garage'
+  | 'allocated'
+  | 'permit'
+  | 'communal'
+
+// ✅ NEW: Tenure Types
+export type TenureType = 'freehold' | 'leasehold' | 'shared_ownership' | 'commonhold'
+
+// ✅ NEW: Furnishing Types
+export type FurnishingType = 'furnished' | 'unfurnished' | 'part_furnished'
 
 export interface PropertyMedia {
   media_id: string
@@ -86,12 +108,26 @@ export interface Property {
   description?: string
   key_features?: string[]
   
-  // Additional
-  parking?: string
-  tenure?: string
-  council_tax_band?: string
-  epc_rating?: string
-  furnishing?: string
+  // Additional - Enhanced
+  parking?: ParkingType | string
+  parking_spaces?: number
+  tenure?: TenureType | string
+  council_tax_band?: CouncilTaxBand | string
+  council_tax_amount?: number
+  epc_rating?: EPCRating | string
+  epc_current_score?: number
+  epc_potential_score?: number
+  furnishing?: FurnishingType | string
+  heating_type?: string
+  
+  // ✅ NEW: Additional searchable fields
+  shared_ownership?: boolean
+  retirement_home?: boolean
+  service_charge?: number
+  ground_rent?: number
+  lease_years_remaining?: number
+  broadband_speed?: string
+  mobile_signal_strength?: string
   
   // Media
   property_media?: PropertyMedia[]
@@ -103,7 +139,7 @@ export interface Property {
 }
 
 // ========================================
-// SEARCH & FILTER TYPES
+// SEARCH & FILTER TYPES - EXPANDED
 // ========================================
 
 export interface PropertySearchParams {
@@ -115,22 +151,79 @@ export interface PropertySearchParams {
   min_price?: number
   max_price?: number
   
-  // Property
+  // Rooms
   beds?: number
   min_beds?: number
   max_beds?: number
+  min_baths?: number  // ✅ NEW
+  min_receptions?: number  // ✅ NEW
+  
+  // Property Type
   property_type?: PropertyType | PropertyType[]
+  
+  // ✅ NEW: Area Filters
+  min_area?: number
+  max_area?: number
+  area_unit?: 'sqft' | 'sqm'
   
   // Listing
   listing_type?: ListingType
   listing_status?: ListingStatus[]
   
+  // ✅ NEW: Energy & Environment
+  epc_rating?: EPCRating | EPCRating[]
+  min_epc_score?: number  // 0-100
+  max_epc_score?: number
+  
+  // ✅ NEW: Council Tax
+  council_tax_band?: CouncilTaxBand | CouncilTaxBand[]
+  max_council_tax_amount?: number
+  
+  // ✅ NEW: Tenure & Ownership
+  tenure?: TenureType | TenureType[]
+  shared_ownership?: boolean
+  retirement_home?: boolean
+  
+  // ✅ NEW: Parking
+  parking?: ParkingType | ParkingType[]
+  min_parking_spaces?: number
+  
+  // ✅ NEW: Furnishing (for rentals)
+  furnishing?: FurnishingType | FurnishingType[]
+  
+  // ✅ NEW: Leasehold Filters
+  min_lease_years?: number  // Minimum lease years remaining
+  max_service_charge?: number
+  max_ground_rent?: number
+  
+  // ✅ NEW: Connectivity
+  min_broadband_speed?: string  // e.g., "30Mbps", "100Mbps"
+  mobile_signal_strength?: string  // e.g., "excellent", "good"
+  
+  // ✅ NEW: Heating
+  heating_type?: string  // e.g., "gas", "electric", "oil"
+  
+  // ✅ NEW: Features
+  garden?: boolean  // Has external area
+  new_build?: boolean  // Listed in last 6 months
+  recently_reduced?: boolean  // Price changed in last 30 days
+  
   // Pagination
   page?: number
   limit?: number
   
-  // Sorting
-  sort_by?: 'price_asc' | 'price_desc' | 'newest' | 'oldest' | 'beds_asc' | 'beds_desc'
+  // Sorting - Enhanced
+  sort_by?: 
+    | 'price_asc' 
+    | 'price_desc' 
+    | 'newest' 
+    | 'oldest' 
+    | 'beds_asc' 
+    | 'beds_desc'
+    | 'area_asc'  // ✅ NEW
+    | 'area_desc'  // ✅ NEW
+    | 'epc_best'  // ✅ NEW - Sort by EPC rating (A to G)
+    | 'council_tax_asc'  // ✅ NEW
 }
 
 export interface PropertySearchResponse {
@@ -139,10 +232,67 @@ export interface PropertySearchResponse {
   page: number
   limit: number
   has_more: boolean
+  
+  // ✅ NEW: Search metadata
+  filters_applied?: {
+    epc_ratings?: EPCRating[]
+    council_tax_bands?: CouncilTaxBand[]
+    parking_types?: ParkingType[]
+    tenure_types?: TenureType[]
+    [key: string]: any
+  }
 }
 
 // ========================================
-// ENQUIRY TYPES
+// FILTER OPTIONS (for UI dropdowns)
+// ========================================
+
+export const EPC_RATINGS: { value: EPCRating; label: string; color: string }[] = [
+  { value: 'A', label: 'A (92-100)', color: 'green' },
+  { value: 'B', label: 'B (81-91)', color: 'lime' },
+  { value: 'C', label: 'C (69-80)', color: 'yellow' },
+  { value: 'D', label: 'D (55-68)', color: 'orange' },
+  { value: 'E', label: 'E (39-54)', color: 'red' },
+  { value: 'F', label: 'F (21-38)', color: 'red' },
+  { value: 'G', label: 'G (1-20)', color: 'red' },
+]
+
+export const COUNCIL_TAX_BANDS: { value: CouncilTaxBand; label: string; range: string }[] = [
+  { value: 'A', label: 'Band A', range: 'Up to £40,000' },
+  { value: 'B', label: 'Band B', range: '£40,001-£52,000' },
+  { value: 'C', label: 'Band C', range: '£52,001-£68,000' },
+  { value: 'D', label: 'Band D', range: '£68,001-£88,000' },
+  { value: 'E', label: 'Band E', range: '£88,001-£120,000' },
+  { value: 'F', label: 'Band F', range: '£120,001-£160,000' },
+  { value: 'G', label: 'Band G', range: '£160,001-£320,000' },
+  { value: 'H', label: 'Band H', range: 'Over £320,000' },
+]
+
+export const PARKING_TYPES: { value: ParkingType; label: string }[] = [
+  { value: 'none', label: 'No Parking' },
+  { value: 'on_street', label: 'On-Street' },
+  { value: 'driveway', label: 'Driveway' },
+  { value: 'garage', label: 'Garage' },
+  { value: 'allocated', label: 'Allocated Space' },
+  { value: 'permit', label: 'Permit Parking' },
+  { value: 'communal', label: 'Communal Parking' },
+]
+
+export const TENURE_TYPES: { value: TenureType; label: string }[] = [
+  { value: 'freehold', label: 'Freehold' },
+  { value: 'leasehold', label: 'Leasehold' },
+  { value: 'shared_ownership', label: 'Shared Ownership' },
+  { value: 'commonhold', label: 'Commonhold' },
+]
+
+export const FURNISHING_TYPES: { value: FurnishingType; label: string }[] = [
+  { value: 'furnished', label: 'Furnished' },
+  { value: 'unfurnished', label: 'Unfurnished' },
+  { value: 'part_furnished', label: 'Part Furnished' },
+]
+
+// ========================================
+// ENQUIRY TYPES (unchanged)
 // ========================================
 
 export type EnquiryType = 
@@ -153,25 +303,16 @@ export type EnquiryType =
   | 'callback_request'
 
 export interface EnquiryFormData {
-  // Contact Info
   contact_name: string
   contact_email: string
   contact_phone?: string
   preferred_contact_method?: 'email' | 'phone' | 'either'
-  
-  // Enquiry
   enquiry_type: EnquiryType
   message: string
   property_id?: string
-  
-  // Viewing specific
   preferred_viewing_date?: string
-  
-  // Valuation specific
   valuation_property_address?: string
   valuation_postcode?: string
-  
-  // GDPR (added automatically)
   marketing_opt_in: boolean
 }
 
@@ -183,7 +324,7 @@ export interface EnquiryResponse {
 }
 
 // ========================================
-// API RESPONSE TYPES
+// API RESPONSE TYPES (unchanged)
 // ========================================
 
 export interface ApiError {
@@ -202,7 +343,7 @@ export interface ApiSuccess<T = any> {
 export type ApiResponse<T = any> = ApiSuccess<T> | ApiError
 
 // ========================================
-// TRACKING TYPES
+// TRACKING TYPES (unchanged)
 // ========================================
 
 export type TrackingEventType =
@@ -223,13 +364,9 @@ export interface TrackingEvent {
   page_path: string
   page_title?: string
   referrer?: string
-  
-  // Event-specific data
   property_id?: string
   search_params?: PropertySearchParams
   results_count?: number
-  
-  // UTM params
   utm_source?: string
   utm_medium?: string
   utm_campaign?: string
@@ -238,13 +375,13 @@ export interface TrackingEvent {
 }
 
 // ========================================
-// CONSENT TYPES
+// CONSENT TYPES (unchanged)
 // ========================================
 
 export type ConsentCategory = 'necessary' | 'analytics' | 'marketing'
 
 export interface ConsentPreferences {
-  necessary: boolean // Always true
+  necessary: boolean
   analytics: boolean
   marketing: boolean
   timestamp: string
@@ -252,7 +389,7 @@ export interface ConsentPreferences {
 }
 
 // ========================================
-// UI STATE TYPES
+// UI STATE TYPES (unchanged)
 // ========================================
 
 export interface LoadingState {
