@@ -1,10 +1,18 @@
 ---
 // ========================================
-// SEARCH FILTERS COMPONENT
-// Filters for property search page
+// ENHANCED SEARCH FILTERS COMPONENT
+// Modern design with expanded filters
+// Includes: EPC, Council Tax, Parking, Tenure, Area, etc.
 // ========================================
 
 import type { PropertySearchParams } from '../../types/database'
+import { 
+  EPC_RATINGS, 
+  COUNCIL_TAX_BANDS, 
+  PARKING_TYPES, 
+  TENURE_TYPES,
+  FURNISHING_TYPES 
+} from '../../types/database'
 
 interface Props {
   currentParams: PropertySearchParams
@@ -18,7 +26,21 @@ const location = currentParams.location || ''
 const minPrice = currentParams.min_price || ''
 const maxPrice = currentParams.max_price || ''
 const beds = currentParams.beds || ''
+const minBaths = currentParams.min_baths || ''
 const propertyType = currentParams.property_type || ''
+
+// ✅ NEW: Advanced filter values
+const epcRating = currentParams.epc_rating || ''
+const councilTaxBand = currentParams.council_tax_band || ''
+const parking = currentParams.parking || ''
+const tenure = currentParams.tenure || ''
+const minArea = currentParams.min_area || ''
+const maxArea = currentParams.max_area || ''
+const furnishing = currentParams.furnishing || ''
+const minLeaseYears = currentParams.min_lease_years || ''
+const maxServiceCharge = currentParams.max_service_charge || ''
+const garden = currentParams.garden || false
+const newBuild = currentParams.new_build || false
 
 // Price ranges for sale
 const salePriceRanges = [
@@ -34,6 +56,19 @@ const salePriceRanges = [
   { value: '1000000', label: '£1,000,000' },
 ]
 
+const saleMaxPriceRanges = [
+  { value: '', label: 'No max' },
+  { value: '150000', label: '£150,000' },
+  { value: '200000', label: '£200,000' },
+  { value: '250000', label: '£250,000' },
+  { value: '300000', label: '£300,000' },
+  { value: '400000', label: '£400,000' },
+  { value: '500000', label: '£500,000' },
+  { value: '750000', label: '£750,000' },
+  { value: '1000000', label: '£1,000,000' },
+  { value: '2000000', label: '£2,000,000' },
+]
+
 // Price ranges for rent (monthly)
 const rentPriceRanges = [
   { value: '', label: 'No min' },
@@ -45,12 +80,19 @@ const rentPriceRanges = [
   { value: '2000', label: '£2,000' },
   { value: '2500', label: '£2,500' },
   { value: '3000', label: '£3,000' },
-  { value: '5000', label: '£5,000' },
 ]
 
-const maxPriceRanges = listingType === 'sale' 
-  ? [...salePriceRanges.slice(1), { value: '', label: 'No max' }]
-  : [...rentPriceRanges.slice(1), { value: '', label: 'No max' }]
+const rentMaxPriceRanges = [
+  { value: '', label: 'No max' },
+  { value: '750', label: '£750' },
+  { value: '1000', label: '£1,000' },
+  { value: '1500', label: '£1,500' },
+  { value: '2000', label: '£2,000' },
+  { value: '2500', label: '£2,500' },
+  { value: '3000', label: '£3,000' },
+  { value: '4000', label: '£4,000' },
+  { value: '5000', label: '£5,000' },
+]
 
 const propertyTypes = [
   { value: '', label: 'All Types' },
@@ -71,195 +113,886 @@ const bedroomOptions = [
   { value: '4', label: '4+' },
   { value: '5', label: '5+' },
 ]
+
+const bathroomOptions = [
+  { value: '', label: 'Any' },
+  { value: '1', label: '1+' },
+  { value: '2', label: '2+' },
+  { value: '3', label: '3+' },
+]
 ---
 
-<form method="get" action="/search" class="bg-white rounded-lg shadow-md p-6" id="search-filters-form">
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-    <!-- Listing Type -->
-    <div class="lg:col-span-3">
-      <label class="block text-sm font-medium text-gray-700 mb-2">
-        I'm looking to...
-      </label>
-      <div class="flex gap-4">
-        <label class="flex items-center">
+<div class="enhanced-search-filters">
+  <form method="get" action="/search" class="search-form" id="search-filters-form">
+    
+    <!-- Main Filters Card -->
+    <div class="filters-card main-filters">
+      <div class="card-header">
+        <h3 class="card-title">Search Properties</h3>
+      </div>
+
+      <div class="card-content">
+        <!-- Listing Type Toggle -->
+        <div class="filter-group listing-type-group">
+          <label class="filter-label">I'm looking to...</label>
+          <div class="toggle-buttons">
+            <label class="toggle-btn" data-active={listingType === 'sale'}>
+              <input
+                type="radio"
+                name="listing_type"
+                value="sale"
+                checked={listingType === 'sale'}
+                class="toggle-input"
+              />
+              <span class="toggle-content">
+                <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                </svg>
+                <span>Buy</span>
+              </span>
+            </label>
+            <label class="toggle-btn" data-active={listingType === 'let'}>
+              <input
+                type="radio"
+                name="listing_type"
+                value="let"
+                checked={listingType === 'let'}
+                class="toggle-input"
+              />
+              <span class="toggle-content">
+                <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 3v18m0-18 9 9-9-9-9 9 9-9z"></path>
+                </svg>
+                <span>Rent</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="filter-group">
+          <label for="location" class="filter-label">
+            <svg class="label-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Location
+          </label>
           <input
-            type="radio"
-            name="listing_type"
-            value="sale"
-            checked={listingType === 'sale'}
-            class="mr-2"
+            type="text"
+            id="location"
+            name="location"
+            value={location}
+            placeholder="e.g. London, SW16, Streatham"
+            class="filter-input"
           />
-          <span class="text-sm">Buy</span>
-        </label>
-        <label class="flex items-center">
-          <input
-            type="radio"
-            name="listing_type"
-            value="let"
-            checked={listingType === 'let'}
-            class="mr-2"
-          />
-          <span class="text-sm">Rent</span>
-        </label>
+        </div>
+
+        <!-- Price Range -->
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label for="min_price" class="filter-label">Min Price</label>
+            <select
+              id="min_price"
+              name="min_price"
+              class="filter-input filter-select"
+            >
+              {(listingType === 'sale' ? salePriceRanges : rentPriceRanges).map(range => (
+                <option value={range.value} selected={minPrice.toString() === range.value}>
+                  {range.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="max_price" class="filter-label">Max Price</label>
+            <select
+              id="max_price"
+              name="max_price"
+              class="filter-input filter-select"
+            >
+              {(listingType === 'sale' ? saleMaxPriceRanges : rentMaxPriceRanges).map(range => (
+                <option value={range.value} selected={maxPrice.toString() === range.value}>
+                  {range.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <!-- Bedrooms & Bathrooms -->
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label for="beds" class="filter-label">
+              <svg class="label-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 4v16"></path>
+                <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
+                <path d="M2 17h20"></path>
+              </svg>
+              Bedrooms
+            </label>
+            <select
+              id="beds"
+              name="beds"
+              class="filter-input filter-select"
+            >
+              {bedroomOptions.map(option => (
+                <option value={option.value} selected={beds.toString() === option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="min_baths" class="filter-label">
+              <svg class="label-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path>
+              </svg>
+              Bathrooms
+            </label>
+            <select
+              id="min_baths"
+              name="min_baths"
+              class="filter-input filter-select"
+            >
+              {bathroomOptions.map(option => (
+                <option value={option.value} selected={minBaths.toString() === option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <!-- Property Type -->
+        <div class="filter-group">
+          <label for="property_type" class="filter-label">Property Type</label>
+          <select
+            id="property_type"
+            name="property_type"
+            class="filter-input filter-select"
+          >
+            {propertyTypes.map(type => (
+              <option value={type.value} selected={propertyType === type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
 
-    <!-- Location -->
-    <div class="lg:col-span-3">
-      <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
-        Location
-      </label>
-      <input
-        type="text"
-        id="location"
-        name="location"
-        value={location}
-        placeholder="e.g. London, SW16, Streatham"
-        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      />
-    </div>
-
-    <!-- Min Price -->
-    <div>
-      <label for="min_price" class="block text-sm font-medium text-gray-700 mb-2">
-        Min Price
-      </label>
-      <select
-        id="min_price"
-        name="min_price"
-        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {(listingType === 'sale' ? salePriceRanges : rentPriceRanges).map(range => (
-          <option value={range.value} selected={minPrice.toString() === range.value}>
-            {range.label}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <!-- Max Price -->
-    <div>
-      <label for="max_price" class="block text-sm font-medium text-gray-700 mb-2">
-        Max Price
-      </label>
-      <select
-        id="max_price"
-        name="max_price"
-        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {maxPriceRanges.map(range => (
-          <option value={range.value} selected={maxPrice.toString() === range.value}>
-            {range.label}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <!-- Bedrooms -->
-    <div>
-      <label for="beds" class="block text-sm font-medium text-gray-700 mb-2">
-        Bedrooms
-      </label>
-      <select
-        id="beds"
-        name="beds"
-        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {bedroomOptions.map(option => (
-          <option value={option.value} selected={beds.toString() === option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <!-- Property Type -->
-    <div class="lg:col-span-2">
-      <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">
-        Property Type
-      </label>
-      <select
-        id="property_type"
-        name="property_type"
-        class="filter-input w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {propertyTypes.map(type => (
-          <option value={type.value} selected={propertyType === type.value}>
-            {type.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-
-  <!-- Buttons -->
-  <div class="flex gap-3">
-    <button
-      type="submit"
-      class="flex-1 bg-blue-600 text-white font-medium py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-    >
-      Search Properties
+    <!-- Advanced Filters Toggle Button -->
+    <button type="button" class="advanced-toggle-btn" id="advanced-toggle">
+      <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      <span>Advanced Filters</span>
+      <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="m6 9 6 6 6-6"></path>
+      </svg>
     </button>
-    <a
-      href="/search"
-      class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-    >
-      Reset
-    </a>
-  </div>
-</form>
+
+    <!-- Advanced Filters Card (Collapsible) -->
+    <div class="filters-card advanced-filters" id="advanced-filters">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg class="title-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+          </svg>
+          Advanced Options
+        </h3>
+      </div>
+
+      <div class="card-content">
+        <!-- Energy & Environment -->
+        <div class="filter-section">
+          <h4 class="section-title">
+            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+            Energy & Costs
+          </h4>
+          
+          <div class="filter-grid">
+            <div class="filter-group">
+              <label for="epc_rating" class="filter-label">Min EPC Rating</label>
+              <select id="epc_rating" name="epc_rating" class="filter-input filter-select">
+                <option value="">Any</option>
+                {EPC_RATINGS.map(rating => (
+                  <option value={rating.value} selected={epcRating === rating.value}>
+                    {rating.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="council_tax_band" class="filter-label">Max Council Tax</label>
+              <select id="council_tax_band" name="council_tax_band" class="filter-input filter-select">
+                <option value="">Any</option>
+                {COUNCIL_TAX_BANDS.map(band => (
+                  <option value={band.value} selected={councilTaxBand === band.value}>
+                    {band.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Features -->
+        <div class="filter-section">
+          <h4 class="section-title">
+            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+            </svg>
+            Features & Size
+          </h4>
+          
+          <div class="filter-grid">
+            <div class="filter-group">
+              <label for="parking" class="filter-label">Parking</label>
+              <select id="parking" name="parking" class="filter-input filter-select">
+                <option value="">Any</option>
+                {PARKING_TYPES.filter(p => p.value !== 'none').map(type => (
+                  <option value={type.value} selected={parking === type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="min_area" class="filter-label">Min Area (sqft)</label>
+              <input
+                type="number"
+                id="min_area"
+                name="min_area"
+                value={minArea}
+                placeholder="e.g. 1000"
+                class="filter-input"
+              />
+            </div>
+          </div>
+
+          <!-- Feature Checkboxes -->
+          <div class="checkbox-grid">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                name="garden"
+                value="true"
+                checked={garden}
+                class="checkbox-input"
+              />
+              <span class="checkbox-box">
+                <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <span class="checkbox-text">Garden required</span>
+            </label>
+
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                name="new_build"
+                value="true"
+                checked={newBuild}
+                class="checkbox-input"
+              />
+              <span class="checkbox-box">
+                <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <span class="checkbox-text">New builds only</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Tenure & Ownership -->
+        <div class="filter-section">
+          <h4 class="section-title">
+            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>
+            </svg>
+            Ownership
+          </h4>
+          
+          <div class="filter-grid">
+            <div class="filter-group">
+              <label for="tenure" class="filter-label">Tenure</label>
+              <select id="tenure" name="tenure" class="filter-input filter-select">
+                <option value="">Any</option>
+                {TENURE_TYPES.map(type => (
+                  <option value={type.value} selected={tenure === type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="min_lease_years" class="filter-label">Min Lease Years</label>
+              <input
+                type="number"
+                id="min_lease_years"
+                name="min_lease_years"
+                value={minLeaseYears}
+                placeholder="e.g. 80"
+                class="filter-input"
+              />
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="max_service_charge" class="filter-label">Max Service Charge (£/year)</label>
+            <input
+              type="number"
+              id="max_service_charge"
+              name="max_service_charge"
+              value={maxServiceCharge}
+              placeholder="e.g. 2000"
+              class="filter-input"
+            />
+          </div>
+        </div>
+
+        <!-- Rental-Specific Filters -->
+        {listingType === 'let' && (
+          <div class="filter-section">
+            <h4 class="section-title">
+              <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Rental Options
+            </h4>
+            
+            <div class="filter-group">
+              <label for="furnishing" class="filter-label">Furnishing</label>
+              <select id="furnishing" name="furnishing" class="filter-input filter-select">
+                <option value="">Any</option>
+                {FURNISHING_TYPES.map(type => (
+                  <option value={type.value} selected={furnishing === type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button type="submit" class="btn btn-primary">
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <span>Search Properties</span>
+      </button>
+      <a href="/search" class="btn btn-secondary">
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18"></path>
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+        </svg>
+        <span>Reset</span>
+      </a>
+    </div>
+  </form>
+</div>
+
+<style>
+  .enhanced-search-filters {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Filter Cards */
+  .filters-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .filters-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .title-icon {
+    color: #3b82f6;
+  }
+
+  .card-content {
+    padding: 1.5rem;
+  }
+
+  /* Filter Groups */
+  .filter-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .label-icon {
+    color: #9ca3af;
+  }
+
+  .filter-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #111827;
+    transition: all 0.2s ease;
+  }
+
+  .filter-input:focus {
+    outline: none;
+    background: white;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .filter-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .filter-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 3rem;
+  }
+
+  /* Filter Grid */
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  /* Listing Type Toggle */
+  .listing-type-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .toggle-buttons {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.375rem;
+    background: #f3f4f6;
+    border-radius: 10px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .toggle-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s ease;
+  }
+
+  .toggle-btn[data-active="true"] .toggle-content {
+    background: white;
+    color: #2563eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .toggle-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Advanced Toggle Button */
+  .advanced-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    color: #3b82f6;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .advanced-toggle-btn:hover {
+    background: #f9fafb;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+  }
+
+  .advanced-toggle-btn .chevron-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .advanced-toggle-btn.active .chevron-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Advanced Filters (Collapsible) */
+  .advanced-filters {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+
+  .advanced-filters.show {
+    max-height: 2000px;
+    opacity: 1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Filter Sections */
+  .filter-section {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .filter-section:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin: 0 0 1rem 0;
+  }
+
+  .section-icon {
+    color: #6b7280;
+  }
+
+  /* Checkboxes */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .checkbox-label:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+  }
+
+  .checkbox-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .checkbox-box {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .checkbox-input:checked + .checkbox-box {
+    background: #3b82f6;
+    border-color: #3b82f6;
+  }
+
+  .check-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    color: white;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .checkbox-input:checked + .checkbox-box .check-icon {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .checkbox-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    background: white;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+  }
+
+  .btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #374151;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .filter-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .checkbox-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .card-content {
+      padding: 1.25rem;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .toggle-content span {
+      display: none;
+    }
+
+    .toggle-buttons {
+      gap: 0.5rem;
+    }
+  }
+</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('search-filters-form')
+    const form = document.getElementById('search-filters-form') as HTMLFormElement
+    const advancedToggle = document.getElementById('advanced-toggle') as HTMLButtonElement
+    const advancedFilters = document.getElementById('advanced-filters') as HTMLElement
     const listingTypeInputs = document.querySelectorAll('input[name="listing_type"]')
-    const filterInputs = document.querySelectorAll('.filter-input')
-    
-    // ✅ TRACKING: Search form submission
+
+    // ✅ TRACKING: Track search interactions
+    const trackEvent = (eventName: string, data: any) => {
+      if (window.StratosTracker) {
+        window.StratosTracker.trackEvent(eventName, data)
+      }
+    }
+
+    // Handle advanced filters toggle
+    if (advancedToggle && advancedFilters) {
+      advancedToggle.addEventListener('click', () => {
+        const isOpen = advancedFilters.classList.toggle('show')
+        advancedToggle.classList.toggle('active')
+        
+        trackEvent('search_advanced_toggle', { opened: isOpen })
+      })
+    }
+
+    // Handle listing type changes
+    listingTypeInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement
+        
+        // Update toggle button states
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.setAttribute('data-active', 'false')
+        })
+        const parentLabel = target.closest('.toggle-btn')
+        if (parentLabel) {
+          parentLabel.setAttribute('data-active', 'true')
+        }
+
+        // Track listing type change
+        trackEvent('search_listing_type_change', { listing_type: target.value })
+
+        // Clear price filters when switching
+        const minPriceSelect = form.querySelector('#min_price') as HTMLSelectElement
+        const maxPriceSelect = form.querySelector('#max_price') as HTMLSelectElement
+        
+        if (minPriceSelect) minPriceSelect.value = ''
+        if (maxPriceSelect) maxPriceSelect.value = ''
+      })
+    })
+
+    // ✅ CLEAN URL HANDLING: Only include non-empty parameters
     if (form) {
       form.addEventListener('submit', (e) => {
-        const formData = new FormData(form as HTMLFormElement)
+        e.preventDefault() // Prevent default form submission
         
-        // Track search event
-        if (window.StratosTracker) {
-          window.StratosTracker.trackSearch({
-            listing_type: formData.get('listing_type'),
-            location: formData.get('location'),
-            min_price: formData.get('min_price'),
-            max_price: formData.get('max_price'),
-            beds: formData.get('beds'),
-            property_type: formData.get('property_type'),
+        const formData = new FormData(form)
+        const urlParams = new URLSearchParams()
+        const searchParams: Record<string, any> = {}
+        
+        // Only add parameters that have actual values
+        formData.forEach((value, key) => {
+          const stringValue = value.toString().trim()
+          
+          // Skip empty values and 'false' checkboxes
+          if (stringValue && stringValue !== 'false') {
+            urlParams.append(key, stringValue)
+            searchParams[key] = stringValue
+          }
+        })
+
+        // Track search with clean params
+        trackEvent('search_submit', { search_params: searchParams })
+
+        // Navigate to clean URL
+        const cleanUrl = `/search${urlParams.toString() ? '?' + urlParams.toString() : ''}`
+        window.location.href = cleanUrl
+      })
+    }
+
+    // Track filter changes
+    const filterInputs = form.querySelectorAll('.filter-input, .filter-select')
+    filterInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement | HTMLSelectElement
+        
+        if (target.value) {
+          trackEvent('search_filter_change', {
+            filter: target.name,
+            value: target.value
           })
         }
       })
-    }
-    
-    // ✅ TRACKING: Filter changes
-    filterInputs.forEach(input => {
-      input.addEventListener('change', (e) => {
-        const target = e.target as HTMLSelectElement
-        
-        if (window.StratosTracker) {
-          window.StratosTracker.trackFilterChange(
-            target.name,
-            target.value
-          )
-        }
-      })
     })
-    
-    // Update price ranges when listing type changes
-    if (form && listingTypeInputs.length > 0) {
-      listingTypeInputs.forEach(input => {
-        input.addEventListener('change', () => {
-          // Clear price filters when switching listing type
-          const minPriceSelect = form.querySelector('#min_price') as HTMLSelectElement
-          const maxPriceSelect = form.querySelector('#max_price') as HTMLSelectElement
-          
-          if (minPriceSelect) minPriceSelect.value = ''
-          if (maxPriceSelect) maxPriceSelect.value = ''
-        })
-      })
-    }
+
+    console.log('✅ Enhanced search filters initialized')
   })
 </script>

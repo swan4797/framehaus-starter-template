@@ -14,6 +14,7 @@ interface Props {
   canonicalUrl?: string
   noIndex?: boolean
 }
+import Footer from '../components/Footer.astro'
 
 const {
   title = siteConfig.name,
@@ -168,77 +169,7 @@ const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.n
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <!-- Company Info -->
-          <div class="col-span-1">
-            <h3 class="text-lg font-semibold mb-4">{siteConfig.name}</h3>
-            <p class="text-gray-400 text-sm">
-              Your trusted property partner
-            </p>
-          </div>
-
-          <!-- Quick Links -->
-          <div class="col-span-1">
-            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">Quick Links</h4>
-            <ul class="space-y-2">
-              <li>
-                <a href="/search?listing_type=sale" class="text-gray-400 hover:text-white text-sm transition-colors">
-                  Properties for Sale
-                </a>
-              </li>
-              <li>
-                <a href="/search?listing_type=let" class="text-gray-400 hover:text-white text-sm transition-colors">
-                  Properties to Rent
-                </a>
-              </li>
-              <li>
-                <a href="/valuation" class="text-gray-400 hover:text-white text-sm transition-colors">
-                  Request Valuation
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Legal -->
-          <div class="col-span-1">
-            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">Legal</h4>
-            <ul class="space-y-2">
-              <li>
-                <a href="/privacy-policy" class="text-gray-400 hover:text-white text-sm transition-colors">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="/cookie-policy" class="text-gray-400 hover:text-white text-sm transition-colors">
-                  Cookie Policy
-                </a>
-              </li>
-              <li>
-                <a href="/terms" class="text-gray-400 hover:text-white text-sm transition-colors">
-                  Terms & Conditions
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Contact -->
-          <div class="col-span-1">
-            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">Contact Us</h4>
-            <ul class="space-y-2 text-sm text-gray-400">
-              <li>Email: hello@example.com</li>
-              <li>Phone: 020 1234 5678</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Copyright -->
-        <div class="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+     <Footer />
 
     <!-- Mobile Menu Toggle Script -->
     <script>

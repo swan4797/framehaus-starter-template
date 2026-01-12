@@ -1,0 +1,426 @@
+---
+// ========================================
+// FOOTER COMPONENT - STRATOS BRANDED
+// Somerstone-style layout with Stratos colors
+// Primary: #3c5b4b, Secondary: #f6f4f4
+// ========================================
+
+interface Props {
+  companyName?: string
+  email?: string
+  phone?: string
+  address?: string
+}
+
+const { 
+  companyName = 'Your Estate Agency',
+  email = 'hello@youragency.co.uk',
+  phone = '0412 054 507',
+  address = 'London, United Kingdom'
+} = Astro.props
+
+const currentYear = new Date().getFullYear()
+---
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <!-- Logo -->
+    <div class="footer-logo-section">
+      <a href="/" class="footer-logo-link" aria-label="Home">
+        <svg class="footer-logo" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+          <!-- Geometric pin/location inspired logo -->
+          <path d="M50 10 L85 35 L85 80 L50 130 L15 80 L15 35 Z" fill="currentColor" opacity="0.3"/>
+          <path d="M50 30 L70 45 L70 75 L50 95 L30 75 L30 45 Z" fill="currentColor"/>
+          <circle cx="50" cy="60" r="12" fill="#f6f4f4"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Footer Columns -->
+    <div class="footer-content">
+      <!-- Menu Column -->
+      <div class="footer-column">
+        <h3 class="footer-heading">Menu</h3>
+        <nav class="footer-nav">
+          <a href="/" class="footer-link">Home</a>
+          <a href="/about" class="footer-link">About</a>
+          <a href="/services" class="footer-link">Services</a>
+          <a href="/search" class="footer-link">Properties</a>
+          <a href="/insights" class="footer-link">Insights</a>
+          <a href="/contact" class="footer-link">Contact</a>
+        </nav>
+      </div>
+
+      <!-- Social Column -->
+      <div class="footer-column">
+        <h3 class="footer-heading">Social</h3>
+        <nav class="footer-nav">
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+            Facebook
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+            Instagram
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+            LinkedIn
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+            Twitter
+          </a>
+        </nav>
+      </div>
+
+      <!-- Contact Column -->
+      <div class="footer-column">
+        <h3 class="footer-heading">Contact</h3>
+        <div class="footer-contact">
+          <a href={`mailto:${email}`} class="footer-link">
+            {email}
+          </a>
+          <a href={`tel:${phone.replace(/\s/g, '')}`} class="footer-link">
+            {phone}
+          </a>
+          {address && (
+            <p class="footer-address">
+              {address}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <!-- Legal Column -->
+      <div class="footer-column">
+        <h3 class="footer-heading">Legal</h3>
+        <nav class="footer-nav">
+          <a href="/privacy-policy" class="footer-link">Privacy Policy</a>
+          <a href="/terms-conditions" class="footer-link">Terms & Conditions</a>
+          <a href="/cookie-policy" class="footer-link">Cookie Policy</a>
+          <a href="/complaints" class="footer-link">Complaints</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Massive Brand Name -->
+    <div class="footer-brand">
+      <h2 class="brand-name" aria-label={companyName}>
+        {companyName.toLowerCase()}
+      </h2>
+    </div>
+
+    <!-- Copyright -->
+    <div class="footer-bottom">
+      <p class="footer-copyright">
+        © {currentYear} {companyName}. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: #3c5b4b;
+    color: #f6f4f4;
+    padding: 4rem 0 2rem;
+    margin-top: auto;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Logo Section */
+  .footer-logo-section {
+    margin-bottom: 4rem;
+  }
+
+  .footer-logo-link {
+    display: inline-block;
+    transition: opacity 0.3s ease;
+  }
+
+  .footer-logo-link:hover {
+    opacity: 0.8;
+  }
+
+  .footer-logo {
+    width: 70px;
+    height: 100px;
+    color: #f6f4f4;
+  }
+
+  /* Footer Content Grid */
+  .footer-content {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .footer-heading {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(246, 244, 244, 0.7);
+    margin: 0;
+  }
+
+  /* Navigation */
+  .footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-link {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #f6f4f4;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    width: fit-content;
+  }
+
+  .footer-link:hover {
+    color: #ffffff;
+  }
+
+  /* Contact Section */
+  .footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-address {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: rgba(246, 244, 244, 0.9);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Massive Brand Name */
+  .footer-brand {
+    padding: 2rem 0 3rem;
+    overflow: hidden;
+  }
+
+  .brand-name {
+    font-size: clamp(3rem, 15vw, 12rem);
+    font-weight: 900;
+    line-height: 0.85;
+    color: #f6f4f4;
+    margin: 0;
+    letter-spacing: -0.03em;
+    text-transform: lowercase;
+    word-break: break-word;
+    /* Initial state - hidden */
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Animated state when visible */
+  .brand-name.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Alternative fade-up animation using keyframes */
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(60px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .brand-name.use-keyframe {
+    animation: fadeUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Bottom Bar */
+  .footer-bottom {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(246, 244, 244, 0.2);
+  }
+
+  .footer-copyright {
+    font-size: 0.875rem;
+    color: rgba(246, 244, 244, 0.7);
+    margin: 0;
+    text-align: center;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .footer-content {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3rem 2rem;
+    }
+
+    .brand-name {
+      font-size: clamp(2.5rem, 12vw, 10rem);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .site-footer {
+      padding: 3rem 0 2rem;
+    }
+
+    .footer-container {
+      padding: 0 1.5rem;
+    }
+
+    .footer-logo-section {
+      margin-bottom: 3rem;
+    }
+
+    .footer-logo {
+      width: 60px;
+      height: 86px;
+    }
+
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      padding-bottom: 3rem;
+    }
+
+    .footer-brand {
+      padding: 2rem 0 2.5rem;
+    }
+
+    .brand-name {
+      font-size: clamp(2rem, 12vw, 8rem);
+      line-height: 0.9;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-logo {
+      width: 50px;
+      height: 72px;
+    }
+
+    .footer-heading {
+      font-size: 0.625rem;
+    }
+
+    .footer-link,
+    .footer-address {
+      font-size: 0.875rem;
+    }
+
+    .brand-name {
+      font-size: clamp(1.75rem, 15vw, 6rem);
+    }
+
+    .footer-copyright {
+      font-size: 0.8125rem;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    .site-footer {
+      background: white;
+      color: black;
+      padding: 1rem 0;
+    }
+
+    .footer-brand {
+      display: none;
+    }
+
+    .footer-logo {
+      width: 40px;
+      height: 57px;
+    }
+  }
+
+  /* Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .footer-link,
+    .footer-logo-link {
+      transition: none;
+    }
+
+    /* Disable animation for users who prefer reduced motion */
+    .brand-name {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  // ✅ TRACKING: Track footer link clicks
+  document.addEventListener('DOMContentLoaded', () => {
+    const footerLinks = document.querySelectorAll('.site-footer .footer-link')
+    
+    footerLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href')
+        const text = (e.currentTarget as HTMLAnchorElement).textContent?.trim()
+        
+        if (window.StratosTracker && href && text) {
+          window.StratosTracker.trackEvent('footer_link_click', {
+            link_text: text,
+            link_href: href,
+            link_type: href.startsWith('http') ? 'external' : 'internal'
+          })
+        }
+      })
+    })
+
+    // ✅ ANIMATION: Fade-up brand name when it enters viewport
+    const brandName = document.querySelector('.brand-name')
+    
+    if (brandName) {
+      // Create intersection observer
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // Element is visible, trigger animation
+              entry.target.classList.add('animate-in')
+              
+              // Optional: Stop observing after animation triggers once
+              observer.unobserve(entry.target)
+            }
+          })
+        },
+        {
+          // Trigger when 20% of element is visible
+          threshold: 0.2,
+          // Start observing 100px before element enters viewport
+          rootMargin: '0px 0px -100px 0px'
+        }
+      )
+
+      // Start observing the brand name
+      observer.observe(brandName)
+    }
+
+    console.log('✅ Footer tracking initialized')
+    console.log('✅ Footer brand animation initialized')
+  })
+</script>

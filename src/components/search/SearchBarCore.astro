@@ -1,0 +1,204 @@
+---
+// ========================================
+// SEARCH BAR CORE (Headless Component)
+// Pure logic - no styling, no UI
+// Handles: state, URL params, form submission, tracking
+// ========================================
+
+import type { PropertySearchParams } from '../../types/database'
+
+export interface SearchBarConfig {
+  // Which fields to include
+  fields: {
+    listingType?: boolean
+    location?: boolean
+    minPrice?: boolean
+    maxPrice?: boolean
+    bedrooms?: boolean
+    bathrooms?: boolean
+    propertyType?: boolean
+    epcRating?: boolean
+    councilTaxBand?: boolean
+    parking?: boolean
+    tenure?: boolean
+    minLeaseYears?: boolean
+    maxServiceCharge?: boolean
+    minArea?: boolean
+    maxArea?: boolean
+    garden?: boolean
+    newBuild?: boolean
+    furnishing?: boolean
+    // ... all other fields
+  }
+  
+  // Behavior
+  redirectUrl?: string
+  currentParams?: PropertySearchParams
+  
+  // Customization
+  placeholders?: {
+    location?: string
+    minPrice?: string
+    maxPrice?: string
+    // ... etc
+  }
+  
+  // Callbacks
+  onSubmit?: (params: PropertySearchParams) => void
+  onChange?: (field: string, value: any) => void
+}
+
+interface Props {
+  config: SearchBarConfig
+  children: any
+}
+
+const { config, children } = Astro.props
+
+// Generate field data that child components can use
+const fieldData = {
+  listingType: config.fields.listingType ? {
+    name: 'listing_type',
+    value: config.currentParams?.listing_type || 'sale',
+    options: [
+      { value: 'sale', label: 'Buy' },
+      { value: 'let', label: 'Rent' },
+    ]
+  } : null,
+  
+  location: config.fields.location ? {
+    name: 'location',
+    value: config.currentParams?.location || '',
+    placeholder: config.placeholders?.location || 'Location or postcode',
+  } : null,
+  
+  minPrice: config.fields.minPrice ? {
+    name: 'min_price',
+    value: config.currentParams?.min_price || '',
+    options: config.currentParams?.listing_type === 'let' ? [
+      { value: '', label: 'Min Rent' },
+      { value: '500', label: '£500 pcm' },
+      { value: '750', label: '£750 pcm' },
+      { value: '1000', label: '£1,000 pcm' },
+      { value: '1500', label: '£1,500 pcm' },
+      { value: '2000', label: '£2,000 pcm' },
+    ] : [
+      { value: '', label: 'Min Price' },
+      { value: '100000', label: '£100k' },
+      { value: '150000', label: '£150k' },
+      { value: '200000', label: '£200k' },
+      { value: '250000', label: '£250k' },
+      { value: '300000', label: '£300k' },
+      { value: '400000', label: '£400k' },
+      { value: '500000', label: '£500k' },
+    ]
+  } : null,
+  
+  maxPrice: config.fields.maxPrice ? {
+    name: 'max_price',
+    value: config.currentParams?.max_price || '',
+    options: config.currentParams?.listing_type === 'let' ? [
+      { value: '', label: 'Max Rent' },
+      { value: '1000', label: '£1,000 pcm' },
+      { value: '1500', label: '£1,500 pcm' },
+      { value: '2000', label: '£2,000 pcm' },
+      { value: '2500', label: '£2,500 pcm' },
+      { value: '3000', label: '£3,000 pcm' },
+      { value: '4000', label: '£4,000 pcm' },
+      { value: '5000', label: '£5k+ pcm' },
+    ] : [
+      { value: '', label: 'Max Price' },
+      { value: '200000', label: '£200k' },
+      { value: '250000', label: '£250k' },
+      { value: '300000', label: '£300k' },
+      { value: '400000', label: '£400k' },
+      { value: '500000', label: '£500k' },
+      { value: '750000', label: '£750k' },
+      { value: '1000000', label: '£1M' },
+      { value: '2000000', label: '£2M+' },
+    ]
+  } : null,
+  
+  bedrooms: config.fields.bedrooms ? {
+    name: 'beds',
+    value: config.currentParams?.beds || '',
+    options: [
+      { value: '', label: 'Beds' },
+      { value: '1', label: '1+' },
+      { value: '2', label: '2+' },
+      { value: '3', label: '3+' },
+      { value: '4', label: '4+' },
+      { value: '5', label: '5+' },
+    ]
+  } : null,
+  
+  propertyType: config.fields.propertyType ? {
+    name: 'property_type',
+    value: config.currentParams?.property_type || '',
+    options: [
+      { value: '', label: 'All Types' },
+      { value: 'detached', label: 'Detached' },
+      { value: 'semi-detached', label: 'Semi-Detached' },
+      { value: 'terraced', label: 'Terraced' },
+      { value: 'flat', label: 'Flat' },
+      { value: 'bungalow', label: 'Bungalow' },
+    ]
+  } : null,
+  
+  // Add more fields as needed...
+}
+
+// Pass field data to children via slot props
+const props = {
+  fields: fieldData,
+  config: config,
+  redirectUrl: config.redirectUrl || '/search',
+}
+---
+
+<div class="search-bar-core" data-config={JSON.stringify(config)}>
+  <slot {...props} />
+</div>
+
+<script>
+  // Core search logic - works with any UI
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchForms = document.querySelectorAll('[data-search-form]')
+    
+    searchForms.forEach(form => {
+      const formElement = form as HTMLFormElement
+      const configElement = form.closest('.search-bar-core') as HTMLElement
+      const config = JSON.parse(configElement?.dataset.config || '{}')
+      
+      // Handle form submission
+      formElement.addEventListener('submit', (e) => {
+        e.preventDefault()
+        
+        const formData = new FormData(formElement)
+        const urlParams = new URLSearchParams()
+        const searchParams: Record<string, any> = {}
+        
+        // Clean URL - only include non-empty params
+        formData.forEach((value, key) => {
+          const stringValue = value.toString().trim()
+          if (stringValue && stringValue !== 'false') {
+            urlParams.append(key, stringValue)
+            searchParams[key] = stringValue
+          }
+        })
+        
+        // Track event
+        if (window.StratosTracker) {
+          window.StratosTracker.trackEvent('search_submit', {
+            search_params: searchParams,
+            source: 'core'
+          })
+        }
+        
+        // Navigate
+        const redirectUrl = config.redirectUrl || '/search'
+        window.location.href = `${redirectUrl}?${urlParams.toString()}`
+      })
+    })
+  })
+</script>

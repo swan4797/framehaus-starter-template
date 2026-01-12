@@ -1,18 +1,21 @@
 ---
-// File: src/pages/search.astro
-// UPDATED WITH ModernSearchBar COMPONENT
+// ========================================
+// SEARCH PAGE - WITH UNIVERSAL SEARCH BAR
+// Full sidebar search with all 30+ filters
+// ========================================
 
 export const prerender = false
 
 import Layout from '../layouts/Layout.astro'
-import ModernSearchBar from '../components/search/SearchBar.astro'
+import UniversalSearchBar from '../components/search/UniversalSearchBar.astro'
 import PropertyCard from '../components/properties/PropertyCard.astro'
 import Pagination from '../components/search/Pagination.astro'
 import { searchProperties } from '../lib/api'
 import type { PropertySearchParams } from '../types/database'
 
-// Parse search params from URL
+// Parse ALL search params from URL (including new filters)
 const searchParams: PropertySearchParams = {
+  // Basic filters
   listing_type: (Astro.url.searchParams.get('listing_type') as 'sale' | 'let') || 'sale',
   location: Astro.url.searchParams.get('location') || undefined,
   postcode: Astro.url.searchParams.get('postcode') || undefined,
@@ -20,6 +23,44 @@ const searchParams: PropertySearchParams = {
   max_price: Astro.url.searchParams.get('max_price') ? parseInt(Astro.url.searchParams.get('max_price')!) : undefined,
   beds: Astro.url.searchParams.get('beds') ? parseInt(Astro.url.searchParams.get('beds')!) : undefined,
   property_type: Astro.url.searchParams.get('property_type') as any || undefined,
+  
+  // Room filters
+  min_baths: Astro.url.searchParams.get('min_baths') ? parseInt(Astro.url.searchParams.get('min_baths')!) : undefined,
+  min_receptions: Astro.url.searchParams.get('min_receptions') ? parseInt(Astro.url.searchParams.get('min_receptions')!) : undefined,
+  
+  // EPC filters
+  epc_rating: Astro.url.searchParams.get('epc_rating') as any || undefined,
+  min_epc_score: Astro.url.searchParams.get('min_epc_score') ? parseInt(Astro.url.searchParams.get('min_epc_score')!) : undefined,
+  
+  // Council Tax filters
+  council_tax_band: Astro.url.searchParams.get('council_tax_band') as any || undefined,
+  max_council_tax_amount: Astro.url.searchParams.get('max_council_tax_amount') ? parseInt(Astro.url.searchParams.get('max_council_tax_amount')!) : undefined,
+  
+  // Parking filters
+  parking: Astro.url.searchParams.get('parking') as any || undefined,
+  min_parking_spaces: Astro.url.searchParams.get('min_parking_spaces') ? parseInt(Astro.url.searchParams.get('min_parking_spaces')!) : undefined,
+  
+  // Tenure filters
+  tenure: Astro.url.searchParams.get('tenure') as any || undefined,
+  min_lease_years: Astro.url.searchParams.get('min_lease_years') ? parseInt(Astro.url.searchParams.get('min_lease_years')!) : undefined,
+  max_service_charge: Astro.url.searchParams.get('max_service_charge') ? parseInt(Astro.url.searchParams.get('max_service_charge')!) : undefined,
+  max_ground_rent: Astro.url.searchParams.get('max_ground_rent') ? parseInt(Astro.url.searchParams.get('max_ground_rent')!) : undefined,
+  
+  // Area filters
+  min_area: Astro.url.searchParams.get('min_area') ? parseInt(Astro.url.searchParams.get('min_area')!) : undefined,
+  max_area: Astro.url.searchParams.get('max_area') ? parseInt(Astro.url.searchParams.get('max_area')!) : undefined,
+  
+  // Feature filters
+  garden: Astro.url.searchParams.get('garden') === 'true',
+  new_build: Astro.url.searchParams.get('new_build') === 'true',
+  recently_reduced: Astro.url.searchParams.get('recently_reduced') === 'true',
+  shared_ownership: Astro.url.searchParams.get('shared_ownership') === 'true',
+  retirement_home: Astro.url.searchParams.get('retirement_home') === 'true',
+  
+  // Rental filters
+  furnishing: Astro.url.searchParams.get('furnishing') as any || undefined,
+  
+  // Pagination & sorting
   page: Astro.url.searchParams.get('page') ? parseInt(Astro.url.searchParams.get('page')!) : 1,
   limit: 20,
   sort_by: (Astro.url.searchParams.get('sort_by') as any) || 'newest',
@@ -33,6 +74,12 @@ const properties = searchResponse?.properties || []
 const total = searchResponse?.total || 0
 const totalPages = Math.ceil(total / (searchParams.limit || 20))
 
+// Count active filters for badge
+const activeFiltersCount = Object.entries(searchParams).filter(([key, value]) => {
+  if (key === 'listing_type' || key === 'page' || key === 'limit' || key === 'sort_by') return false
+  return value !== undefined && value !== '' && value !== false
+}).length
+
 const listingTypeText = searchParams.listing_type === 'sale' ? 'For Sale' : 'To Rent'
 const locationText = searchParams.location ? ` in ${searchParams.location}` : ''
 const pageTitle = `Properties ${listingTypeText}${locationText}`
@@ -40,186 +87,269 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
 ---
 
 <Layout title={pageTitle} description={metaDescription}>
-  <div class="bg-gray-50 min-h-screen">
-    <!-- Header with Search Bar -->
-    <div class="search-header">
-      <div class="header-background"></div>
-      <div class="header-content">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div class="text-center mb-6">
-            <h1 class="page-title">
-              Find Your Perfect Property
-            </h1>
-            <p class="page-subtitle">
-              Search thousands of properties across the UK
-            </p>
-          </div>
-
-          {/* ✅ Modern Search Bar Component */}
-          <ModernSearchBar currentParams={searchParams} showAdvanced={true} />
+  <div class="search-page">
+    <!-- Hero Header -->
+    <div class="hero-header">
+      <div class="hero-background"></div>
+      <div class="hero-content">
+        <div class="container">
+          <h1 class="hero-title">Find Your Dream Property</h1>
+          <p class="hero-subtitle">
+            Search thousands of properties with advanced filters
+          </p>
         </div>
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {hasError && (
-        <div class="error-card">
-          <svg class="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h2 class="error-title">Unable to Load Properties</h2>
-          <p class="error-message">Please try again later.</p>
-          <a href="/search" class="error-button">Reset Search</a>
-        </div>
-      )}
-
-      {!hasError && (
-        <>
-          <!-- Results Header -->
-          <div class="results-header">
-            <div class="results-info">
-              <h2 class="results-count" data-results-count={total}>
-                {total === 0 ? 'No properties found' : `${total.toLocaleString()} ${total === 1 ? 'property' : 'properties'}`}
-              </h2>
-              {searchParams.location && (
-                <p class="results-location">
-                  <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                  {searchParams.location}
-                </p>
-              )}
-            </div>
-
-            <div class="results-badge">
-              <span class="badge-text">{listingTypeText}</span>
-            </div>
+    <!-- Main Content -->
+    <div class="container main-content">
+      <div class="content-grid">
+        <!-- Sidebar: Universal Search Bar -->
+        <aside class="sidebar">
+          <div class="sidebar-sticky">
+            <UniversalSearchBar 
+              variant="sidebar"
+              currentParams={searchParams}
+              
+              // ✅ Core Fields (Always Visible)
+              showListingTypeToggle={true}
+              showLocation={true}
+              showMinPrice={true}
+              showMaxPrice={true}
+              showBedrooms={true}
+              showPropertyType={true}
+              
+              // ✅ Advanced Toggle
+              showAdvancedToggle={true}
+              advancedDefaultOpen={false}
+              
+              // ✅ Advanced Fields
+              showBathrooms={true}
+              showReceptions={true}
+              
+              // Area
+              showMinArea={true}
+              showMaxArea={true}
+              
+              // Energy & Costs
+              showEPCRating={true}
+              showCouncilTaxBand={true}
+              
+              // Parking
+              showParking={true}
+              
+              // Tenure & Ownership
+              showTenure={true}
+              showMinLeaseYears={true}
+              showMaxServiceCharge={true}
+              
+              // Features
+              showGarden={true}
+              showNewBuild={true}
+              showRecentlyReduced={true}
+              
+              // Rental (shows only when listing_type=let)
+              showFurnishing={true}
+              
+              // Customization
+              submitButtonText="Apply Filters"
+              showResetButton={true}
+            />
           </div>
+        </aside>
 
-          <!-- No Results -->
-          {properties.length === 0 && (
-            <div class="no-results-card">
-              <svg class="no-results-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        <!-- Main: Search Results -->
+        <main class="results-section">
+          {hasError && (
+            <div class="error-state">
+              <svg class="state-icon error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 class="no-results-title">No properties match your search</h3>
-              <p class="no-results-message">
-                Try adjusting your filters or search in a different area.
-              </p>
-              <a href="/search" class="no-results-button">Reset Search</a>
+              <h2 class="state-title">Unable to Load Properties</h2>
+              <p class="state-message">Please try again later or contact support.</p>
+              <a href="/search" class="state-button">Reset Search</a>
             </div>
           )}
 
-          <!-- Property Grid -->
-          {properties.length > 0 && (
+          {!hasError && (
             <>
-              <div class="property-grid">
-                {properties.map(property => (
-                  <PropertyCard 
-                    property={property} 
-                    featured={property.is_featured}
-                    source="search_results"
-                  />
-                ))}
+              <!-- Results Header -->
+              <div class="results-header">
+                <div class="results-meta">
+                  <h2 class="results-count" data-results-count={total}>
+                    {total === 0 ? 'No properties found' : (
+                      <>
+                        <span class="count-number">{total.toLocaleString()}</span>
+                        <span class="count-text">{total === 1 ? 'property' : 'properties'}</span>
+                      </>
+                    )}
+                  </h2>
+                  {searchParams.location && (
+                    <p class="results-location">
+                      <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                      <span>{searchParams.location}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div class="results-controls">
+                  {activeFiltersCount > 0 && (
+                    <div class="active-filters-badge">
+                      <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                      </svg>
+                      <span>{activeFiltersCount} active</span>
+                    </div>
+                  )}
+                  
+                  <div class="sort-control">
+                    <label for="sort_select" class="sort-label">Sort:</label>
+                    <select id="sort_select" class="sort-select">
+                      <option value="newest" selected={searchParams.sort_by === 'newest'}>Newest</option>
+                      <option value="price_asc" selected={searchParams.sort_by === 'price_asc'}>Price: Low to High</option>
+                      <option value="price_desc" selected={searchParams.sort_by === 'price_desc'}>Price: High to Low</option>
+                      <option value="beds_desc" selected={searchParams.sort_by === 'beds_desc'}>Most Bedrooms</option>
+                      <option value="area_desc" selected={searchParams.sort_by === 'area_desc'}>Largest First</option>
+                      <option value="epc_best" selected={searchParams.sort_by === 'epc_best'}>Best EPC</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <!-- Pagination -->
-              <div class="pagination-container">
-                <Pagination
-                  currentPage={searchParams.page || 1}
-                  totalPages={totalPages}
-                  totalResults={total}
-                  searchParams={searchParams}
-                />
-              </div>
+              <!-- No Results State -->
+              {properties.length === 0 && (
+                <div class="empty-state">
+                  <svg class="state-icon empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  <h3 class="state-title">No properties match your search</h3>
+                  <p class="state-message">
+                    Try adjusting your filters or broaden your search area.
+                  </p>
+                  <div class="state-suggestions">
+                    <p class="suggestions-title">Suggestions:</p>
+                    <ul class="suggestions-list">
+                      <li>Remove some filters</li>
+                      <li>Expand your price range</li>
+                      <li>Search in nearby areas</li>
+                      <li>Reduce minimum bedrooms</li>
+                    </ul>
+                  </div>
+                  <a href="/search" class="state-button">Reset All Filters</a>
+                </div>
+              )}
+
+              <!-- Property Grid -->
+              {properties.length > 0 && (
+                <>
+                  <div class="property-grid">
+                    {properties.map(property => (
+                      <PropertyCard 
+                        property={property} 
+                        featured={property.is_featured}
+                        source="search_results"
+                      />
+                    ))}
+                  </div>
+
+                  <!-- Pagination -->
+                  <div class="pagination-wrapper">
+                    <Pagination
+                      currentPage={searchParams.page || 1}
+                      totalPages={totalPages}
+                      totalResults={total}
+                      searchParams={searchParams}
+                    />
+                  </div>
+                </>
+              )}
             </>
           )}
-        </>
-      )}
+        </main>
+      </div>
     </div>
   </div>
 </Layout>
 
 <style>
-  /* Header Styles */
-  .search-header {
+  .search-page {
+    min-height: 100vh;
+    background: #f9fafb;
+  }
+
+  /* Hero Header */
+  .hero-header {
     position: relative;
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    padding: 3rem 0 2rem;
     overflow: hidden;
   }
 
-  .header-background {
+  .hero-background {
     position: absolute;
     inset: 0;
     background-image: 
       radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
       radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+    opacity: 0.6;
   }
 
-  .header-content {
+  .hero-content {
     position: relative;
     z-index: 1;
   }
 
-  .page-title {
-    font-size: clamp(1.875rem, 4vw, 2.5rem);
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 800;
     color: white;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.75rem 0;
+    text-align: center;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .page-subtitle {
-    font-size: clamp(0.875rem, 2vw, 1.125rem);
+  .hero-subtitle {
+    font-size: clamp(0.9375rem, 2vw, 1.125rem);
     color: rgba(255, 255, 255, 0.9);
+    text-align: center;
     margin: 0;
   }
 
-  /* Error Card */
-  .error-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #fee2e2;
-    padding: 3rem 2rem;
-    text-align: center;
+  /* Main Content */
+  .main-content {
+    margin-top: -1.5rem;
+    padding-bottom: 4rem;
   }
 
-  .error-icon {
-    width: 4rem;
-    height: 4rem;
-    margin: 0 auto 1rem;
-    color: #ef4444;
+  .content-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 2rem;
+    align-items: start;
   }
 
-  .error-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 0.5rem 0;
+  /* Sidebar */
+  .sidebar {
+    position: relative;
   }
 
-  .error-message {
-    color: #6b7280;
-    margin: 0 0 1.5rem 0;
+  .sidebar-sticky {
+    position: sticky;
+    top: 2rem;
   }
 
-  .error-button {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background: #2563eb;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .error-button:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  /* Results Section */
+  .results-section {
+    min-height: 500px;
   }
 
   /* Results Header */
@@ -227,22 +357,42 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
     background: white;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    margin-bottom: 2rem;
   }
 
-  .results-info {
+  .results-meta {
     flex: 1;
+    min-width: 200px;
   }
 
   .results-count {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 800;
     color: #111827;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.375rem 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .count-number {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .count-text {
+    font-size: 1.125rem;
+    color: #6b7280;
+    font-weight: 600;
   }
 
   .results-location {
@@ -255,63 +405,70 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
   }
 
   .location-icon {
-    width: 16px;
-    height: 16px;
     color: #9ca3af;
   }
 
-  .results-badge {
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  /* Results Controls */
+  .results-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .active-filters-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
-    border-radius: 9999px;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .badge-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .sort-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sort-label {
     font-size: 0.875rem;
     font-weight: 600;
-  }
-
-  /* No Results */
-  .no-results-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 3rem 2rem;
-    text-align: center;
-  }
-
-  .no-results-icon {
-    width: 4rem;
-    height: 4rem;
-    margin: 0 auto 1rem;
-    color: #9ca3af;
-  }
-
-  .no-results-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 0.5rem 0;
-  }
-
-  .no-results-message {
     color: #6b7280;
-    margin: 0 0 1.5rem 0;
   }
 
-  .no-results-button {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background: #2563eb;
-    color: white;
-    text-decoration: none;
+  .sort-select {
+    padding: 0.5rem 2.5rem 0.5rem 0.875rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
-    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
     transition: all 0.2s ease;
   }
 
-  .no-results-button:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  .sort-select:hover {
+    border-color: #d1d5db;
+    background-color: white;
+  }
+
+  .sort-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   /* Property Grid */
@@ -319,43 +476,211 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2rem;
   }
 
-  .pagination-container {
+  .pagination-wrapper {
     margin-top: 3rem;
   }
 
-  @media (max-width: 640px) {
+  /* State Containers (Error/Empty) */
+  .error-state,
+  .empty-state {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+
+  .state-icon {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto 1.5rem;
+  }
+
+  .error-icon {
+    color: #ef4444;
+  }
+
+  .empty-icon {
+    color: #9ca3af;
+  }
+
+  .state-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .state-message {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+  }
+
+  .state-suggestions {
+    max-width: 400px;
+    margin: 0 auto 2rem;
+    padding: 1.5rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    text-align: left;
+  }
+
+  .suggestions-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #374151;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .suggestions-list {
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style: disc;
+  }
+
+  .suggestions-list li {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.375rem;
+  }
+
+  .state-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .state-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .content-grid {
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar-sticky {
+      position: static;
+    }
+
+    .property-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-header {
+      padding: 2rem 0 1.5rem;
+    }
+
     .results-header {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .results-controls {
+      width: 100%;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .sort-control {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .sort-select {
+      flex: 1;
     }
 
     .property-grid {
       grid-template-columns: 1fr;
     }
   }
+
+  @media (max-width: 640px) {
+    .container {
+      padding: 0 1rem;
+    }
+
+    .main-content {
+      padding-bottom: 3rem;
+    }
+
+    .error-state,
+    .empty-state {
+      padding: 3rem 1.5rem;
+    }
+
+    .state-icon {
+      width: 4rem;
+      height: 4rem;
+    }
+  }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
+    // Handle sort change
+    const sortSelect = document.getElementById('sort_select') as HTMLSelectElement
     
-    // ✅ TRACKING: Track search event (only if there are search parameters)
-    if (urlParams.toString() && window.StratosTracker) {
-      const searchParams: Record<string, any> = {};
-      urlParams.forEach((value, key) => {
-        searchParams[key] = value;
-      });
-
-      const resultsCount = document.querySelector('[data-results-count]')?.textContent || '0';
-
-      window.StratosTracker.trackEvent('search', {
-        search_params: searchParams,
-        results_count: parseInt(resultsCount.match(/\d+/)?.[0] || '0'),
-      });
+    if (sortSelect) {
+      sortSelect.addEventListener('change', () => {
+        const urlParams = new URLSearchParams(window.location.search)
+        urlParams.set('sort_by', sortSelect.value)
+        urlParams.delete('page') // Reset to page 1
+        
+        // Track sort change
+        if (window.StratosTracker) {
+          window.StratosTracker.trackEvent('search_sort_change', {
+            sort_by: sortSelect.value
+          })
+        }
+        
+        window.location.href = `/search?${urlParams.toString()}`
+      })
     }
-  });
+
+    // Track page view with search params
+    const urlParams = new URLSearchParams(window.location.search)
+    
+    if (urlParams.toString() && window.StratosTracker) {
+      const searchParams: Record<string, any> = {}
+      urlParams.forEach((value, key) => {
+        searchParams[key] = value
+      })
+
+      const resultsCount = document.querySelector('[data-results-count]')?.getAttribute('data-results-count') || '0'
+
+      window.StratosTracker.trackEvent('search_page_view', {
+        search_params: searchParams,
+        results_count: parseInt(resultsCount),
+        has_advanced_filters: Object.keys(searchParams).length > 4
+      })
+    }
+
+    console.log('✅ Search page with UniversalSearchBar initialized')
+  })
 </script>
+</Layout>
