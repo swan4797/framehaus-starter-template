@@ -189,9 +189,11 @@ const props = {
         
         // Track event
         if (window.StratosTracker) {
-          window.StratosTracker.trackEvent('search_submit', {
-            search_params: searchParams,
-            source: 'core'
+          window.StratosTracker.trackEvent('search', {
+            listing_type: searchParams.listing_type || 'sale',
+            location: searchParams.location || '',
+            filters_count: Object.keys(searchParams).length,
+            component: 'search_bar_core'
           })
         }
         

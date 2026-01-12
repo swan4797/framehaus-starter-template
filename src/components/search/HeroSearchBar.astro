@@ -388,7 +388,7 @@ const propertyTypes = [
     const locationInput = heroForm.querySelector('input[name="location"]') as HTMLInputElement
     if (locationInput) {
       locationInput.addEventListener('focus', () => {
-        trackHeroSearch('hero_search_started', { source: 'homepage' })
+        // Don't track focus - not a standard event type
       }, { once: true })
     }
 
@@ -397,9 +397,10 @@ const propertyTypes = [
     selects.forEach(select => {
       select.addEventListener('change', (e) => {
         const target = e.target as HTMLSelectElement
-        trackHeroSearch('hero_search_filter_change', {
-          filter: target.name,
-          value: target.value
+        trackHeroSearch('filter_change', {
+          filter_name: target.name,
+          filter_value: target.value,
+          component: 'hero_search_bar'
         })
       })
     })
@@ -423,9 +424,11 @@ const propertyTypes = [
       })
 
       // Track hero search submission
-      trackHeroSearch('hero_search_submit', {
-        search_params: searchParams,
-        source: 'homepage'
+      trackHeroSearch('search', {
+        listing_type: searchParams.listing_type || 'sale',
+        location: searchParams.location || '',
+        filters_count: Object.keys(searchParams).length,
+        component: 'hero_search_bar'
       })
 
       // Navigate to main search page with clean URL

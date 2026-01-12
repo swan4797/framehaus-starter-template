@@ -18,6 +18,7 @@ import {
   getStatusBadgeClass,
   pluralize,
 } from '../../../lib/utils'
+import {PropertyMapSection } from '../../../components/map/PropertyMapIframe.tsx'
 
 const propertyId = extractPropertyIdFromUrl(Astro.url.pathname)
 
@@ -51,6 +52,9 @@ const structuredData = {
     addressCountry: property.country_code,
   },
 }
+
+const hasLocation = property.latitude && property.longitude
+
 ---
 
 <PropertyLayout 
@@ -169,6 +173,20 @@ const structuredData = {
               </ul>
             </div>
           )}
+
+
+      {/* MAP SECTION - ADD THIS */}
+      {hasLocation && (
+        <PropertyMapSection
+          latitude={property.latitude}
+          longitude={property.longitude}
+          address={property.display_address}
+          postcode={property.postcode}
+          displayAddress={property.display_address}
+          provider="openstreetmap"
+          client:load
+        />
+      )}
         </div>
 
         <!-- Sidebar -->

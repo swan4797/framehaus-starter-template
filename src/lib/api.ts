@@ -1,9 +1,9 @@
 // ========================================
-// API CLIENT
-// Type-safe functions to call Edge Functions
+// API CLIENT - CORS FIX APPLIED
+// Removed x-branch-id header (only using x-api-key)
 // ========================================
 
-import { apiConfig } from '../lib/config'
+import { apiConfig } from './config'
 import type {
   Property,
   PropertySearchParams,
@@ -15,34 +15,92 @@ import type {
 } from '../types/database'
 
 // ========================================
+// MAP TYPES
+// ========================================
+
+export interface MapBounds {
+  north: number
+  south: number
+  east: number
+  west: number
+}
+
+export interface MapSearchParams {
+  bounds: MapBounds
+  zoom?: number
+  filters?: {
+    listing_type?: 'sale' | 'let' | 'for-sale' | 'to-let'
+    min_price?: number
+    max_price?: number
+    beds?: number
+    min_baths?: number
+    property_type?: string
+    property_style?: string
+  }
+  return_format?: 'geojson' | 'array'
+}
+
+export interface MapSearchResponse {
+  success: boolean
+  count: number
+  zoom_level: number
+  agency: {
+    id: string
+    name: string
+    brand_color?: string
+    secondary_color?: string
+  }
+  bounds: MapBounds
+  properties: PropertyMapData[]
+  geojson?: any
+  price_range?: {
+    min: number
+    max: number
+    avg: number
+  }
+}
+
+export interface PropertyMapData {
+  id: string
+  display_address: string
+  latitude: number
+  longitude: number
+  price: number | null
+  asking_price: number | null
+  rent_amount: number | null
+  listing_type: string
+  bedrooms: number
+  bathrooms: number | null
+  receptions: number | null
+  property_type: string
+  property_style: string | null
+  is_featured: boolean
+  agent_ref: string | null
+  main_image_url: string | null
+}
+
+// ========================================
 // BASE API CLIENT
 // ========================================
 
 class ApiClient {
   private baseUrl: string
   private apiKey: string
-  private branchId?: string
 
   constructor() {
     this.baseUrl = `${apiConfig.baseUrl}${apiConfig.functionsPath}`
     this.apiKey = apiConfig.apiKey
-    this.branchId = apiConfig.branchId
   }
 
   /**
    * Get common headers for all requests
+   * ONLY uses x-api-key (no x-branch-id to avoid CORS issues)
    */
   private getHeaders(): HeadersInit {
-    const headers: HeadersInit = {
+    return {
       'Content-Type': 'application/json',
-      'X-API-Key': this.apiKey,
+      'x-api-key': this.apiKey,
     }
-
-    if (this.branchId) {
-      headers['X-Branch-ID'] = this.branchId
-    }
-
-    return headers
   }
 
   /**
@@ -122,6 +180,35 @@ class ApiClient {
    */
   async getPropertyDetails(propertyId: string): Promise<ApiResponse<Property>> {
     return this.get<Property>('get-property-details', { property_id: propertyId })
+  }
+
+  // ========================================
+  // MAP ENDPOINTS
+  // ========================================
+
+  /**
+   * Search properties for map view with bounds
+   */
+  async searchPropertiesMap(
+    bounds: MapBounds,
+    zoom?: number,
+    filters?: MapSearchParams['filters']
+  ): Promise<ApiResponse<MapSearchResponse>> {
+    return this.post<MapSearchResponse>('search-properties-map', {
+      bounds,
+      zoom,
+      filters,
+      return_format: 'geojson'
+    })
+  }
+
+  /**
+   * Get property map data (coordinates and links)
+   */
+  async getPropertyMapData(propertyId: string): Promise<ApiResponse<any>> {
+    return this.post<any>('generate-property-map-url', {
+      property_id: propertyId
+    })
   }
 
   // ========================================
@@ -217,6 +304,53 @@ export async function getPropertyDetails(
 
   if ('error' in response) {
     console.error('Property details error:', response.message)
+    return null
+  }
+
+  return response.data
+}
+
+/**
+ * Search properties for map (with bounds)
+ */
+export async function searchPropertiesMap(
+  bounds: MapBounds,
+  zoom?: number,
+  filters?: MapSearchParams['filters']
+): Promise<MapSearchResponse | null> {
+  const response = await api.searchPropertiesMap(bounds, zoom, filters)
+
+  // Handle error responses
+  if ('error' in response) {
+    console.error('Map search error:', response.message)
+    return null
+  }
+
+  // Handle Edge Function direct response (has 'success' field)
+  if ('success' in response && response.success) {
+    return response as any as MapSearchResponse
+  }
+
+  // Handle wrapped response (has 'data' field)
+  if ('data' in response) {
+    return response.data
+  }
+
+  // Unknown format
+  console.error('Map search error: Unknown response format', response)
+  return null
+}
+
+/**
+ * Get property map data
+ */
+export async function getPropertyMapData(
+  propertyId: string
+): Promise<any | null> {
+  const response = await api.getPropertyMapData(propertyId)
+
+  if ('error' in response) {
+    console.error('Property map data error:', response.message)
     return null
   }
 

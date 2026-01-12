@@ -1052,7 +1052,7 @@ const sortOptions = [
       advancedToggle.addEventListener('click', () => {
         const isOpen = advancedPanel.classList.toggle('show')
         advancedToggle.classList.toggle('active')
-        trackEvent('search_advanced_toggle', { opened: isOpen })
+        // Don't track advanced toggle - not a standard event type
       })
     }
 
@@ -1068,7 +1068,11 @@ const sortOptions = [
         if (parentLabel) {
           parentLabel.setAttribute('data-active', 'true')
         }
-        trackEvent('search_listing_type_change', { listing_type: target.value })
+        trackEvent('filter_change', { 
+          filter_name: 'listing_type', 
+          filter_value: target.value,
+          component: 'universal_search_bar'
+        })
       })
     })
 
@@ -1088,7 +1092,12 @@ const sortOptions = [
         }
       })
 
-      trackEvent('search_submit', { search_params: searchParams })
+      trackEvent('search', { 
+        listing_type: searchParams.listing_type || 'sale',
+        location: searchParams.location || '',
+        filters_count: Object.keys(searchParams).length,
+        component: 'universal_search_bar'
+      })
       
       // Get redirect URL from data attribute or use default
       const redirectUrl = form.dataset.redirectUrl || '/search'

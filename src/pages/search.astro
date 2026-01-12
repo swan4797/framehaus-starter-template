@@ -641,46 +641,46 @@ const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locat
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Handle sort change
-    const sortSelect = document.getElementById('sort_select') as HTMLSelectElement
-    
-    if (sortSelect) {
-      sortSelect.addEventListener('change', () => {
-        const urlParams = new URLSearchParams(window.location.search)
-        urlParams.set('sort_by', sortSelect.value)
-        urlParams.delete('page') // Reset to page 1
-        
-        // Track sort change
-        if (window.StratosTracker) {
-          window.StratosTracker.trackEvent('search_sort_change', {
-            sort_by: sortSelect.value
-          })
-        }
-        
-        window.location.href = `/search?${urlParams.toString()}`
-      })
-    }
+// ✅ FIXED SCRIPT SECTION FOR search.astro
 
-    // Track page view with search params
+document.addEventListener('DOMContentLoaded', () => {
+  // Handle sort change
+  const sortSelect = document.getElementById('sort_select') as HTMLSelectElement
+  
+  if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+      const urlParams = new URLSearchParams(window.location.search)
+      urlParams.set('sort_by', sortSelect.value)
+      urlParams.delete('page') // Reset to page 1
+      
+      // ✅ FIXED: Use 'filter_change' instead of 'search_sort_change'
+      if (window.StratosTracker) {
+        window.StratosTracker.trackEvent('filter_change', {
+          filter_name: 'sort_by',
+          filter_value: sortSelect.value,
+          component: 'search_page'
+        })
+      }
+      
+      window.location.href = `/search?${urlParams.toString()}`
+    })
+  }
+
+  // ✅ FIXED: Use 'page_view' instead of 'search_page_view'
+  if (window.StratosTracker) {
     const urlParams = new URLSearchParams(window.location.search)
-    
-    if (urlParams.toString() && window.StratosTracker) {
-      const searchParams: Record<string, any> = {}
-      urlParams.forEach((value, key) => {
-        searchParams[key] = value
-      })
+    const resultsCount = document.querySelector('[data-results-count]')?.getAttribute('data-results-count') || '0'
 
-      const resultsCount = document.querySelector('[data-results-count]')?.getAttribute('data-results-count') || '0'
+    window.StratosTracker.trackEvent('page_view', {
+      page_type: 'search',
+      listing_type: urlParams.get('listing_type') || 'sale',
+      location: urlParams.get('location') || '',
+      results_count: parseInt(resultsCount),
+      filters_count: Array.from(urlParams.keys()).length
+    })
+  }
 
-      window.StratosTracker.trackEvent('search_page_view', {
-        search_params: searchParams,
-        results_count: parseInt(resultsCount),
-        has_advanced_filters: Object.keys(searchParams).length > 4
-      })
-    }
-
-    console.log('✅ Search page with UniversalSearchBar initialized')
-  })
+  console.log('✅ Search page with UniversalSearchBar initialized')
+})
 </script>
 </Layout>

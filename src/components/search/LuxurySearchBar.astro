@@ -555,9 +555,10 @@ const { theme = 'dark', ...coreConfig } = Astro.props
         
         // Track the change
         if (window.StratosTracker) {
-          window.StratosTracker.trackEvent('luxury_search_listing_type_change', {
-            listing_type: newListingType,
-            prices_updated: true
+          window.StratosTracker.trackEvent('filter_change', {
+            filter_name: 'listing_type',
+            filter_value: newListingType,
+            component: 'luxury_search_bar'
           })
         }
       })

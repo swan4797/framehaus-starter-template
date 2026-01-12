@@ -1,0 +1,69 @@
+---
+// ========================================
+// SEARCH MAP PAGE - DYNAMIC AUTO-CENTERING
+// Automatically centers on YOUR properties (no hardcoding!)
+// ========================================
+
+import Layout from '../layouts/Layout.astro'
+import { MapSearchLeaflet } from '../components/map/MapSearchLeaflet.tsx'
+import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+
+export const prerender = false
+
+// Get filters from URL
+const url = Astro.url
+const listingType = url.searchParams.get('listing_type') || 'sale'
+const minPrice = url.searchParams.get('min_price')
+const maxPrice = url.searchParams.get('max_price')
+const beds = url.searchParams.get('beds')
+const propertyType = url.searchParams.get('property_type')
+
+const filters: any = { listing_type: listingType }
+if (minPrice) filters.min_price = parseInt(minPrice)
+if (maxPrice) filters.max_price = parseInt(maxPrice)
+if (beds) filters.beds = parseInt(beds)
+if (propertyType) filters.property_type = propertyType
+
+// ✅ DYNAMIC: Component will fetch properties and auto-center
+// No hardcoded coordinates needed!
+const defaultCenter: [number, number] = [51.8251, -3.0162]  // Fallback only
+const defaultZoom = 12
+
+const pageTitle = listingType === 'sale' 
+  ? 'Properties for Sale - Map View'
+  : 'Properties to Let - Map View'
+---
+
+<Layout title={pageTitle}>
+  <div class="map-search-page">
+    <MapSearchLeaflet
+      client:only="react"
+      initialCenter={defaultCenter}
+      initialZoom={defaultZoom}
+      filters={filters}
+      autoCenter={true}
+    />
+  </div>
+</Layout>
+
+<style>
+  .map-search-page {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  import { initSession } from '../lib/session.ts'
+  initSession()
+  
+  if (window.StratosTracker) {
+    window.StratosTracker.trackPageView({
+      page_type: 'map_search',
+      listing_type: new URLSearchParams(window.location.search).get('listing_type') || 'sale'
+    })
+  }
+</script>
