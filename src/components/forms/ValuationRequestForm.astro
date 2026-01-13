@@ -1,0 +1,730 @@
+---
+// ========================================
+// VALUATION REQUEST FORM COMPONENT
+// Lead generation form for property valuations
+// ========================================
+
+interface Props {
+  title?: string
+  subtitle?: string
+}
+
+const { 
+  title = 'Free Property Valuation',
+  subtitle = 'Get an accurate market valuation for your property'
+} = Astro.props
+---
+
+<div class="valuation-form-container">
+  <div class="valuation-form-card">
+    <div class="form-header">
+      <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3v18h18"></path>
+        <path d="m19 9-5 5-4-4-3 3"></path>
+      </svg>
+      <div>
+        <h3 class="form-title">{title}</h3>
+        <p class="form-subtitle">{subtitle}</p>
+      </div>
+    </div>
+
+    <form id="valuation-form" class="valuation-form">
+      <!-- Honeypot field for bot protection -->
+      <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+
+      <div class="form-section">
+        <h4 class="section-title">Your Details</h4>
+        
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name *</label>
+          <input 
+            type="text" 
+            id="name"
+            name="name" 
+            required 
+            placeholder="John Smith" 
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email" class="form-label">Email *</label>
+            <input 
+              type="email" 
+              id="email"
+              name="email" 
+              required 
+              placeholder="john@example.com" 
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="form-label">Phone *</label>
+            <input 
+              type="tel" 
+              id="phone"
+              name="phone" 
+              required
+              placeholder="07XXX XXXXXX" 
+              class="form-input"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4 class="section-title">Property Details</h4>
+        
+        <div class="form-group">
+          <label for="address" class="form-label">Property Address *</label>
+          <input 
+            type="text" 
+            id="address"
+            name="address" 
+            required 
+            placeholder="123 High Street, London" 
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="postcode" class="form-label">Postcode *</label>
+          <input 
+            type="text" 
+            id="postcode"
+            name="postcode" 
+            required 
+            placeholder="SW1A 1AA" 
+            class="form-input"
+            maxlength="8"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="property_type" class="form-label">Property Type *</label>
+            <select 
+              id="property_type"
+              name="property_type"
+              required
+              class="form-input"
+            >
+              <option value="">Select type...</option>
+              <option value="house">House</option>
+              <option value="flat">Flat/Apartment</option>
+              <option value="bungalow">Bungalow</option>
+              <option value="cottage">Cottage</option>
+              <option value="maisonette">Maisonette</option>
+              <option value="terraced">Terraced House</option>
+              <option value="semi-detached">Semi-Detached</option>
+              <option value="detached">Detached House</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="bedrooms" class="form-label">Bedrooms *</label>
+            <select 
+              id="bedrooms"
+              name="bedrooms"
+              required
+              class="form-input"
+            >
+              <option value="">Select...</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6+">6+</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="estimated_value" class="form-label">Estimated Value (Optional)</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">£</span>
+            <input 
+              type="text" 
+              id="estimated_value"
+              name="estimated_value"
+              placeholder="e.g., 450,000" 
+              class="form-input with-prefix"
+            />
+          </div>
+          <p class="field-hint">Help us provide a more accurate valuation</p>
+        </div>
+
+        <div class="form-group">
+          <label for="reason" class="form-label">Reason for Valuation *</label>
+          <select 
+            id="reason"
+            name="reason"
+            required
+            class="form-input"
+          >
+            <option value="">Select reason...</option>
+            <option value="selling">Planning to sell</option>
+            <option value="curious">Just curious</option>
+            <option value="remortgage">Remortgage</option>
+            <option value="inheritance">Inheritance/Tax</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="message" class="form-label">Additional Information</label>
+          <textarea 
+            id="message"
+            name="message" 
+            placeholder="Any special features, recent improvements, or questions?" 
+            rows="3"
+            class="form-textarea"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="form-checkbox">
+        <input 
+          type="checkbox" 
+          id="marketing_opt_in"
+          name="marketing_opt_in"
+          class="checkbox-input"
+        />
+        <label for="marketing_opt_in" class="checkbox-label">
+          Send me property market updates and selling tips
+        </label>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <span>Request Free Valuation</span>
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" x2="19" y1="12" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+
+      <p class="privacy-notice">
+        By submitting this form, you agree to our privacy policy. We will never share your data.
+      </p>
+    </form>
+
+    <div id="success-message" class="message message-success">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <div>
+        <p class="message-title">Valuation Request Received!</p>
+        <p class="message-text">We'll prepare your detailed market valuation and be in touch within 24 hours.</p>
+      </div>
+    </div>
+
+    <div id="error-message" class="message message-error">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" x2="12" y1="8" y2="12"></line>
+        <line x1="12" x2="12.01" y1="16" y2="16"></line>
+      </svg>
+      <div>
+        <p class="message-title">Something went wrong</p>
+        <p class="message-text">Please try again or call us directly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .valuation-form-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .valuation-form-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .form-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
+    color: #f6f4f4;
+  }
+
+  .form-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .form-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .form-subtitle {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    margin: 0.25rem 0 0 0;
+    opacity: 0.9;
+    line-height: 1.4;
+  }
+
+  .valuation-form {
+    padding: 2rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0;
+  }
+
+  .section-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 1.25rem 0;
+  }
+
+  .form-group {
+    margin-bottom: 1.125rem;
+    flex: 1;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1f2937;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: #3c5b4b;
+    box-shadow: 0 0 0 3px rgba(60, 91, 75, 0.1);
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+
+  .input-with-prefix {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-prefix {
+    position: absolute;
+    left: 1rem;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #6b7280;
+    pointer-events: none;
+  }
+
+  .form-input.with-prefix {
+    padding-left: 2rem;
+  }
+
+  .field-hint {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 0.375rem 0 0 0;
+    line-height: 1.4;
+  }
+
+  .form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .checkbox-input {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .checkbox-input:checked {
+    background: #3c5b4b;
+    border-color: #3c5b4b;
+  }
+
+  .checkbox-label {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .submit-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
+    color: #f6f4f4;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(60, 91, 75, 0.25);
+  }
+
+  .submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .privacy-notice {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .message {
+    display: none;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.5rem 2rem;
+    margin: 2rem;
+    border-radius: 8px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .message.show {
+    display: flex;
+  }
+
+  .message-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .message-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.375rem 0;
+    line-height: 1.4;
+  }
+
+  .message-text {
+    font-size: 0.9375rem;
+    margin: 0;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  .message-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1.5px solid #a7f3d0;
+  }
+
+  .message-success .message-icon {
+    color: #10b981;
+  }
+
+  .message-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1.5px solid #fecaca;
+  }
+
+  .message-error .message-icon {
+    color: #ef4444;
+  }
+
+  @media (max-width: 640px) {
+    .valuation-form-container {
+      max-width: 100%;
+    }
+
+    .form-header {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .form-title {
+      font-size: 1.125rem;
+    }
+
+    .form-subtitle {
+      font-size: 0.875rem;
+    }
+
+    .valuation-form {
+      padding: 1.5rem;
+    }
+
+    .form-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .message {
+      margin: 1.5rem;
+      padding: 1.25rem 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { getSessionId } from '../../lib/session';
+  
+  const form = document.querySelector('#valuation-form') as HTMLFormElement;
+  const successMessage = document.querySelector('#success-message') as HTMLElement;
+  const errorMessage = document.querySelector('#error-message') as HTMLElement;
+  const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+  
+  // Track when user starts filling the form
+  let formStarted = false;
+  
+  const trackFormStart = async () => {
+    if (formStarted) return;
+    formStarted = true;
+    
+    const sessionId = getSessionId();
+    
+    try {
+      await fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/track-event`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            event_type: 'enquiry_started',
+            event_data: {
+              enquiry_type: 'valuation_request',
+              form_type: 'valuation_request'
+            }
+          }),
+        }
+      );
+    } catch (error) {
+      console.error('Failed to track form start:', error);
+    }
+  };
+  
+  // Add event listeners to track form interaction
+  form?.querySelectorAll('input, textarea, select').forEach(element => {
+    element.addEventListener('focus', trackFormStart, { once: true });
+  });
+  
+  // Format currency input
+  const estimatedValueInput = form?.querySelector('#estimated_value') as HTMLInputElement;
+  estimatedValueInput?.addEventListener('input', (e) => {
+    const input = e.target as HTMLInputElement;
+    const value = input.value.replace(/[^\d]/g, '');
+    if (value) {
+      input.value = Number(value).toLocaleString('en-GB');
+    }
+  });
+  
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!submitButton) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const sessionId = getSessionId();
+    
+    // Show loading state
+    submitButton.disabled = true;
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = '<span>Sending...</span>';
+    
+    try {
+      // Build comprehensive message from all property details
+      const propertyDetails = [];
+      
+      propertyDetails.push(`Property Address: ${formData.get('address')}, ${formData.get('postcode')}`);
+      propertyDetails.push(`Property Type: ${formData.get('property_type')}`);
+      propertyDetails.push(`Bedrooms: ${formData.get('bedrooms')}`);
+      
+      const estimatedValue = formData.get('estimated_value') as string;
+      if (estimatedValue) {
+        propertyDetails.push(`Estimated Value: £${estimatedValue}`);
+      }
+      
+      propertyDetails.push(`Reason for Valuation: ${formData.get('reason')}`);
+      
+      const additionalInfo = formData.get('message') as string;
+      if (additionalInfo) {
+        propertyDetails.push(`\nAdditional Information:\n${additionalInfo}`);
+      }
+      
+      const message = propertyDetails.join('\n');
+      
+      const response = await fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/submit-enquiry`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            contact_name: formData.get('name'),
+            contact_email: formData.get('email'),
+            contact_phone: formData.get('phone'),
+            message: message,
+            property_id: null, // No property_id for valuations
+            enquiry_type: 'valuation_request',
+            marketing_opt_in: formData.get('marketing_opt_in') === 'on',
+            honeypot: formData.get('website'), // Bot detection
+          }),
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Hide form and show success message
+        form.style.display = 'none';
+        successMessage.classList.add('show');
+        
+        // Track successful submission
+        try {
+          await fetch(
+            `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/track-event`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+              },
+              body: JSON.stringify({
+                session_id: sessionId,
+                event_type: 'enquiry_submitted',
+                event_data: {
+                  enquiry_type: 'valuation_request',
+                  enquiry_id: result.data.enquiry_id,
+                  lead_score: result.data.lead_score,
+                  priority: result.data.priority,
+                  property_type: formData.get('property_type'),
+                  bedrooms: formData.get('bedrooms'),
+                  reason: formData.get('reason')
+                }
+              }),
+            }
+          );
+        } catch (trackError) {
+          console.error('Failed to track submission:', trackError);
+        }
+        
+        // Optional: Redirect to thank you page after delay
+        // setTimeout(() => {
+        //   window.location.href = '/thank-you';
+        // }, 3000);
+      } else {
+        throw new Error(result.message || 'Submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      errorMessage.classList.add('show');
+      
+      // Hide error message after 5 seconds
+      setTimeout(() => {
+        errorMessage.classList.remove('show');
+      }, 5000);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalContent;
+    }
+  });
+</script>

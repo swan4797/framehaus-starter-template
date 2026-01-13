@@ -1,0 +1,593 @@
+---
+// ========================================
+// VIEWING REQUEST FORM COMPONENT
+// Contact form for requesting property viewings
+// ========================================
+
+import type { Property } from '../../types/database'
+
+interface Props {
+  property: Property
+}
+
+const { property } = Astro.props
+---
+
+<div class="viewing-form-container">
+  <div class="viewing-form-card">
+    <div class="form-header">
+      <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <div>
+        <h3 class="form-title">Request a Viewing</h3>
+        <p class="form-subtitle">{property.display_address}</p>
+      </div>
+    </div>
+
+    <form id="viewing-form" class="viewing-form">
+      <!-- Honeypot field for bot protection -->
+      <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+
+      <div class="form-group">
+        <label for="name" class="form-label">Full Name *</label>
+        <input 
+          type="text" 
+          id="name"
+          name="name" 
+          required 
+          placeholder="John Smith" 
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email" class="form-label">Email *</label>
+          <input 
+            type="email" 
+            id="email"
+            name="email" 
+            required 
+            placeholder="john@example.com" 
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone" class="form-label">Phone *</label>
+          <input 
+            type="tel" 
+            id="phone"
+            name="phone" 
+            required
+            placeholder="07XXX XXXXXX" 
+            class="form-input"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="preferred_date" class="form-label">Preferred Date</label>
+          <input 
+            type="date" 
+            id="preferred_date"
+            name="preferred_date"
+            min={new Date().toISOString().split('T')[0]}
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="preferred_time" class="form-label">Preferred Time</label>
+          <select 
+            id="preferred_time"
+            name="preferred_time"
+            class="form-input"
+          >
+            <option value="">Any time</option>
+            <option value="morning">Morning (9am - 12pm)</option>
+            <option value="afternoon">Afternoon (12pm - 5pm)</option>
+            <option value="evening">Evening (5pm - 7pm)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="message" class="form-label">Additional Information</label>
+        <textarea 
+          id="message"
+          name="message" 
+          placeholder="Any questions or special requirements?" 
+          rows="3"
+          class="form-textarea"
+        ></textarea>
+      </div>
+
+      <div class="form-checkbox">
+        <input 
+          type="checkbox" 
+          id="marketing_opt_in"
+          name="marketing_opt_in"
+          class="checkbox-input"
+        />
+        <label for="marketing_opt_in" class="checkbox-label">
+          Keep me updated with similar properties and market news
+        </label>
+      </div>
+
+      <input type="hidden" name="property_id" value={property.id} />
+
+      <button type="submit" class="submit-btn">
+        <span>Request Viewing</span>
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 11 12 14 22 4"></polyline>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+      </button>
+
+      <p class="privacy-notice">
+        By submitting this form, you agree to our privacy policy. We will never share your data.
+      </p>
+    </form>
+
+    <div id="success-message" class="message message-success">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <div>
+        <p class="message-title">Viewing Request Received!</p>
+        <p class="message-text">We'll contact you shortly to confirm your viewing appointment.</p>
+      </div>
+    </div>
+
+    <div id="error-message" class="message message-error">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" x2="12" y1="8" y2="12"></line>
+        <line x1="12" x2="12.01" y1="16" y2="16"></line>
+      </svg>
+      <div>
+        <p class="message-title">Something went wrong</p>
+        <p class="message-text">Please try again or call us directly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .viewing-form-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .viewing-form-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .form-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
+    color: #f6f4f4;
+  }
+
+  .form-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .form-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .form-subtitle {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.4;
+  }
+
+  .viewing-form {
+    padding: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+    flex: 1;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1f2937;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: #3c5b4b;
+    box-shadow: 0 0 0 3px rgba(60, 91, 75, 0.1);
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin-bottom: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .checkbox-input {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .checkbox-input:checked {
+    background: #3c5b4b;
+    border-color: #3c5b4b;
+  }
+
+  .checkbox-label {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .submit-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
+    color: #f6f4f4;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(60, 91, 75, 0.25);
+  }
+
+  .submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .privacy-notice {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .message {
+    display: none;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem;
+    border-radius: 8px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .message.show {
+    display: flex;
+  }
+
+  .message-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .message-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.4;
+  }
+
+  .message-text {
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  .message-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1.5px solid #a7f3d0;
+  }
+
+  .message-success .message-icon {
+    color: #10b981;
+  }
+
+  .message-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1.5px solid #fecaca;
+  }
+
+  .message-error .message-icon {
+    color: #ef4444;
+  }
+
+  @media (max-width: 640px) {
+    .viewing-form-container {
+      max-width: 100%;
+    }
+
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .form-header {
+      padding: 1rem 1.25rem;
+    }
+
+    .viewing-form {
+      padding: 1.25rem;
+    }
+
+    .form-title {
+      font-size: 1rem;
+    }
+
+    .form-subtitle {
+      font-size: 0.8125rem;
+    }
+  }
+</style>
+
+<script>
+  import { getSessionId } from '../../lib/session';
+  
+  const form = document.querySelector('#viewing-form') as HTMLFormElement;
+  const successMessage = document.querySelector('#success-message') as HTMLElement;
+  const errorMessage = document.querySelector('#error-message') as HTMLElement;
+  const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+  
+  // Track when user starts filling the form
+  let formStarted = false;
+  
+  const trackFormStart = async () => {
+    if (formStarted) return;
+    formStarted = true;
+    
+    const sessionId = getSessionId();
+    const propertyId = (form.querySelector('[name="property_id"]') as HTMLInputElement)?.value;
+    
+    try {
+      await fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/track-event`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            event_type: 'enquiry_started',
+            property_id: propertyId,
+            event_data: {
+              enquiry_type: 'viewing_request',
+              form_type: 'viewing_request'
+            }
+          }),
+        }
+      );
+    } catch (error) {
+      console.error('Failed to track form start:', error);
+    }
+  };
+  
+  // Add event listeners to track form interaction
+  form?.querySelectorAll('input, textarea, select').forEach(element => {
+    element.addEventListener('focus', trackFormStart, { once: true });
+  });
+  
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!submitButton) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const sessionId = getSessionId();
+    const propertyId = formData.get('property_id') as string;
+    
+    // Show loading state
+    submitButton.disabled = true;
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = '<span>Sending...</span>';
+    
+    try {
+      // Build message with viewing preferences
+      let message = formData.get('message') as string || '';
+      const preferredDate = formData.get('preferred_date') as string;
+      const preferredTime = formData.get('preferred_time') as string;
+      
+      if (preferredDate || preferredTime) {
+        const preferences = [];
+        if (preferredDate) {
+          const date = new Date(preferredDate);
+          preferences.push(`Preferred date: ${date.toLocaleDateString('en-GB', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}`);
+        }
+        if (preferredTime) {
+          const timeLabels: Record<string, string> = {
+            'morning': 'Morning (9am - 12pm)',
+            'afternoon': 'Afternoon (12pm - 5pm)',
+            'evening': 'Evening (5pm - 7pm)'
+          };
+          preferences.push(`Preferred time: ${timeLabels[preferredTime] || preferredTime}`);
+        }
+        
+        const preferencesText = preferences.join('\n');
+        message = message ? `${preferencesText}\n\nAdditional information:\n${message}` : preferencesText;
+      }
+      
+      const response = await fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/submit-enquiry`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            contact_name: formData.get('name'),
+            contact_email: formData.get('email'),
+            contact_phone: formData.get('phone'),
+            message: message,
+            property_id: propertyId,
+            enquiry_type: 'viewing_request',
+            marketing_opt_in: formData.get('marketing_opt_in') === 'on',
+            honeypot: formData.get('website'), // Bot detection
+          }),
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Hide form and show success message
+        form.style.display = 'none';
+        successMessage.classList.add('show');
+        
+        // Track successful submission
+        try {
+          await fetch(
+            `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/track-event`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+              },
+              body: JSON.stringify({
+                session_id: sessionId,
+                event_type: 'enquiry_submitted',
+                property_id: propertyId,
+                event_data: {
+                  enquiry_type: 'viewing_request',
+                  enquiry_id: result.data.enquiry_id,
+                  lead_score: result.data.lead_score,
+                  priority: result.data.priority
+                }
+              }),
+            }
+          );
+        } catch (trackError) {
+          console.error('Failed to track submission:', trackError);
+        }
+        
+        // Optional: Redirect to thank you page after delay
+        // setTimeout(() => {
+        //   window.location.href = '/thank-you';
+        // }, 3000);
+      } else {
+        throw new Error(result.message || 'Submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      errorMessage.classList.add('show');
+      
+      // Hide error message after 5 seconds
+      setTimeout(() => {
+        errorMessage.classList.remove('show');
+      }, 5000);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalContent;
+    }
+  });
+</script>

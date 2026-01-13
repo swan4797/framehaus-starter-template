@@ -1,0 +1,765 @@
+---
+// ========================================
+// GENERAL ENQUIRY FORM COMPONENT
+// Universal contact form for general questions and enquiries
+// ========================================
+
+interface Props {
+  title?: string
+  subtitle?: string
+  showSubjectSelector?: boolean
+}
+
+const { 
+  title = 'Get in Touch',
+  subtitle = 'We\'re here to help with any questions you may have',
+  showSubjectSelector = true
+} = Astro.props
+---
+
+<div class="general-enquiry-container">
+  <div class="general-enquiry-card">
+    <div class="form-header">
+      <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <div>
+        <h3 class="form-title">{title}</h3>
+        <p class="form-subtitle">{subtitle}</p>
+      </div>
+    </div>
+
+    <form id="general-enquiry-form" class="general-enquiry-form">
+      <!-- Honeypot field for bot protection -->
+      <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name *</label>
+          <input 
+            type="text" 
+            id="name"
+            name="name" 
+            required 
+            placeholder="John Smith" 
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address *</label>
+          <input 
+            type="email" 
+            id="email"
+            name="email" 
+            required 
+            placeholder="john@example.com" 
+            class="form-input"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input 
+          type="tel" 
+          id="phone"
+          name="phone"
+          placeholder="07XXX XXXXXX" 
+          class="form-input"
+        />
+        <p class="field-hint">Optional - we'll call you back if needed</p>
+      </div>
+
+      {showSubjectSelector && (
+        <div class="form-group">
+          <label for="subject" class="form-label">What can we help you with? *</label>
+          <select 
+            id="subject"
+            name="subject"
+            required
+            class="form-input"
+          >
+            <option value="">Please select...</option>
+            <option value="general_enquiry">General Question</option>
+            <option value="property_enquiry">Property Enquiry</option>
+            <option value="viewing_request">Request a Viewing</option>
+            <option value="valuation_request">Property Valuation</option>
+            <option value="landlord_enquiry">Landlord Services</option>
+            <option value="mortgage_enquiry">Mortgage Advice</option>
+            <option value="selling_enquiry">Selling a Property</option>
+            <option value="buying_enquiry">Buying a Property</option>
+            <option value="lettings_enquiry">Lettings Enquiry</option>
+            <option value="feedback">Feedback or Complaint</option>
+            <option value="partnership">Partnership Opportunity</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      )}
+
+      <div class="form-group">
+        <label for="message" class="form-label">Your Message *</label>
+        <textarea 
+          id="message"
+          name="message" 
+          required
+          placeholder="Please provide details about your enquiry..." 
+          rows="5"
+          class="form-textarea"
+        ></textarea>
+        <p class="field-hint">Please include any relevant details to help us assist you better</p>
+      </div>
+
+      <div class="form-checkbox">
+        <input 
+          type="checkbox" 
+          id="marketing_opt_in"
+          name="marketing_opt_in"
+          class="checkbox-input"
+        />
+        <label for="marketing_opt_in" class="checkbox-label">
+          Yes, I'd like to receive property updates and market news
+        </label>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <span>Send Message</span>
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" x2="11" y1="2" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+
+      <p class="privacy-notice">
+        By submitting this form, you agree to our privacy policy. We respect your privacy and will never share your data.
+      </p>
+    </form>
+
+    <div id="success-message" class="message message-success">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <div>
+        <p class="message-title">Message Received!</p>
+        <p class="message-text">Thank you for getting in touch. We'll respond to your enquiry as soon as possible, typically within 24 hours.</p>
+      </div>
+    </div>
+
+    <div id="error-message" class="message message-error">
+      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" x2="12" y1="8" y2="12"></line>
+        <line x1="12" x2="12.01" y1="16" y2="16"></line>
+      </svg>
+      <div>
+        <p class="message-title">Something went wrong</p>
+        <p class="message-text" id="error-text">Please try again or contact us directly.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-info-card">
+    <div class="contact-info-header">
+      <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" x2="12" y1="16" y2="12"></line>
+        <line x1="12" x2="12.01" y1="8" y2="8"></line>
+      </svg>
+      <h4>Other Ways to Reach Us</h4>
+    </div>
+    
+    <div class="contact-methods">
+      <div class="contact-method">
+        <svg class="method-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+        <div>
+          <p class="method-label">Phone</p>
+          <p class="method-value">Call us during office hours</p>
+        </div>
+      </div>
+
+      <div class="contact-method">
+        <svg class="method-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+        </svg>
+        <div>
+          <p class="method-label">Email</p>
+          <p class="method-value">We respond within 24 hours</p>
+        </div>
+      </div>
+
+      <div class="contact-method">
+        <svg class="method-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <div>
+          <p class="method-label">Office Hours</p>
+          <p class="method-value">Mon-Fri: 9am - 6pm<br>Sat: 9am - 4pm</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="response-time">
+      <svg class="time-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <p>We aim to respond to all enquiries within 24 hours during business days</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .general-enquiry-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .general-enquiry-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .form-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
+    color: #f6f4f4;
+  }
+
+  .form-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .form-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .form-subtitle {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    margin: 0.25rem 0 0 0;
+    opacity: 0.9;
+    line-height: 1.4;
+  }
+
+  .general-enquiry-form {
+    padding: 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+    flex: 1;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1f2937;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: #3c5b4b;
+    box-shadow: 0 0 0 3px rgba(60, 91, 75, 0.1);
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+
+  .field-hint {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 0.375rem 0 0 0;
+    line-height: 1.4;
+  }
+
+  .form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .checkbox-input {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .checkbox-input:checked {
+    background: #3c5b4b;
+    border-color: #3c5b4b;
+  }
+
+  .checkbox-label {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .submit-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
+    color: #f6f4f4;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(60, 91, 75, 0.25);
+  }
+
+  .submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .privacy-notice {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .message {
+    display: none;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.5rem 2rem;
+    margin: 2rem;
+    border-radius: 8px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .message.show {
+    display: flex;
+  }
+
+  .message-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .message-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.375rem 0;
+    line-height: 1.4;
+  }
+
+  .message-text {
+    font-size: 0.9375rem;
+    margin: 0;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  .message-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1.5px solid #a7f3d0;
+  }
+
+  .message-success .message-icon {
+    color: #10b981;
+  }
+
+  .message-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1.5px solid #fecaca;
+  }
+
+  .message-error .message-icon {
+    color: #ef4444;
+  }
+
+  /* Contact Info Card */
+  .contact-info-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    position: sticky;
+    top: 2rem;
+  }
+
+  .contact-info-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .info-icon {
+    color: #3c5b4b;
+    flex-shrink: 0;
+  }
+
+  .contact-info-header h4 {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+  }
+
+  .contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-method {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+  }
+
+  .method-icon {
+    color: #3c5b4b;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .method-label {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.25rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .method-value {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .response-time {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .time-icon {
+    color: #3c5b4b;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .response-time p {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 968px) {
+    .general-enquiry-container {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .contact-info-card {
+      position: static;
+      order: -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .form-header {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .form-title {
+      font-size: 1.125rem;
+    }
+
+    .form-subtitle {
+      font-size: 0.875rem;
+    }
+
+    .general-enquiry-form {
+      padding: 1.5rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .message {
+      margin: 1.5rem;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .contact-info-card {
+      padding: 1.25rem;
+    }
+  }
+</style>
+
+<script>
+  import { getSessionId } from '../../lib/session';
+  
+  const form = document.querySelector('#general-enquiry-form') as HTMLFormElement;
+  const successMessage = document.querySelector('#success-message') as HTMLElement;
+  const errorMessage = document.querySelector('#error-message') as HTMLElement;
+  const errorText = document.querySelector('#error-text') as HTMLElement;
+  const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+  
+  // Track when user starts filling the form
+  let formStarted = false;
+  
+  const trackFormStart = async () => {
+    if (formStarted) return;
+    formStarted = true;
+    
+    const sessionId = getSessionId();
+    
+    try {
+      await fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/track-event`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            event_type: 'enquiry_started',
+            event_data: {
+              enquiry_type: 'general_enquiry',
+              form_type: 'contact_form'
+            }
+          }),
+        }
+      );
+    } catch (error) {
+      console.error('Failed to track form start:', error);
+    }
+  };
+  
+  // Add event listeners to track form interaction
+  form?.querySelectorAll('input, textarea, select').forEach(element => {
+    element.addEventListener('focus', trackFormStart, { once: true });
+  });
+  
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!submitButton) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const sessionId = getSessionId();
+    
+    // Show loading state
+    submitButton.disabled = true;
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = '<span>Sending...</span>';
+    
+    try {
+      // Get the selected subject and build message
+      const subject = formData.get('subject') as string;
+      const message = formData.get('message') as string;
+      
+      // Prepend subject to message if subject selector is shown
+      const fullMessage = subject 
+        ? `Subject: ${subject}\n\n${message}`
+        : message;
+
+      // Map subject to appropriate enquiry_type
+      const enquiryTypeMap: Record<string, string> = {
+        'general_enquiry': 'general_enquiry',
+        'property_enquiry': 'general_enquiry',
+        'viewing_request': 'viewing_request',
+        'valuation_request': 'valuation_request',
+        'landlord_enquiry': 'landlord_enquiry',
+        'mortgage_enquiry': 'mortgage_enquiry',
+        'selling_enquiry': 'general_enquiry',
+        'buying_enquiry': 'general_enquiry',
+        'lettings_enquiry': 'general_enquiry',
+        'feedback': 'general_enquiry',
+        'partnership': 'general_enquiry',
+        'other': 'general_enquiry'
+      };
+
+      const enquiryType = subject ? (enquiryTypeMap[subject] || 'general_enquiry') : 'general_enquiry';
+      
+      const response = await fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/submit-enquiry`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            contact_name: formData.get('name'),
+            contact_email: formData.get('email'),
+            contact_phone: formData.get('phone') || null,
+            message: fullMessage,
+            property_id: null, // No property for general enquiries
+            enquiry_type: enquiryType,
+            marketing_opt_in: formData.get('marketing_opt_in') === 'on',
+            honeypot: formData.get('website'), // Bot detection
+          }),
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Hide form and show success message
+        form.style.display = 'none';
+        successMessage.classList.add('show');
+        
+        // Track successful submission
+        try {
+          await fetch(
+            `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/track-event`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+              },
+              body: JSON.stringify({
+                session_id: sessionId,
+                event_type: 'enquiry_submitted',
+                event_data: {
+                  enquiry_type: enquiryType,
+                  enquiry_id: result.data.enquiry_id,
+                  lead_score: result.data.lead_score,
+                  priority: result.data.priority,
+                  subject: subject || 'no_subject',
+                  form_type: 'contact_form'
+                }
+              }),
+            }
+          );
+        } catch (trackError) {
+          console.error('Failed to track submission:', trackError);
+        }
+      } else {
+        throw new Error(result.message || 'Submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      errorMessage.classList.add('show');
+      
+      // Update error message with specific error if available
+      if (error instanceof Error && error.message) {
+        errorText.textContent = error.message;
+      }
+      
+      // Hide error message after 5 seconds
+      setTimeout(() => {
+        errorMessage.classList.remove('show');
+        errorText.textContent = 'Please try again or contact us directly.';
+      }, 5000);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalContent;
+    }
+  });
+</script>

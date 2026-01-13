@@ -19,6 +19,7 @@ import {
   pluralize,
 } from '../../../lib/utils'
 import {PropertyMapSection } from '../../../components/map/PropertyMapIframe.tsx'
+import ViewingRequestForm from '../../../components/forms/ViewingRequestForm.astro'
 
 const propertyId = extractPropertyIdFromUrl(Astro.url.pathname)
 
@@ -193,8 +194,9 @@ const hasLocation = property.latitude && property.longitude
         <div class="lg:col-span-1">
           <div class="sticky top-24 space-y-6">
             <!-- ✅ Enquiry Form with session tracking -->
-            <EnquiryForm property={property} />
-
+         
+              <ViewingRequestForm property={property} />
+         
             <!-- ✅ Contact Actions with tracking -->
             <div class="bg-white rounded-lg shadow-md p-6">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact Us</h3>

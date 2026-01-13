@@ -1,0 +1,881 @@
+---
+// ========================================
+// VALUATION LANDING PAGE
+// High-converting page for property valuation lead generation
+// ========================================
+
+import ValuationRequestForm from '../components/forms/ValuationRequestForm.astro'
+import Layout from '../layouts/Layout.astro'
+
+const pageTitle = 'Free Property Valuation | Accurate Market Analysis'
+const pageDescription = 'Get a free, no-obligation property valuation from expert local agents. Discover what your home is worth in today\'s market with our comprehensive market analysis.'
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="badge">
+            <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>100% Free, No Obligation</span>
+          </div>
+          
+          <h1 class="hero-title">
+            What's Your Property <span class="highlight">Really Worth?</span>
+          </h1>
+          
+          <p class="hero-subtitle">
+            Get an accurate, up-to-date valuation from local market experts. We'll analyse recent sales, current market trends, and your property's unique features to give you a realistic figure.
+          </p>
+          
+          <ul class="benefits-list">
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Free, detailed market analysis</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Local area expertise</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Response within 24 hours</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>No pressure, no hassle</span>
+            </li>
+          </ul>
+
+          <div class="trust-signals">
+            <div class="trust-item">
+              <div class="trust-number">2,500+</div>
+              <div class="trust-label">Valuations completed</div>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-item">
+              <div class="trust-number">4.8★</div>
+              <div class="trust-label">Average rating</div>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-item">
+              <div class="trust-number">24hrs</div>
+              <div class="trust-label">Average response</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hero-form">
+          <ValuationRequestForm />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us Section -->
+  <section class="why-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Why Get a Professional Valuation?</h2>
+        <p class="section-subtitle">
+          Online estimates can be off by 20% or more. Get an accurate valuation based on real market data and local expertise.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"></path>
+              <path d="m19 9-5 5-4-4-3 3"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Accurate Market Data</h3>
+          <p class="feature-description">
+            We analyse recent comparable sales, current market conditions, and local demand to give you a realistic valuation you can trust.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <h3 class="feature-title">Local Area Knowledge</h3>
+          <p class="feature-description">
+            Our agents live and work in your area. They know which streets command premium prices and what buyers are looking for right now.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <h3 class="feature-title">Property-Specific Factors</h3>
+          <p class="feature-description">
+            We consider your property's unique features, condition, improvements, and positioning to give you a tailored valuation, not a generic estimate.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Expert Advice</h3>
+          <p class="feature-description">
+            Get insights on how to maximise your property's value, the best time to sell, and what improvements offer the best return on investment.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">No Obligation</h3>
+          <p class="feature-description">
+            This is a free service with absolutely no strings attached. Whether you're planning to sell soon or just curious, we're here to help.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3 class="feature-title">Fast Turnaround</h3>
+          <p class="feature-description">
+            Receive your detailed valuation report within 24 hours. We understand timing is important, especially in a fast-moving market.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Get your free valuation in three simple steps</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Tell Us About Your Property</h3>
+          <p class="step-description">
+            Complete the quick form above with your property details. It takes just 2 minutes and helps us prepare an accurate valuation.
+          </p>
+        </div>
+
+        <div class="step-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" x2="19" y1="12" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3 class="step-title">We Analyse the Market</h3>
+          <p class="step-description">
+            Our local experts research recent sales, assess market conditions, and factor in your property's unique characteristics.
+          </p>
+        </div>
+
+        <div class="step-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" x2="19" y1="12" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Receive Your Valuation</h3>
+          <p class="step-description">
+            Get a detailed report with a realistic price range, market insights, and recommendations—all within 24 hours, completely free.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">What Homeowners Say</h2>
+        <p class="section-subtitle">Trusted by thousands of property owners across the UK</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p class="testimonial-text">
+            "The valuation was spot on. We sold for £15,000 more than we expected thanks to their market knowledge and timing advice. Couldn't recommend them highly enough."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-info">
+              <div class="author-name">Sarah Mitchell</div>
+              <div class="author-location">Sold in Wimbledon</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p class="testimonial-text">
+            "I got three valuations from different agents. These guys were the most realistic and honest about what the property would actually achieve. No inflated figures just to win the listing."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-info">
+              <div class="author-name">James Patterson</div>
+              <div class="author-location">Sold in Richmond</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p class="testimonial-text">
+            "Really helpful even though I wasn't ready to sell immediately. They explained the market trends and suggested improvements that would add the most value. No pressure at all."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-info">
+              <div class="author-name">Emma Thompson</div>
+              <div class="author-location">Homeowner in Clapham</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3 class="faq-question">Is the valuation really free?</h3>
+          <p class="faq-answer">
+            Yes, absolutely. We provide free, no-obligation property valuations with no hidden costs. Whether you're thinking of selling now or in the future, there's no charge and no pressure to proceed.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-question">How accurate are your valuations?</h3>
+          <p class="faq-answer">
+            Our valuations are based on real, up-to-date market data including recent sales, current listings, and local demand. We combine this with our agents' local expertise to provide realistic figures you can trust. Online tools can be 20%+ off; ours are typically within 5%.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-question">Do I have to sell with you?</h3>
+          <p class="faq-answer">
+            Not at all. This is a completely free service with no obligation. Many people request valuations for financial planning, curiosity, or to understand their options. If and when you do decide to sell, we'd love to help—but there's no pressure.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-question">How long does it take?</h3>
+          <p class="faq-answer">
+            The form takes about 2 minutes to complete. You'll receive your detailed valuation report within 24 hours. If you'd prefer a more in-depth assessment with a home visit, we can arrange that too.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-question">What information do you need?</h3>
+          <p class="faq-answer">
+            Just basic details: your property address, type, number of bedrooms, and an optional estimate of what you think it's worth. This helps us prepare an accurate valuation tailored to your property.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-question">Will you contact me afterwards?</h3>
+          <p class="faq-answer">
+            We'll send your valuation report and may follow up once to see if you have questions. We won't bombard you with calls or emails. You can opt out of marketing communications anytime, and we respect your privacy completely.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Ready to Discover Your Property's True Value?</h2>
+        <p class="cta-subtitle">
+          Join thousands of homeowners who've received accurate, honest valuations. No cost, no obligation, no hassle.
+        </p>
+        <a href="#" class="cta-button" onclick="event.preventDefault(); document.querySelector('.hero-form').scrollIntoView({ behavior: 'smooth' });">
+          Get Your Free Valuation
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" x2="19" y1="12" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ========================================
+     GLOBAL STYLES
+     ======================================== */
+  
+  :root {
+    --primary: #3c5b4b;
+    --primary-dark: #2d4639;
+    --secondary: #f6f4f4;
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --border: #e5e7eb;
+    --success: #10b981;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+  }
+
+  .section-subtitle {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.125rem;
+    color: var(--text-light);
+    margin: 0;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* ========================================
+     HERO SECTION
+     ======================================== */
+  
+  .hero-section {
+    background: linear-gradient(135deg, var(--secondary) 0%, #ffffff 100%);
+    padding: 4rem 0 6rem 0;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .hero-content {
+    padding-top: 2rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 1.5px solid var(--primary);
+    border-radius: 100px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+  }
+
+  .badge-icon {
+    color: var(--success);
+  }
+
+  .hero-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.1;
+  }
+
+  .highlight {
+    color: var(--primary);
+    position: relative;
+  }
+
+  .hero-subtitle {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+  }
+
+  .benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2.5rem 0;
+  }
+
+  .benefits-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.0625rem;
+    color: var(--text-dark);
+  }
+
+  .benefits-list svg {
+    color: var(--success);
+    flex-shrink: 0;
+  }
+
+  .trust-signals {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.5rem 0;
+  }
+
+  .trust-item {
+    text-align: center;
+  }
+
+  .trust-number {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .trust-label {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text-light);
+  }
+
+  .trust-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+  }
+
+  .hero-form {
+    position: sticky;
+    top: 2rem;
+  }
+
+  /* ========================================
+     WHY SECTION
+     ======================================== */
+  
+  .why-section {
+    padding: 6rem 0;
+    background: white;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .feature-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 8px 24px rgba(60, 91, 75, 0.1);
+    transform: translateY(-4px);
+  }
+
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+  }
+
+  .feature-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.3;
+  }
+
+  .feature-description {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    color: var(--text-light);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ========================================
+     HOW IT WORKS SECTION
+     ======================================== */
+  
+  .how-section {
+    padding: 6rem 0;
+    background: var(--secondary);
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .step-card {
+    padding: 2.5rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    text-align: center;
+  }
+
+  .step-number {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-radius: 50%;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1.5rem auto;
+  }
+
+  .step-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.3;
+  }
+
+  .step-description {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    color: var(--text-light);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .step-arrow {
+    color: var(--primary);
+    opacity: 0.3;
+  }
+
+  /* ========================================
+     TESTIMONIALS SECTION
+     ======================================== */
+  
+  .testimonials-section {
+    padding: 6rem 0;
+    background: white;
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .testimonial-card {
+    padding: 2rem;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .stars {
+    color: #fbbf24;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .testimonial-text {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .author-name {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .author-location {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text-light);
+  }
+
+  /* ========================================
+     FAQ SECTION
+     ======================================== */
+  
+  .faq-section {
+    padding: 6rem 0;
+    background: var(--secondary);
+  }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+  }
+
+  .faq-question {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+  }
+
+  .faq-answer {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    color: var(--text-light);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ========================================
+     CTA SECTION
+     ======================================== */
+  
+  .cta-section {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  }
+
+  .cta-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .cta-title {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+  }
+
+  .cta-subtitle {
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.125rem;
+    color: rgba(246, 244, 244, 0.9);
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: white;
+    color: var(--primary);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  /* ========================================
+     RESPONSIVE DESIGN
+     ======================================== */
+  
+  @media (max-width: 1024px) {
+    .hero-grid {
+      gap: 3rem;
+    }
+
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 1.5rem;
+    }
+
+    .hero-section {
+      padding: 3rem 0 4rem 0;
+    }
+
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .hero-content {
+      padding-top: 0;
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.125rem;
+    }
+
+    .trust-signals {
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .trust-divider {
+      display: none;
+    }
+
+    .hero-form {
+      position: static;
+    }
+
+    .section-title {
+      font-size: 2rem;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .steps-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .step-arrow {
+      display: none;
+    }
+
+    .faq-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .why-section,
+    .how-section,
+    .testimonials-section,
+    .faq-section,
+    .cta-section {
+      padding: 4rem 0;
+    }
+
+    .cta-title {
+      font-size: 2rem;
+    }
+  }
+</style>

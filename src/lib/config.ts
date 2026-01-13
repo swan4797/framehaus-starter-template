@@ -11,19 +11,19 @@
 
 export const config = {
     // API Configuration
-    api: {
-      baseUrl: import.meta.env.PUBLIC_SUPABASE_URL,
-      functionsPath: '/functions/v1',
-      apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY || '',
-      branchId: import.meta.env.PUBLIC_BRANCH_ID || undefined,
-    },
-  
-    // Site Configuration
-    site: {
-      name: 'Property Search',
-      description: 'Find your perfect property',
-      url: import.meta.env.SITE,
-    },
+  api: {
+    baseUrl: import.meta.env.PUBLIC_SUPABASE_URL || '',
+    functionsPath: '/functions/v1',
+    apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY || '',
+    branchId: import.meta.env.PUBLIC_BRANCH_ID || undefined,
+  },
+
+  // Site Configuration
+  site: {
+    name: 'Property Search',
+    description: 'Find your perfect property',
+    url: import.meta.env.SITE,
+  },
   
     // GDPR & Privacy
     gdpr: {
