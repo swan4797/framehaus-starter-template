@@ -1,0 +1,87 @@
+---
+// ========================================
+// NEWSLETTER SIGNUP FORM TEMPLATE
+// Simple email signup form
+// ========================================
+
+import FormBuilder from '../core/FormBuilder.astro'
+import { formConfigs, createFormConfig, getSharedField } from '../../../config/forms'
+
+export interface Props {
+  layout?: 'inline' | 'stacked'
+  buttonText?: string
+  placeholder?: string
+  class?: string
+}
+
+const {
+  layout = 'inline',
+  buttonText = 'Subscribe',
+  placeholder = 'Enter your email',
+  class: className,
+} = Astro.props
+
+// Create customized newsletter config
+const config = createFormConfig({
+  ...formConfigs.newsletter,
+  submitText: buttonText,
+  fields: [
+    {
+      ...getSharedField('email'),
+      gridColumn: 'full',
+      placeholder,
+    },
+  ],
+})
+---
+
+<div class:list={['newsletter-form', `newsletter-form--${layout}`, className]}>
+  <FormBuilder config={config} />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .newsletter-form {
+    width: 100%;
+
+    // Override FormBuilder styles for inline layout
+    &--inline {
+      :global(.form-builder__fields) {
+        display: flex;
+        gap: 0.75rem;
+
+        @media (max-width: 480px) {
+          flex-direction: column;
+        }
+      }
+
+      :global(.form-field) {
+        flex: 1;
+      }
+
+      :global(.form-builder__actions) {
+        margin-top: 0;
+        display: flex;
+        align-items: flex-end;
+
+        @media (max-width: 480px) {
+          margin-top: 0.5rem;
+        }
+      }
+
+      :global(.form-builder__submit) {
+        width: auto;
+        min-width: 140px;
+
+        @media (max-width: 480px) {
+          width: 100%;
+        }
+      }
+    }
+
+    &--stacked {
+      max-width: 400px;
+    }
+  }
+</style>

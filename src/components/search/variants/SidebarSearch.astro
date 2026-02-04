@@ -1,0 +1,586 @@
+---
+// ========================================
+// SIDEBAR SEARCH VARIANT
+// Vertical filter panel for search results
+// ========================================
+
+import { searchConfigs, type SearchConfig } from '../../../config/search'
+import {
+  SALE_PRICES,
+  RENT_PRICES,
+  BEDROOM_OPTIONS,
+  BATHROOM_OPTIONS,
+  RECEPTION_OPTIONS,
+  PROPERTY_TYPE_OPTIONS,
+  FEATURE_OPTIONS,
+} from '../config/options'
+import SearchBarCore from '../SearchBarCore.astro'
+
+interface Props {
+  /** Configuration ID from searchConfigs or custom config */
+  configId?: string
+  /** Custom configuration overrides */
+  config?: Partial<SearchConfig>
+  /** Current search params (for preserving state) */
+  currentParams?: Record<string, any>
+  /** Additional CSS classes */
+  class?: string
+}
+
+const {
+  configId = 'sidebar',
+  config: configOverride,
+  currentParams = {},
+  class: className,
+} = Astro.props
+
+// Merge configurations
+const baseConfig = searchConfigs[configId] || searchConfigs.sidebar
+const config = { ...baseConfig, ...configOverride }
+
+// Determine visible fields
+const showLocation = config.fields.some(f => f.type === 'location' && f.show)
+const showListingType = config.fields.some(f => f.type === 'listingType' && f.show)
+const showMinPrice = config.fields.some(f => f.type === 'priceMin' && f.show)
+const showMaxPrice = config.fields.some(f => f.type === 'priceMax' && f.show)
+const showBedrooms = config.fields.some(f => f.type === 'bedrooms' && f.show)
+const showPropertyType = config.fields.some(f => f.type === 'propertyType' && f.show)
+
+// Advanced fields
+const advancedFields = config.advancedFields || []
+const showBathrooms = advancedFields.some(f => f.type === 'bathrooms' && f.show)
+const showReceptions = advancedFields.some(f => f.type === 'receptions' && f.show)
+const showFeatures = advancedFields.some(f => ['garden', 'newBuild', 'recentlyReduced'].includes(f.type) && f.show)
+
+// Get current listing type for price options
+const listingType = currentParams.listing_type || 'sale'
+const priceOptions = listingType === 'let' ? RENT_PRICES : SALE_PRICES
+
+// Build SearchBarCore config
+const coreConfig = {
+  fields: {
+    listingType: showListingType,
+    propertyType: showPropertyType,
+    minPrice: showMinPrice,
+    maxPrice: showMaxPrice,
+    location: showLocation,
+    bedrooms: showBedrooms,
+    bathrooms: showBathrooms,
+  },
+  redirectUrl: config.redirectUrl,
+  currentParams: currentParams,
+  placeholders: {
+    location: 'City, town or postcode',
+  },
+}
+
+const listingTypeOptions = [
+  { value: 'sale', label: 'For Sale' },
+  { value: 'let', label: 'To Rent' },
+]
+
+// Icons
+const icons = {
+  search: `<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>`,
+  chevronDown: `<polyline points="6 9 12 15 18 9"/>`,
+}
+---
+
+<SearchBarCore config={coreConfig}>
+  <aside class:list={['sidebar-search', className]}>
+    <form class="sidebar-search__form" action={config.redirectUrl} method="GET" data-search-form>
+      <h2 class="sidebar-search__title">Filter Properties</h2>
+
+      <!-- Location -->
+      {showLocation && (
+        <div class="sidebar-search__field">
+          <label class="sidebar-search__label" for="sidebar-location">Location</label>
+          <div class="sidebar-search__input-wrapper">
+            <svg class="sidebar-search__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.search} />
+            <input
+              type="text"
+              id="sidebar-location"
+              name="q"
+              class="sidebar-search__input"
+              placeholder="City, town or postcode"
+              value={currentParams.q || ''}
+              autocomplete="off"
+            />
+          </div>
+        </div>
+      )}
+
+      <!-- Listing Type -->
+      {showListingType && (
+        <div class="sidebar-search__field">
+          <label class="sidebar-search__label" for="sidebar-listing-type">Listing Type</label>
+          <select
+            id="sidebar-listing-type"
+            name="listing_type"
+            class="sidebar-search__select"
+            data-select="listing"
+          >
+            {listingTypeOptions.map(opt => (
+              <option value={opt.value} selected={currentParams.listing_type === opt.value || (!currentParams.listing_type && opt.value === 'sale')}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <!-- Price Range -->
+      {(showMinPrice || showMaxPrice) && (
+        <div class="sidebar-search__field">
+          <label class="sidebar-search__label">Price Range</label>
+          <div class="sidebar-search__price-range">
+            {showMinPrice && (
+              <select
+                name="min_price"
+                class="sidebar-search__select sidebar-search__select--half"
+                data-select="minprice"
+                data-sale-prices={JSON.stringify(SALE_PRICES)}
+                data-let-prices={JSON.stringify(RENT_PRICES)}
+              >
+                {priceOptions.map(opt => (
+                  <option value={opt.value} selected={currentParams.min_price?.toString() === opt.value}>
+                    {opt.value === '' ? 'Min' : opt.label}
+                  </option>
+                ))}
+              </select>
+            )}
+            {showMinPrice && showMaxPrice && <span class="sidebar-search__price-sep">to</span>}
+            {showMaxPrice && (
+              <select
+                name="max_price"
+                class="sidebar-search__select sidebar-search__select--half"
+                data-select="maxprice"
+                data-sale-prices={JSON.stringify(SALE_PRICES)}
+                data-let-prices={JSON.stringify(RENT_PRICES)}
+              >
+                {priceOptions.map(opt => (
+                  <option value={opt.value} selected={currentParams.max_price?.toString() === opt.value}>
+                    {opt.value === '' ? 'Max' : opt.label}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        </div>
+      )}
+
+      <!-- Bedrooms -->
+      {showBedrooms && (
+        <div class="sidebar-search__field">
+          <label class="sidebar-search__label" for="sidebar-beds">Bedrooms</label>
+          <select
+            id="sidebar-beds"
+            name="beds"
+            class="sidebar-search__select"
+          >
+            {BEDROOM_OPTIONS.map(opt => (
+              <option value={opt.value} selected={currentParams.beds?.toString() === opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <!-- Property Type -->
+      {showPropertyType && (
+        <div class="sidebar-search__field">
+          <label class="sidebar-search__label" for="sidebar-property-type">Property Type</label>
+          <select
+            id="sidebar-property-type"
+            name="property_type"
+            class="sidebar-search__select"
+          >
+            {PROPERTY_TYPE_OPTIONS.map(opt => (
+              <option value={opt.value} selected={currentParams.property_type === opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <!-- Advanced Filters -->
+      {config.showAdvanced && (
+        <details class="sidebar-search__advanced">
+          <summary class="sidebar-search__advanced-toggle">
+            More Filters
+            <svg class="sidebar-search__advanced-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.chevronDown} />
+          </summary>
+
+          <div class="sidebar-search__advanced-fields">
+            <!-- Bathrooms -->
+            {showBathrooms && (
+              <div class="sidebar-search__field">
+                <label class="sidebar-search__label" for="sidebar-baths">Bathrooms</label>
+                <select
+                  id="sidebar-baths"
+                  name="min_baths"
+                  class="sidebar-search__select"
+                >
+                  {BATHROOM_OPTIONS.map(opt => (
+                    <option value={opt.value} selected={currentParams.min_baths?.toString() === opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <!-- Receptions -->
+            {showReceptions && (
+              <div class="sidebar-search__field">
+                <label class="sidebar-search__label" for="sidebar-receptions">Receptions</label>
+                <select
+                  id="sidebar-receptions"
+                  name="min_receptions"
+                  class="sidebar-search__select"
+                >
+                  {RECEPTION_OPTIONS.map(opt => (
+                    <option value={opt.value} selected={currentParams.min_receptions?.toString() === opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <!-- Feature Checkboxes -->
+            {showFeatures && (
+              <div class="sidebar-search__field">
+                <label class="sidebar-search__label">Features</label>
+                <div class="sidebar-search__checkboxes">
+                  {FEATURE_OPTIONS.map(feature => (
+                    <label class="sidebar-search__checkbox">
+                      <input
+                        type="checkbox"
+                        name={feature.name}
+                        value={feature.value}
+                        checked={currentParams[feature.name] === 'true'}
+                      />
+                      <span>{feature.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </details>
+      )}
+
+      <!-- Submit Button -->
+      {config.showSubmitButton && (
+        <button type="submit" class="sidebar-search__submit">
+          {config.submitButtonText || 'Update Results'}
+        </button>
+      )}
+
+      <!-- Clear Filters -->
+      <a href={config.redirectUrl} class="sidebar-search__clear">
+        Clear Filters
+      </a>
+    </form>
+  </aside>
+</SearchBarCore>
+
+<script>
+  // ========================================
+  // SIDEBAR SEARCH - CLIENT SCRIPT
+  // Dynamic price dropdown based on listing type
+  // ========================================
+
+  interface PriceOption {
+    value: string
+    label: string
+  }
+
+  function updatePriceDropdowns(listingSelect: HTMLSelectElement): void {
+    const listingType = listingSelect.value
+    const priceSelects = document.querySelectorAll('[data-select="minprice"], [data-select="maxprice"]')
+
+    priceSelects.forEach(select => {
+      const priceSelect = select as HTMLSelectElement
+      const salePrices = priceSelect.dataset.salePrices
+      const letPrices = priceSelect.dataset.letPrices
+
+      if (!salePrices || !letPrices) return
+
+      const prices: PriceOption[] = listingType === 'let'
+        ? JSON.parse(letPrices)
+        : JSON.parse(salePrices)
+
+      const currentValue = priceSelect.value
+      const isMin = priceSelect.dataset.select === 'minprice'
+
+      priceSelect.innerHTML = ''
+      prices.forEach(opt => {
+        const option = document.createElement('option')
+        option.value = opt.value
+        option.textContent = opt.value === '' ? (isMin ? 'Min' : 'Max') : opt.label
+        priceSelect.appendChild(option)
+      })
+
+      const valueExists = prices.some(opt => opt.value === currentValue)
+      if (valueExists && currentValue) {
+        priceSelect.value = currentValue
+      } else {
+        priceSelect.value = ''
+      }
+    })
+  }
+
+  function initSidebarSearch(): void {
+    const listingSelect = document.querySelector('[data-select="listing"]') as HTMLSelectElement | null
+
+    if (listingSelect) {
+      listingSelect.addEventListener('change', () => {
+        updatePriceDropdowns(listingSelect)
+      })
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebarSearch)
+  } else {
+    initSidebarSearch()
+  }
+</script>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  // ----------------------------------------
+  // SIDEBAR CONTAINER
+  // ----------------------------------------
+
+  .sidebar-search {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    border: 1px solid $border-light;
+    padding: $spacing-6;
+  }
+
+  .sidebar-search__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-5;
+  }
+
+  .sidebar-search__title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin: 0 0 $spacing-2;
+    padding-bottom: $spacing-4;
+    border-bottom: 1px solid $border-light;
+  }
+
+  // ----------------------------------------
+  // FORM FIELDS
+  // ----------------------------------------
+
+  .sidebar-search__field {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  .sidebar-search__label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+  }
+
+  .sidebar-search__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .sidebar-search__input-icon {
+    position: absolute;
+    left: $spacing-3;
+    width: 18px;
+    height: 18px;
+    color: $text-muted;
+    pointer-events: none;
+  }
+
+  .sidebar-search__input {
+    width: 100%;
+    padding: $spacing-3 $spacing-3 $spacing-3 $spacing-10;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    color: $text-primary;
+    background: $bg-white;
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+    transition: border-color $transition-fast, box-shadow $transition-fast;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $accent-coral;
+      box-shadow: 0 0 0 3px rgba($accent-coral, 0.1);
+    }
+  }
+
+  .sidebar-search__select {
+    width: 100%;
+    padding: $spacing-3;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    color: $text-primary;
+    background: $bg-white;
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: border-color $transition-fast;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right $spacing-3 center;
+    padding-right: $spacing-10;
+
+    &:focus {
+      outline: none;
+      border-color: $accent-coral;
+    }
+
+    &--half {
+      flex: 1;
+    }
+  }
+
+  // ----------------------------------------
+  // PRICE RANGE
+  // ----------------------------------------
+
+  .sidebar-search__price-range {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+
+  .sidebar-search__price-sep {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+
+  // ----------------------------------------
+  // ADVANCED FILTERS
+  // ----------------------------------------
+
+  .sidebar-search__advanced {
+    border-top: 1px solid $border-light;
+    padding-top: $spacing-4;
+    margin-top: $spacing-2;
+  }
+
+  .sidebar-search__advanced-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $accent-coral;
+    cursor: pointer;
+    list-style: none;
+    padding: $spacing-2 0;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  .sidebar-search__advanced-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform $transition-fast;
+
+    details[open] & {
+      transform: rotate(180deg);
+    }
+  }
+
+  .sidebar-search__advanced-fields {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    padding-top: $spacing-4;
+  }
+
+  // ----------------------------------------
+  // CHECKBOXES
+  // ----------------------------------------
+
+  .sidebar-search__checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  .sidebar-search__checkbox {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    cursor: pointer;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: $accent-coral;
+    }
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  // ----------------------------------------
+  // BUTTONS
+  // ----------------------------------------
+
+  .sidebar-search__submit {
+    width: 100%;
+    padding: $spacing-4;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $bg-white;
+    background: $accent-coral;
+    border: none;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:hover {
+      background: $accent-coral-dark;
+    }
+  }
+
+  .sidebar-search__clear {
+    display: block;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    text-decoration: none;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $accent-coral;
+    }
+  }
+</style>

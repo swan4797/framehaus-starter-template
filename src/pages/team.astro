@@ -2,10 +2,11 @@
 // ========================================
 // TEAM PAGE
 // Clean, modern team page aligned with template design
+// Uses configurable TeamGrid component
 // ========================================
 
 import Layout from '../layouts/Layout.astro'
-import TeamMemberCard from '../components/team/TeamMemberCard.astro'
+import { TeamGrid } from '../components/team'
 import { getTeamMembers } from '../lib/api'
 import { fetchBrandSettings, getContactInfo } from '../lib/brand'
 
@@ -16,10 +17,6 @@ const contact = getContactInfo(brand)
 // Fetch team members
 const teamResponse = await getTeamMembers({ limit: 50 })
 const allMembers = teamResponse?.members || []
-
-// Separate featured and regular members
-const featuredMembers = allMembers.filter(m => m.is_featured)
-const regularMembers = allMembers.filter(m => !m.is_featured)
 
 const pageTitle = `Our Team | ${brand.business_name}`
 const pageDescription = `Meet the dedicated team at ${brand.business_name}. Our experienced property professionals are here to help with all your real estate needs.`
@@ -78,54 +75,15 @@ const stats = [
       </div>
     </section>
 
-    <!-- Featured Team Members -->
-    {featuredMembers.length > 0 && (
-      <section class="team-section team-section--featured">
-        <div class="team-section__container">
-          <div class="team-section__header">
-            <h2 class="team-section__title">Leadership Team</h2>
-            <p class="team-section__subtitle">Meet the people who lead our agency</p>
-          </div>
-
-          <div class="team-grid team-grid--featured">
-            {featuredMembers.map(member => (
-              <TeamMemberCard member={member} featured={true} />
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
-
-    <!-- All Team Members -->
+    <!-- Team Grid (handles featured/regular separation automatically) -->
     <section class="team-section">
       <div class="team-section__container">
-        <div class="team-section__header">
-          <h2 class="team-section__title">
-            {featuredMembers.length > 0 ? 'Our Team' : 'Meet Our Team'}
-          </h2>
-          <p class="team-section__subtitle">Dedicated professionals ready to help you</p>
-        </div>
-
-        {regularMembers.length > 0 ? (
-          <div class="team-grid">
-            {regularMembers.map(member => (
-              <TeamMemberCard member={member} />
-            ))}
-          </div>
-        ) : allMembers.length === 0 ? (
-          <div class="empty-state">
-            <div class="empty-state__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <h3 class="empty-state__title">No team members yet</h3>
-            <p class="empty-state__text">Check back soon to meet our team.</p>
-          </div>
-        ) : null}
+        <TeamGrid
+          members={allMembers}
+          configId="fullPage"
+          showFeatured={true}
+          emptyMessage="No team members yet. Check back soon to meet our team."
+        />
       </div>
     </section>
 

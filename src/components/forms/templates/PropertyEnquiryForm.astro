@@ -1,0 +1,85 @@
+---
+// ========================================
+// PROPERTY ENQUIRY FORM TEMPLATE
+// Sidebar enquiry form for property pages
+// ========================================
+
+import FormBuilder from '../core/FormBuilder.astro'
+import { formConfigs } from '../../../config/forms'
+
+export interface Props {
+  propertyId?: string
+  title?: string
+  class?: string
+}
+
+const {
+  propertyId,
+  title = 'Enquire Now',
+  class: className,
+} = Astro.props
+
+const config = formConfigs.propertyEnquiry
+---
+
+<div class:list={['property-enquiry-form', className]}>
+  {title && (
+    <div class="property-enquiry-form__header">
+      <svg class="property-enquiry-form__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <div>
+        <h3 class="property-enquiry-form__title">{title}</h3>
+        <p class="property-enquiry-form__subtitle">Quick response</p>
+      </div>
+    </div>
+  )}
+
+  <FormBuilder
+    config={config}
+    propertyId={propertyId}
+    additionalData={{ enquiry_type: 'viewing_request' }}
+  />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .property-enquiry-form {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .property-enquiry-form__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  .property-enquiry-form__icon {
+    width: 24px;
+    height: 24px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .property-enquiry-form__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .property-enquiry-form__subtitle {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0.25rem 0 0 0;
+  }
+</style>

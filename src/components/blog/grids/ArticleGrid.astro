@@ -1,0 +1,146 @@
+---
+// ========================================
+// ARTICLE GRID COMPONENT
+// Configurable blog article grid
+// ========================================
+
+import type { BlogArticle } from '../../../types/database'
+import type { BlogConfig, BlogCardConfig } from '../../../config/blog'
+import { blogConfigs, getCardConfig } from '../../../config/blog'
+import BlogArticleCard from '../BlogArticleCard.astro'
+
+export interface Props {
+  articles: BlogArticle[]
+  configId?: string
+  config?: Partial<BlogConfig>
+  cardConfig?: Partial<BlogCardConfig>
+  emptyMessage?: string
+  class?: string
+}
+
+const {
+  articles,
+  configId = 'listing',
+  config: configOverride,
+  cardConfig: cardConfigOverride,
+  emptyMessage = 'No articles found',
+  class: className,
+} = Astro.props
+
+// Merge configs
+const baseConfig = blogConfigs[configId] || blogConfigs.listing
+const config = { ...baseConfig, ...configOverride }
+const cardConfig = getCardConfig({ ...config.grid.cardConfig, ...cardConfigOverride })
+
+const hasArticles = articles && articles.length > 0
+const gridColumns = config.grid.columns
+const gridGap = config.grid.gap
+---
+
+{hasArticles ? (
+  <div
+    class:list={[
+      'article-grid',
+      `article-grid--cols-${gridColumns}`,
+      `article-grid--gap-${gridGap}`,
+      className,
+    ]}
+  >
+    {articles.map((article, index) => (
+      <BlogArticleCard
+        article={article}
+        featured={index === 0 && config.showFeaturedSection}
+      />
+    ))}
+  </div>
+) : (
+  <div class="article-grid__empty">
+    <p>{emptyMessage}</p>
+  </div>
+)}
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .article-grid {
+    display: grid;
+    width: 100%;
+  }
+
+  // ----------------------------------------
+  // COLUMNS
+  // ----------------------------------------
+
+  .article-grid--cols-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .article-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .article-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .article-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: 1280px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ----------------------------------------
+  // GAP
+  // ----------------------------------------
+
+  .article-grid--gap-sm {
+    gap: 1rem;
+  }
+
+  .article-grid--gap-md {
+    gap: 1.5rem;
+  }
+
+  .article-grid--gap-lg {
+    gap: 2rem;
+  }
+
+  // ----------------------------------------
+  // EMPTY STATE
+  // ----------------------------------------
+
+  .article-grid__empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--color-text-muted);
+    }
+  }
+</style>

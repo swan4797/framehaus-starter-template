@@ -1,0 +1,314 @@
+---
+// ========================================
+// FORM BUILDER COMPONENT
+// Configuration-driven form generator
+// ========================================
+
+import type { FormConfig } from '../../../config/forms'
+import FormField from './FormField.astro'
+import Button from '../../base/Button.astro'
+
+export interface Props {
+  config: FormConfig
+  propertyId?: string
+  additionalData?: Record<string, string>
+  class?: string
+}
+
+const {
+  config,
+  propertyId,
+  additionalData = {},
+  class: className,
+} = Astro.props
+
+const formId = config.id
+const hasHoneypot = Boolean(config.honeypotField)
+---
+
+<div class:list={['form-builder', className]} data-form-builder={formId}>
+  <form
+    id={formId}
+    action={config.endpoint}
+    method={config.method || 'POST'}
+    class="form-builder__form"
+    data-form
+    data-success-message={config.successMessage}
+    data-error-message={config.errorMessage}
+    data-redirect={config.redirectUrl}
+  >
+    {/* Honeypot field for spam prevention */}
+    {hasHoneypot && (
+      <input
+        type="text"
+        name={config.honeypotField}
+        tabindex="-1"
+        autocomplete="off"
+        class="form-builder__honeypot"
+      />
+    )}
+
+    {/* Hidden property ID if provided */}
+    {propertyId && (
+      <input type="hidden" name="property_id" value={propertyId} />
+    )}
+
+    {/* Additional hidden data */}
+    {Object.entries(additionalData).map(([key, value]) => (
+      <input type="hidden" name={key} value={value} />
+    ))}
+
+    {/* Form fields */}
+    <div class="form-builder__fields">
+      {config.fields.map((field) => (
+        <FormField {...field} />
+      ))}
+    </div>
+
+    {/* Submit button */}
+    <div class="form-builder__actions">
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        fullWidth
+        class="form-builder__submit"
+      >
+        <span class="form-builder__submit-text">{config.submitText}</span>
+        <span class="form-builder__submit-loading">{config.submittingText || 'Sending...'}</span>
+      </Button>
+    </div>
+  </form>
+
+  {/* Success message */}
+  <div class="form-builder__message form-builder__message--success" data-success-message>
+    <svg class="form-builder__message-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+      <path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <p class="form-builder__message-text">{config.successMessage}</p>
+  </div>
+
+  {/* Error message */}
+  <div class="form-builder__message form-builder__message--error" data-error-message>
+    <svg class="form-builder__message-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+      <path d="M12 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      <circle cx="12" cy="16" r="1" fill="currentColor" />
+    </svg>
+    <p class="form-builder__message-text">{config.errorMessage || 'Something went wrong. Please try again.'}</p>
+  </div>
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .form-builder {
+    width: 100%;
+  }
+
+  // ----------------------------------------
+  // FORM
+  // ----------------------------------------
+
+  .form-builder__form {
+    display: block;
+
+    &.is-loading {
+      .form-builder__submit-text {
+        display: none;
+      }
+      .form-builder__submit-loading {
+        display: inline;
+      }
+    }
+
+    &.is-success {
+      display: none;
+    }
+  }
+
+  // ----------------------------------------
+  // HONEYPOT
+  // ----------------------------------------
+
+  .form-builder__honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  // ----------------------------------------
+  // FIELDS GRID
+  // ----------------------------------------
+
+  .form-builder__fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+  }
+
+  // ----------------------------------------
+  // ACTIONS
+  // ----------------------------------------
+
+  .form-builder__actions {
+    margin-top: 1.5rem;
+  }
+
+  .form-builder__submit-loading {
+    display: none;
+  }
+
+  // ----------------------------------------
+  // MESSAGES
+  // ----------------------------------------
+
+  .form-builder__message {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    gap: 1rem;
+
+    &--success {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: #16A34A;
+
+      &.is-visible {
+        display: flex;
+      }
+    }
+
+    &--error {
+      background-color: rgba(220, 38, 38, 0.1);
+      color: #DC2626;
+
+      &.is-visible {
+        display: flex;
+      }
+    }
+  }
+
+  .form-builder__message-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .form-builder__message-text {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+</style>
+
+<script>
+  import { getSessionId } from '../../../lib/session'
+
+  // Initialize all FormBuilder instances
+  document.querySelectorAll('[data-form-builder]').forEach(container => {
+    const form = container.querySelector('[data-form]') as HTMLFormElement
+    const successMessage = container.querySelector('[data-success-message]')
+    const errorMessage = container.querySelector('[data-error-message]')
+
+    if (!form) return
+
+    const successText = form.dataset.successMessage || 'Thank you!'
+    const errorText = form.dataset.errorMessage || 'Something went wrong. Please try again.'
+    const redirectUrl = form.dataset.redirect
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      // Get form data
+      const formData = new FormData(form)
+
+      // Check honeypot
+      const honeypotField = form.querySelector('input[tabindex="-1"]') as HTMLInputElement
+      if (honeypotField && honeypotField.value) {
+        // Bot detected - silently "succeed"
+        form.classList.add('is-success')
+        successMessage?.classList.add('is-visible')
+        return
+      }
+
+      // Set loading state
+      form.classList.add('is-loading')
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement
+      if (submitBtn) submitBtn.disabled = true
+
+      // Hide previous error
+      errorMessage?.classList.remove('is-visible')
+
+      try {
+        // Get session ID for tracking
+        const sessionId = getSessionId()
+
+        // Build request body
+        const body: Record<string, any> = {
+          session_id: sessionId,
+        }
+
+        // Convert FormData to object
+        formData.forEach((value, key) => {
+          body[key] = value
+        })
+
+        // Submit to endpoint
+        const endpoint = form.action || `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/submit-enquiry`
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.PUBLIC_WEBSITE_API_KEY,
+          },
+          body: JSON.stringify(body),
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          // Show success
+          form.classList.add('is-success')
+          successMessage?.classList.add('is-visible')
+
+          // Redirect if specified
+          if (redirectUrl) {
+            setTimeout(() => {
+              window.location.href = redirectUrl
+            }, 2000)
+          }
+        } else {
+          throw new Error(result.message || errorText)
+        }
+      } catch (error) {
+        console.error('Form submission error:', error)
+
+        // Update error message
+        const errorTextEl = errorMessage?.querySelector('.form-builder__message-text')
+        if (errorTextEl) {
+          errorTextEl.textContent = error instanceof Error ? error.message : errorText
+        }
+
+        // Show error
+        errorMessage?.classList.add('is-visible')
+      } finally {
+        // Reset loading state
+        form.classList.remove('is-loading')
+        if (submitBtn) submitBtn.disabled = false
+      }
+    })
+  })
+</script>

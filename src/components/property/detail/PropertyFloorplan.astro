@@ -1,0 +1,115 @@
+---
+// ========================================
+// PROPERTY FLOORPLAN COMPONENT
+// Standalone floorplan gallery
+// ========================================
+
+export interface FloorplanMedia {
+  file_url: string
+  alt_text?: string
+  caption?: string
+}
+
+export interface Props {
+  images: FloorplanMedia[]
+  propertyAddress?: string
+  class?: string
+}
+
+const {
+  images,
+  propertyAddress = 'this property',
+  class: className,
+} = Astro.props
+
+const hasImages = images && images.length > 0
+---
+
+{hasImages && (
+  <section class:list={['property-floorplan', className]}>
+    <h2 class="property-floorplan__title">Floorplan</h2>
+
+    <div class="property-floorplan__grid">
+      {images.map((media) => (
+        <a
+          href={media.file_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="property-floorplan__item"
+        >
+          <img
+            src={media.file_url}
+            alt={media.alt_text || `Floorplan for ${propertyAddress}`}
+            loading="lazy"
+          />
+          {media.caption && (
+            <span class="property-floorplan__caption">{media.caption}</span>
+          )}
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .property-floorplan {
+    margin-bottom: 2rem;
+  }
+
+  .property-floorplan__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 1.25rem 0;
+  }
+
+  .property-floorplan__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .property-floorplan__item {
+    display: block;
+    position: relative;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  }
+
+  .property-floorplan__caption {
+    display: block;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border-light);
+    text-align: center;
+  }
+
+  // ----------------------------------------
+  // RESPONSIVE
+  // ----------------------------------------
+
+  @media (max-width: 640px) {
+    .property-floorplan__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

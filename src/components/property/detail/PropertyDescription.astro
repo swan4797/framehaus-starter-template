@@ -1,0 +1,146 @@
+---
+// ========================================
+// PROPERTY DESCRIPTION COMPONENT
+// Description text display
+// ========================================
+
+export interface Props {
+  description: string
+  title?: string
+  truncate?: boolean
+  maxLines?: number
+  class?: string
+}
+
+const {
+  description,
+  title = 'Property Description',
+  truncate = false,
+  maxLines = 6,
+  class: className,
+} = Astro.props
+
+const hasDescription = description && description.trim().length > 0
+
+// Split into paragraphs
+const paragraphs = description ? description.split(/\n\n|\n/).filter(p => p.trim()) : []
+---
+
+{hasDescription && (
+  <section class:list={['property-description', truncate && 'property-description--truncate', className]}>
+    <h2 class="property-description__title">{title}</h2>
+
+    <div class="property-description__content" style={truncate ? `--max-lines: ${maxLines}` : undefined}>
+      {paragraphs.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+
+    {truncate && (
+      <button type="button" class="property-description__toggle" data-toggle-description>
+        <span class="property-description__toggle-more">Read more</span>
+        <span class="property-description__toggle-less">Read less</span>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    )}
+  </section>
+)}
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .property-description {
+    margin-bottom: 2rem;
+  }
+
+  .property-description__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 1.25rem 0;
+  }
+
+  .property-description__content {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--color-text-secondary);
+
+    p {
+      margin: 0 0 1rem 0;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // Truncated variant
+  .property-description--truncate {
+    .property-description__content {
+      display: -webkit-box;
+      -webkit-line-clamp: var(--max-lines, 6);
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    &.is-expanded .property-description__content {
+      display: block;
+      -webkit-line-clamp: unset;
+    }
+  }
+
+  // Toggle button
+  .property-description__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 1rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-primary);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-primary-dark);
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      transition: transform var(--transition-fast);
+    }
+  }
+
+  .property-description__toggle-less {
+    display: none;
+  }
+
+  .property-description--truncate.is-expanded {
+    .property-description__toggle-more {
+      display: none;
+    }
+
+    .property-description__toggle-less {
+      display: inline;
+    }
+
+    .property-description__toggle svg {
+      transform: rotate(180deg);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-toggle-description]').forEach(button => {
+    button.addEventListener('click', () => {
+      const section = button.closest('.property-description')
+      section?.classList.toggle('is-expanded')
+    })
+  })
+</script>

@@ -1,0 +1,278 @@
+---
+// ========================================
+// PROPERTY SLIDER COMPONENT
+// Horizontal scrolling property carousel
+// ========================================
+
+import type { Property } from '../../../types/database'
+import PropertyCard from '../../properties/PropertyCard.astro'
+
+export interface Props {
+  properties: Property[]
+  visibleCards?: 2 | 3 | 4
+  gap?: 'sm' | 'md' | 'lg'
+  source?: string
+  showNavigation?: boolean
+  emptyMessage?: string
+  class?: string
+}
+
+const {
+  properties,
+  visibleCards = 3,
+  gap = 'lg',
+  source = 'property_slider',
+  showNavigation = true,
+  emptyMessage = 'No properties to display',
+  class: className,
+} = Astro.props
+
+const hasProperties = properties && properties.length > 0
+const sliderId = `property-slider-${Math.random().toString(36).substring(7)}`
+---
+
+{hasProperties ? (
+  <div class:list={['property-slider', className]} data-slider={sliderId}>
+    {/* Navigation - Previous */}
+    {showNavigation && (
+      <button
+        type="button"
+        class="property-slider__nav property-slider__nav--prev"
+        data-slider-prev
+        aria-label="Previous properties"
+      >
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    )}
+
+    {/* Slider Track */}
+    <div class:list={['property-slider__track', `property-slider__track--visible-${visibleCards}`, `property-slider__track--gap-${gap}`]}>
+      {properties.map((property) => (
+        <div class="property-slider__item">
+          <PropertyCard property={property} source={source} />
+        </div>
+      ))}
+    </div>
+
+    {/* Navigation - Next */}
+    {showNavigation && (
+      <button
+        type="button"
+        class="property-slider__nav property-slider__nav--next"
+        data-slider-next
+        aria-label="Next properties"
+      >
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    )}
+  </div>
+) : (
+  <div class="property-slider__empty">
+    <p>{emptyMessage}</p>
+  </div>
+)}
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .property-slider {
+    position: relative;
+    width: 100%;
+  }
+
+  // ----------------------------------------
+  // TRACK
+  // ----------------------------------------
+
+  .property-slider__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  // Gap variants
+  .property-slider__track--gap-sm {
+    gap: 1rem;
+  }
+
+  .property-slider__track--gap-md {
+    gap: 1.5rem;
+  }
+
+  .property-slider__track--gap-lg {
+    gap: 2rem;
+  }
+
+  // ----------------------------------------
+  // ITEMS
+  // ----------------------------------------
+
+  .property-slider__item {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  // Visible cards variants
+  .property-slider__track--visible-2 .property-slider__item {
+    width: calc(50% - 0.75rem);
+
+    @media (max-width: 768px) {
+      width: 85%;
+    }
+  }
+
+  .property-slider__track--visible-3 .property-slider__item {
+    width: calc(33.333% - 1rem);
+
+    @media (max-width: 1024px) {
+      width: calc(50% - 0.75rem);
+    }
+
+    @media (max-width: 640px) {
+      width: 85%;
+    }
+  }
+
+  .property-slider__track--visible-4 .property-slider__item {
+    width: calc(25% - 1.125rem);
+
+    @media (max-width: 1280px) {
+      width: calc(33.333% - 1rem);
+    }
+
+    @media (max-width: 1024px) {
+      width: calc(50% - 0.75rem);
+    }
+
+    @media (max-width: 640px) {
+      width: 85%;
+    }
+  }
+
+  // ----------------------------------------
+  // NAVIGATION
+  // ----------------------------------------
+
+  .property-slider__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast),
+      transform var(--transition-fast);
+
+    &:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    &:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    &--prev {
+      left: -1rem;
+
+      @media (max-width: 768px) {
+        left: 0.5rem;
+      }
+    }
+
+    &--next {
+      right: -1rem;
+
+      @media (max-width: 768px) {
+        right: 0.5rem;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // EMPTY STATE
+  // ----------------------------------------
+
+  .property-slider__empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--color-text-muted);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-slider]').forEach(slider => {
+    const track = slider.querySelector('.property-slider__track') as HTMLElement
+    const prevBtn = slider.querySelector('[data-slider-prev]') as HTMLButtonElement
+    const nextBtn = slider.querySelector('[data-slider-next]') as HTMLButtonElement
+
+    if (!track) return
+
+    const scrollAmount = () => {
+      const item = track.querySelector('.property-slider__item') as HTMLElement
+      if (!item) return 300
+      return item.offsetWidth + parseFloat(getComputedStyle(track).gap || '0')
+    }
+
+    prevBtn?.addEventListener('click', () => {
+      track.scrollBy({ left: -scrollAmount(), behavior: 'smooth' })
+    })
+
+    nextBtn?.addEventListener('click', () => {
+      track.scrollBy({ left: scrollAmount(), behavior: 'smooth' })
+    })
+
+    // Update button states on scroll
+    const updateButtons = () => {
+      if (prevBtn) {
+        prevBtn.disabled = track.scrollLeft <= 0
+      }
+      if (nextBtn) {
+        nextBtn.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 10
+      }
+    }
+
+    track.addEventListener('scroll', updateButtons)
+    updateButtons()
+  })
+</script>

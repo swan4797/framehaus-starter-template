@@ -1,0 +1,883 @@
+---
+// ========================================
+// BLOG ARTICLE DETAIL PAGE
+// Clean, modern article page aligned with template design
+// ========================================
+
+// Server-render this page (dynamic API data)
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro'
+import BlogArticleCard from '../../components/blog/BlogArticleCard.astro'
+import { getBlogArticle, getBlogArticles } from '../../lib/api'
+import { fetchBrandSettings } from '../../lib/brand'
+
+// Get slug from URL params
+const { slug } = Astro.params
+
+if (!slug) {
+  return Astro.redirect('/blog')
+}
+
+// Fetch brand settings
+const brand = await fetchBrandSettings()
+
+// Fetch article
+const article = await getBlogArticle(slug)
+
+// Handle not found
+if (!article) {
+  return Astro.redirect('/blog')
+}
+
+// Fetch related articles (same category or recent)
+const relatedResponse = await getBlogArticles({ limit: 3 })
+const relatedArticles = (relatedResponse?.articles || [])
+  .filter(a => a.article_id !== article.article_id)
+  .slice(0, 3)
+
+// Format date
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+// Calculate reading time (estimated 200 words per minute)
+const wordCount = (article.content || '').split(/\s+/).length
+const readingTime = Math.ceil(wordCount / 200)
+
+// Default images
+const imageUrl = article.featured_image_url || 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&h=600&fit=crop'
+const authorImage = article.author?.profile_photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author?.full_name || 'Author')}&size=160&background=FF5A5F&color=fff`
+
+// SEO
+const pageTitle = article.meta_title || `${article.title} | ${brand.business_name}`
+const pageDescription = article.meta_description || article.excerpt || `Read ${article.title} on the ${brand.business_name} blog.`
+const ogImage = article.og_image_url || article.featured_image_url
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <article class="article-page">
+
+    <!-- Hero Section -->
+    <header class="article-hero">
+      <div class="article-hero__image-container">
+        <img
+          src={imageUrl}
+          alt={article.featured_image_alt || article.title}
+          class="article-hero__image"
+        />
+        <div class="article-hero__overlay"></div>
+      </div>
+
+      <div class="article-hero__content">
+        <div class="article-hero__container">
+          <!-- Categories -->
+          {article.categories && article.categories.length > 0 && (
+            <div class="article-hero__categories">
+              {article.categories.map(cat => (
+                <a href={`/blog?category=${cat.category_id}`} class="article-hero__category">
+                  {cat.name}
+                </a>
+              ))}
+            </div>
+          )}
+
+          <h1 class="article-hero__title">{article.title}</h1>
+
+          <div class="article-hero__meta">
+            <!-- Author -->
+            {article.author && (
+              <div class="article-hero__author">
+                <img
+                  src={authorImage}
+                  alt={article.author.full_name}
+                  class="article-hero__author-avatar"
+                />
+                <div class="article-hero__author-details">
+                  <span class="article-hero__author-name">{article.author.full_name}</span>
+                  {article.author.job_title && (
+                    <span class="article-hero__author-title">{article.author.job_title}</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div class="article-hero__meta-divider"></div>
+
+            <!-- Date & Reading Time -->
+            <div class="article-hero__info">
+              <time datetime={article.published_at || ''} class="article-hero__date">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                  <line x1="16" x2="16" y1="2" y2="6"/>
+                  <line x1="8" x2="8" y1="2" y2="6"/>
+                  <line x1="3" x2="21" y1="10" y2="10"/>
+                </svg>
+                {formatDate(article.published_at)}
+              </time>
+              <span class="article-hero__reading-time">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                {readingTime} min read
+              </span>
+              {article.view_count > 0 && (
+                <span class="article-hero__views">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  {article.view_count.toLocaleString()} views
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Article Content -->
+    <div class="article-body">
+      <div class="article-body__container">
+        <div class="article-body__wrapper">
+          <!-- Main Content -->
+          <div class="article-content" set:html={article.content} />
+
+          <!-- Tags -->
+          {article.tags && article.tags.length > 0 && (
+            <div class="article-tags">
+              <span class="article-tags__label">Tags:</span>
+              {article.tags.map(tag => (
+                <a href={`/blog?tag=${tag.tag_id}`} class="article-tags__link">
+                  #{tag.name}
+                </a>
+              ))}
+            </div>
+          )}
+
+          <!-- Share Buttons -->
+          <div class="article-share">
+            <span class="article-share__label">Share this article:</span>
+            <div class="article-share__buttons">
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(Astro.url.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="article-share__btn article-share__btn--twitter"
+                title="Share on Twitter"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(Astro.url.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="article-share__btn article-share__btn--facebook"
+                title="Share on Facebook"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a
+                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(Astro.url.href)}&title=${encodeURIComponent(article.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="article-share__btn article-share__btn--linkedin"
+                title="Share on LinkedIn"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+              <button
+                class="article-share__btn article-share__btn--copy"
+                title="Copy link"
+                data-url={Astro.url.href}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Articles -->
+    {relatedArticles.length > 0 && (
+      <section class="related-section">
+        <div class="related-section__container">
+          <div class="related-section__header">
+            <h2 class="related-section__title">Related Articles</h2>
+            <p class="related-section__subtitle">Continue reading our latest insights</p>
+          </div>
+
+          <div class="related-section__grid">
+            {relatedArticles.map(relatedArticle => (
+              <BlogArticleCard article={relatedArticle} />
+            ))}
+          </div>
+
+          <div class="related-section__action">
+            <a href="/blog" class="related-section__link">
+              View All Articles
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" x2="19" y1="12" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+    )}
+
+  </article>
+</Layout>
+
+<style lang="scss">
+  // ========================================
+  // DESIGN TOKENS
+  // ========================================
+
+  $accent-coral: #FF5A5F;
+  $accent-coral-hover: #E74E52;
+  $text-primary: #1A1A1A;
+  $text-secondary: #6B7280;
+  $text-muted: #9CA3AF;
+  $bg-white: #FFFFFF;
+  $bg-off-white: #FAFAFA;
+  $bg-light: #F5F5F5;
+  $border-light: #E5E7EB;
+
+  $page-max-width: 1200px;
+  $content-max-width: 800px;
+  $section-spacing: 80px;
+  $section-spacing-mobile: 48px;
+
+  $radius-md: 12px;
+  $radius-lg: 16px;
+
+  $shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+
+  $transition-fast: 150ms ease;
+  $transition-base: 200ms ease;
+
+  $font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  // ========================================
+  // PAGE LAYOUT
+  // ========================================
+
+  .article-page {
+    background: $bg-white;
+    font-family: $font-family;
+  }
+
+  // ========================================
+  // HERO SECTION
+  // ========================================
+
+  .article-hero {
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    align-items: flex-end;
+    color: $bg-white;
+
+    @media (max-width: 768px) {
+      min-height: 400px;
+    }
+  }
+
+  .article-hero__image-container {
+    position: absolute;
+    inset: 0;
+  }
+
+  .article-hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .article-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      rgba(0, 0, 0, 0.85) 100%
+    );
+  }
+
+  .article-hero__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 64px 24px;
+
+    @media (max-width: 768px) {
+      padding: 48px 20px;
+    }
+  }
+
+  .article-hero__container {
+    max-width: $content-max-width;
+    margin: 0 auto;
+  }
+
+  // Categories
+  .article-hero__categories {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .article-hero__category {
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $bg-white;
+    background: $accent-coral;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background $transition-fast;
+
+    &:hover {
+      background: $accent-coral-hover;
+    }
+  }
+
+  // Title
+  .article-hero__title {
+    font-size: 2.75rem;
+    font-weight: 700;
+    margin: 0 0 24px 0;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      font-size: 1.75rem;
+    }
+  }
+
+  // Meta
+  .article-hero__meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+  }
+
+  .article-hero__author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .article-hero__author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba($bg-white, 0.3);
+  }
+
+  .article-hero__author-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .article-hero__author-name {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .article-hero__author-title {
+    font-size: 0.8125rem;
+    opacity: 0.8;
+    line-height: 1.3;
+  }
+
+  .article-hero__meta-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba($bg-white, 0.3);
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  .article-hero__info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .article-hero__date,
+  .article-hero__reading-time,
+  .article-hero__views {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9375rem;
+    opacity: 0.9;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // ========================================
+  // ARTICLE BODY
+  // ========================================
+
+  .article-body {
+    padding: 64px 24px;
+    background: $bg-white;
+
+    @media (max-width: 768px) {
+      padding: 48px 20px;
+    }
+  }
+
+  .article-body__container {
+    max-width: $page-max-width;
+    margin: 0 auto;
+  }
+
+  .article-body__wrapper {
+    max-width: $content-max-width;
+    margin: 0 auto;
+  }
+
+  // ========================================
+  // ARTICLE CONTENT (PROSE)
+  // ========================================
+
+  .article-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: $text-secondary;
+
+    :global(h2) {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 48px 0 16px;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+
+    :global(h3) {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 40px 0 12px;
+      line-height: 1.4;
+    }
+
+    :global(p) {
+      margin: 0 0 24px;
+    }
+
+    :global(a) {
+      color: $accent-coral;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color $transition-fast;
+
+      &:hover {
+        color: $accent-coral-hover;
+      }
+    }
+
+    :global(img) {
+      max-width: 100%;
+      height: auto;
+      border-radius: $radius-md;
+      margin: 32px 0;
+    }
+
+    :global(ul),
+    :global(ol) {
+      margin: 0 0 24px;
+      padding-left: 24px;
+    }
+
+    :global(li) {
+      margin-bottom: 8px;
+    }
+
+    :global(blockquote) {
+      border-left: 4px solid $accent-coral;
+      padding: 16px 24px;
+      margin: 32px 0;
+      font-style: italic;
+      color: $text-secondary;
+      background: $bg-off-white;
+      border-radius: 0 $radius-md $radius-md 0;
+    }
+
+    :global(pre) {
+      background: $text-primary;
+      color: $bg-off-white;
+      padding: 24px;
+      border-radius: $radius-md;
+      overflow-x: auto;
+      margin: 32px 0;
+      font-size: 0.9375rem;
+    }
+
+    :global(code) {
+      background: $bg-off-white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9375rem;
+    }
+
+    :global(pre code) {
+      background: none;
+      padding: 0;
+    }
+  }
+
+  // ========================================
+  // TAGS
+  // ========================================
+
+  .article-tags {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid $border-light;
+  }
+
+  .article-tags__label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  .article-tags__link {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $accent-coral;
+    background: rgba($accent-coral, 0.1);
+    text-decoration: none;
+    border-radius: 9999px;
+    transition: background $transition-fast;
+
+    &:hover {
+      background: rgba($accent-coral, 0.15);
+    }
+  }
+
+  // ========================================
+  // SHARE SECTION
+  // ========================================
+
+  .article-share {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+    padding: 24px;
+    background: $bg-off-white;
+    border-radius: $radius-lg;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .article-share__label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  .article-share__buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .article-share__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: $radius-md;
+    background: $bg-white;
+    border: 1px solid $border-light;
+    color: $text-secondary;
+    transition: all $transition-fast;
+    cursor: pointer;
+    text-decoration: none;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    &--twitter:hover {
+      background: #1da1f2;
+      border-color: #1da1f2;
+      color: $bg-white;
+    }
+
+    &--facebook:hover {
+      background: #4267b2;
+      border-color: #4267b2;
+      color: $bg-white;
+    }
+
+    &--linkedin:hover {
+      background: #0077b5;
+      border-color: #0077b5;
+      color: $bg-white;
+    }
+
+    &--copy:hover {
+      background: $text-primary;
+      border-color: $text-primary;
+      color: $bg-white;
+    }
+  }
+
+  // ========================================
+  // RELATED SECTION
+  // ========================================
+
+  .related-section {
+    padding: $section-spacing 24px;
+    background: $bg-off-white;
+
+    @media (max-width: 768px) {
+      padding: $section-spacing-mobile 20px;
+    }
+  }
+
+  .related-section__container {
+    max-width: $page-max-width;
+    margin: 0 auto;
+  }
+
+  .related-section__header {
+    text-align: center;
+    margin-bottom: 48px;
+
+    @media (max-width: 768px) {
+      margin-bottom: 36px;
+    }
+  }
+
+  .related-section__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.01em;
+
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  .related-section__subtitle {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  .related-section__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .related-section__action {
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .related-section__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $accent-coral;
+    text-decoration: none;
+    transition: gap $transition-base;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      gap: 12px;
+    }
+  }
+</style>
+
+<!-- Store article data for client-side tracking -->
+<div
+  id="article-tracking-data"
+  data-article-id={article.article_id}
+  data-article-title={article.title}
+  data-categories={JSON.stringify(article.categories?.map(c => c.name) || [])}
+  style="display: none;"
+></div>
+
+<script>
+  import { createTracker } from '../../lib/stratos-tracker'
+
+  // ========================================
+  // BLOG ANALYTICS TRACKING
+  // ========================================
+
+  // Get article data from hidden element
+  const trackingData = document.getElementById('article-tracking-data')
+  const articleId = trackingData?.dataset.articleId || ''
+  const articleTitle = trackingData?.dataset.articleTitle || ''
+  const categoryNames = JSON.parse(trackingData?.dataset.categories || '[]')
+
+  // Initialize tracker
+  const tracker = createTracker({
+    apiUrl: import.meta.env.PUBLIC_SUPABASE_URL,
+    apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY,
+    debug: import.meta.env.DEV,
+  })
+
+  // Track blog view with article metadata
+  if (articleId) {
+    tracker.trackBlogView(articleId, {
+      title: articleTitle,
+      categories: categoryNames,
+    })
+
+    // Set up automatic duration and scroll depth tracking
+    tracker.setupBlogDurationTracking(articleId)
+  }
+
+  // ========================================
+  // SHARE BUTTON TRACKING
+  // ========================================
+
+  // Track share button clicks
+  document.querySelectorAll('.article-share__btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!articleId) return
+
+      const shareMethod = btn.classList.contains('article-share__btn--twitter') ? 'twitter'
+        : btn.classList.contains('article-share__btn--facebook') ? 'facebook'
+        : btn.classList.contains('article-share__btn--linkedin') ? 'linkedin'
+        : btn.classList.contains('article-share__btn--copy') ? 'copy_link'
+        : 'unknown'
+
+      tracker.trackBlogShare(articleId, shareMethod)
+    })
+  })
+
+  // ========================================
+  // COPY LINK FUNCTIONALITY
+  // ========================================
+
+  document.querySelectorAll('.article-share__btn--copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const url = (btn as HTMLElement).dataset.url
+      if (url) {
+        try {
+          await navigator.clipboard.writeText(url)
+          // Show feedback
+          const originalContent = btn.innerHTML
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          `
+          ;(btn as HTMLElement).style.background = '#10b981'
+          ;(btn as HTMLElement).style.borderColor = '#10b981'
+          ;(btn as HTMLElement).style.color = 'white'
+
+          setTimeout(() => {
+            btn.innerHTML = originalContent
+            ;(btn as HTMLElement).style.background = ''
+            ;(btn as HTMLElement).style.borderColor = ''
+            ;(btn as HTMLElement).style.color = ''
+          }, 2000)
+        } catch (err) {
+          console.error('Failed to copy:', err)
+        }
+      }
+    })
+  })
+
+  // ========================================
+  // RELATED ARTICLE CLICK TRACKING
+  // ========================================
+
+  document.querySelectorAll('.related-section__grid a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (!articleId) return
+
+      const href = link.getAttribute('href')
+      // Extract article slug from href
+      if (href) {
+        const relatedSlug = href.replace('/blog/', '')
+        tracker.trackRelatedArticleClick(articleId, relatedSlug)
+      }
+    })
+  })
+</script>

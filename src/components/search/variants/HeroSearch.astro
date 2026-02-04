@@ -1,0 +1,520 @@
+---
+// ========================================
+// HERO SEARCH VARIANT
+// Prominent homepage search bar
+// ========================================
+
+import { searchConfigs, type SearchConfig } from '../../../config/search'
+import { SALE_PRICES, RENT_PRICES, BEDROOM_OPTIONS, PROPERTY_TYPE_OPTIONS } from '../config/options'
+import SearchBarCore from '../SearchBarCore.astro'
+
+interface Props {
+  /** Configuration ID from searchConfigs or custom config */
+  configId?: string
+  /** Custom configuration overrides */
+  config?: Partial<SearchConfig>
+  /** Current search params (for preserving state) */
+  currentParams?: Record<string, any>
+  /** Additional CSS classes */
+  class?: string
+}
+
+const {
+  configId = 'hero',
+  config: configOverride,
+  currentParams = {},
+  class: className,
+} = Astro.props
+
+// Merge configurations
+const baseConfig = searchConfigs[configId] || searchConfigs.hero
+const config = { ...baseConfig, ...configOverride }
+
+// Determine visible fields
+const showLocation = config.fields.some(f => f.type === 'location' && f.show)
+const showListingType = config.fields.some(f => f.type === 'listingType' && f.show)
+const showMaxPrice = config.fields.some(f => f.type === 'priceMax' && f.show)
+const showBedrooms = config.fields.some(f => f.type === 'bedrooms' && f.show)
+const showPropertyType = config.fields.some(f => f.type === 'propertyType' && f.show)
+
+// Get current listing type for price options
+const listingType = currentParams.listing_type || 'sale'
+const priceOptions = listingType === 'let' ? RENT_PRICES : SALE_PRICES
+
+// Build SearchBarCore config
+const coreConfig = {
+  fields: {
+    listingType: showListingType,
+    propertyType: showPropertyType,
+    maxPrice: showMaxPrice,
+    location: showLocation,
+    bedrooms: showBedrooms,
+  },
+  redirectUrl: config.redirectUrl,
+  currentParams: currentParams,
+  placeholders: {
+    location: 'Search for properties',
+  },
+}
+
+// Icons
+const icons = {
+  search: `<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>`,
+  book: `<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>`,
+  home: `<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+  pound: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>`,
+  bed: `<path d="M2 4v16"/><path d="M2 8h18a2 2 0 012 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>`,
+}
+
+const listingTypeOptions = [
+  { value: '', label: 'Buy / Rent' },
+  { value: 'sale', label: 'For Sale' },
+  { value: 'let', label: 'To Rent' },
+]
+---
+
+<SearchBarCore config={coreConfig}>
+  <section class:list={['hero-search', className]}>
+    <div class="hero-search__container">
+      <form class="hero-search__form" action={config.redirectUrl} method="GET" data-search-form>
+        <!-- Search Input with Button -->
+        <div class="hero-search__input-group">
+          <div class="hero-search__input-wrapper">
+            <svg class="hero-search__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.search} />
+            <input
+              type="text"
+              name="q"
+              class="hero-search__input"
+              placeholder="Search for properties"
+              value={currentParams.q || ''}
+              autocomplete="off"
+            />
+          </div>
+          {config.showSubmitButton && (
+            <button type="submit" class="hero-search__submit">
+              {config.submitButtonText || 'Search'}
+            </button>
+          )}
+        </div>
+
+        <!-- Filter Dropdowns -->
+        <div class="hero-search__filters">
+          {showListingType && (
+            <div class="hero-search__filter" data-filter="listing">
+              <svg class="hero-search__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.book} />
+              <span class="hero-search__filter-label" data-label="listing">
+                {currentParams.listing_type === 'sale' ? 'For Sale' : currentParams.listing_type === 'let' ? 'To Rent' : 'Buy / Rent'}
+              </span>
+              <select name="listing_type" class="hero-search__filter-select" data-select="listing">
+                {listingTypeOptions.map(opt => (
+                  <option value={opt.value} selected={currentParams.listing_type === opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {showPropertyType && (
+            <div class="hero-search__filter" data-filter="type">
+              <svg class="hero-search__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.home} />
+              <span class="hero-search__filter-label" data-label="type">
+                {PROPERTY_TYPE_OPTIONS.find(o => o.value === currentParams.property_type)?.label || 'Type'}
+              </span>
+              <select name="property_type" class="hero-search__filter-select" data-select="type">
+                {PROPERTY_TYPE_OPTIONS.map(opt => (
+                  <option value={opt.value} selected={currentParams.property_type === opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {showMaxPrice && (
+            <div class="hero-search__filter" data-filter="maxprice">
+              <svg class="hero-search__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.pound} />
+              <span class="hero-search__filter-label" data-label="maxprice">
+                {priceOptions.find(o => o.value === currentParams.max_price?.toString())?.label || 'Max Price'}
+              </span>
+              <select
+                name="max_price"
+                class="hero-search__filter-select"
+                data-select="maxprice"
+                data-sale-prices={JSON.stringify(SALE_PRICES)}
+                data-let-prices={JSON.stringify(RENT_PRICES)}
+              >
+                {priceOptions.map(opt => (
+                  <option value={opt.value} selected={currentParams.max_price?.toString() === opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {showBedrooms && (
+            <div class="hero-search__filter" data-filter="beds">
+              <svg class="hero-search__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.bed} />
+              <span class="hero-search__filter-label" data-label="beds">
+                {BEDROOM_OPTIONS.find(o => o.value === currentParams.beds?.toString())?.label || 'Beds'}
+              </span>
+              <select name="beds" class="hero-search__filter-select" data-select="beds">
+                {BEDROOM_OPTIONS.map(opt => (
+                  <option value={opt.value} selected={currentParams.beds?.toString() === opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+      </form>
+    </div>
+  </section>
+</SearchBarCore>
+
+<script>
+  // ========================================
+  // HERO SEARCH - CLIENT SCRIPT
+  // Filter label updates + dynamic price dropdown
+  // ========================================
+
+  interface PriceOption {
+    value: string
+    label: string
+  }
+
+  const DEFAULT_LABELS: Record<string, string> = {
+    listing: 'Buy / Rent',
+    type: 'Type',
+    maxprice: 'Max Price',
+    beds: 'Beds'
+  }
+
+  function updatePriceDropdown(listingSelect: HTMLSelectElement, priceSelect: HTMLSelectElement): void {
+    const listingType = listingSelect.value
+    const salePrices = priceSelect.dataset.salePrices
+    const letPrices = priceSelect.dataset.letPrices
+
+    if (!salePrices || !letPrices) return
+
+    const prices: PriceOption[] = listingType === 'let'
+      ? JSON.parse(letPrices)
+      : JSON.parse(salePrices)
+
+    const currentValue = priceSelect.value
+
+    priceSelect.innerHTML = ''
+    prices.forEach(opt => {
+      const option = document.createElement('option')
+      option.value = opt.value
+      option.textContent = opt.label
+      priceSelect.appendChild(option)
+    })
+
+    const valueExists = prices.some(opt => opt.value === currentValue)
+    if (valueExists && currentValue) {
+      priceSelect.value = currentValue
+    } else {
+      priceSelect.value = ''
+    }
+
+    const priceLabel = document.querySelector('[data-label="maxprice"]')
+    if (priceLabel) {
+      if (priceSelect.selectedIndex > 0) {
+        priceLabel.textContent = priceSelect.options[priceSelect.selectedIndex].text
+      } else {
+        priceLabel.textContent = DEFAULT_LABELS.maxprice
+      }
+    }
+  }
+
+  function initHeroSearch(): void {
+    const listingSelect = document.querySelector('[data-select="listing"]') as HTMLSelectElement | null
+    const priceSelect = document.querySelector('[data-select="maxprice"]') as HTMLSelectElement | null
+
+    if (listingSelect && priceSelect) {
+      listingSelect.addEventListener('change', () => {
+        updatePriceDropdown(listingSelect, priceSelect)
+      })
+    }
+
+    document.querySelectorAll('.hero-search__filter-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement
+        const filterType = target.dataset.select
+        if (!filterType) return
+
+        const label = document.querySelector(`[data-label="${filterType}"]`)
+        if (!label) return
+
+        if (target.selectedIndex > 0) {
+          label.textContent = target.options[target.selectedIndex].text
+        } else {
+          label.textContent = DEFAULT_LABELS[filterType] || ''
+        }
+      })
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeroSearch)
+  } else {
+    initHeroSearch()
+  }
+</script>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  // ----------------------------------------
+  // COMPONENT VARIABLES
+  // ----------------------------------------
+
+  $search-padding-y: $spacing-5;
+  $search-padding-y-desktop: $spacing-8;
+  $search-padding-x: $spacing-5;
+  $search-field-bg: #FFFFFF;
+  $search-field-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  $search-field-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  $search-icon-color: $text-muted;
+  $search-icon-size: 22px;
+
+  // ----------------------------------------
+  // SEARCH WRAPPER
+  // ----------------------------------------
+
+  .hero-search {
+    padding: $spacing-8 0;
+    background: #FFFFFF;
+
+    @include md {
+      padding: $spacing-10 0;
+    }
+  }
+
+  .hero-search__container {
+    @include container;
+  }
+
+  // ----------------------------------------
+  // SEARCH FORM
+  // ----------------------------------------
+
+  .hero-search__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+
+    @include lg {
+      flex-direction: row;
+      align-items: stretch;
+      gap: $spacing-5;
+    }
+  }
+
+  // ----------------------------------------
+  // SEARCH INPUT GROUP
+  // ----------------------------------------
+
+  .hero-search__input-group {
+    display: flex;
+    align-items: center;
+    background: $search-field-bg;
+    border-radius: $radius-lg;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: $search-field-shadow;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    transition: box-shadow $transition-fast, border-color $transition-fast;
+
+    @include lg {
+      flex: 0 0 40%;
+      max-width: 40%;
+    }
+
+    &:hover {
+      box-shadow: $search-field-shadow-hover;
+    }
+
+    &:focus-within {
+      border-color: $accent-coral;
+      box-shadow: $search-field-shadow;
+    }
+  }
+
+  .hero-search__input-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    padding: $search-padding-y $spacing-4;
+
+    @include lg {
+      padding: $search-padding-y-desktop $search-padding-x;
+    }
+  }
+
+  .hero-search__input-icon {
+    flex-shrink: 0;
+    width: $search-icon-size;
+    height: $search-icon-size;
+    color: $search-icon-color;
+    margin-right: $spacing-3;
+  }
+
+  .hero-search__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    color: $text-primary;
+    background: transparent;
+    border: none;
+    outline: none;
+
+    @include lg {
+      font-size: $font-size-lg;
+    }
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  .hero-search__submit {
+    flex-shrink: 0;
+    align-self: stretch;
+    margin: $spacing-2;
+    padding: $spacing-4 $spacing-6;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $bg-white;
+    background: $accent-coral;
+    border: none;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: background $transition-fast, transform $transition-fast;
+    white-space: nowrap;
+
+    @include lg {
+      margin: $spacing-3;
+      padding: $spacing-5 $spacing-8;
+      font-size: $font-size-lg;
+    }
+
+    &:hover {
+      background: $accent-coral-dark;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  // ----------------------------------------
+  // FILTER DROPDOWNS
+  // ----------------------------------------
+
+  .hero-search__filters {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+
+    @include sm {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: $spacing-4;
+    }
+
+    @include lg {
+      flex: 1;
+      flex-wrap: nowrap;
+      gap: $spacing-5;
+    }
+  }
+
+  .hero-search__filter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $search-padding-y $spacing-10 $search-padding-y $search-padding-x;
+    background: $search-field-bg;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: $radius-lg;
+    box-shadow: $search-field-shadow;
+    cursor: pointer;
+    transition: box-shadow $transition-fast, border-color $transition-fast;
+    flex: 1;
+    min-width: 140px;
+
+    @include lg {
+      padding: $search-padding-y-desktop $spacing-12 $search-padding-y-desktop $search-padding-x;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: $spacing-5;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid $text-muted;
+      pointer-events: none;
+    }
+
+    &:hover {
+      box-shadow: $search-field-shadow-hover;
+    }
+
+    @include sm {
+      flex: 1 1 calc(33.333% - #{$spacing-4});
+    }
+
+    @include lg {
+      flex: 1 1 33.333%;
+    }
+  }
+
+  .hero-search__filter-icon {
+    flex-shrink: 0;
+    width: $search-icon-size;
+    height: $search-icon-size;
+    color: $search-icon-color;
+
+    @include lg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .hero-search__filter-select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    font-size: $font-size-base;
+  }
+
+  .hero-search__filter-label {
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    font-weight: $font-weight-regular;
+    color: $text-secondary;
+    white-space: nowrap;
+    pointer-events: none;
+
+    @include lg {
+      font-size: $font-size-lg;
+    }
+  }
+</style>

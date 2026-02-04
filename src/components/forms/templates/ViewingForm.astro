@@ -1,0 +1,85 @@
+---
+// ========================================
+// VIEWING REQUEST FORM TEMPLATE
+// Book a viewing form
+// ========================================
+
+import FormBuilder from '../core/FormBuilder.astro'
+import { formConfigs } from '../../../config/forms'
+
+export interface Props {
+  propertyId?: string
+  propertyAddress?: string
+  title?: string
+  class?: string
+}
+
+const {
+  propertyId,
+  propertyAddress,
+  title = 'Book a Viewing',
+  class: className,
+} = Astro.props
+
+const config = formConfigs.viewingRequest
+const additionalData: Record<string, string> = {
+  enquiry_type: 'viewing_request',
+}
+
+if (propertyAddress) {
+  additionalData.property_address = propertyAddress
+}
+---
+
+<div class:list={['viewing-form', className]}>
+  {title && (
+    <div class="viewing-form__header">
+      <svg class="viewing-form__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+        <line x1="16" x2="16" y1="2" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <line x1="8" x2="8" y1="2" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <line x1="3" x2="21" y1="10" y2="10" stroke="currentColor" stroke-width="2" />
+      </svg>
+      <h3 class="viewing-form__title">{title}</h3>
+    </div>
+  )}
+
+  <FormBuilder
+    config={config}
+    propertyId={propertyId}
+    additionalData={additionalData}
+  />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .viewing-form {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+    padding: 1.5rem;
+  }
+
+  .viewing-form__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .viewing-form__icon {
+    width: 24px;
+    height: 24px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .viewing-form__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+</style>

@@ -1,0 +1,217 @@
+---
+// ========================================
+// INPUT COMPONENT
+// Reusable text input with label
+// ========================================
+
+export interface Props {
+  type?: 'text' | 'email' | 'tel' | 'number' | 'password' | 'search' | 'url'
+  name: string
+  id?: string
+  label?: string
+  placeholder?: string
+  value?: string | number
+  required?: boolean
+  disabled?: boolean
+  readonly?: boolean
+  error?: string
+  hint?: string
+  size?: 'sm' | 'md' | 'lg'
+  autocomplete?: string
+  pattern?: string
+  minlength?: number
+  maxlength?: number
+  min?: number
+  max?: number
+  class?: string
+  inputClass?: string
+  [key: string]: any
+}
+
+const {
+  type = 'text',
+  name,
+  id = name,
+  label,
+  placeholder,
+  value,
+  required = false,
+  disabled = false,
+  readonly = false,
+  error,
+  hint,
+  size = 'md',
+  autocomplete,
+  pattern,
+  minlength,
+  maxlength,
+  min,
+  max,
+  class: className,
+  inputClass,
+  ...rest
+} = Astro.props
+
+const hasError = Boolean(error)
+const describedBy = [
+  error && `${id}-error`,
+  hint && `${id}-hint`,
+].filter(Boolean).join(' ') || undefined
+---
+
+<div class:list={['input-group', `input-group--${size}`, hasError && 'input-group--error', className]}>
+  {label && (
+    <label for={id} class="input-group__label">
+      {label}
+      {required && <span class="input-group__required" aria-hidden="true">*</span>}
+    </label>
+  )}
+
+  <input
+    type={type}
+    id={id}
+    name={name}
+    placeholder={placeholder}
+    value={value}
+    required={required}
+    disabled={disabled}
+    readonly={readonly}
+    autocomplete={autocomplete}
+    pattern={pattern}
+    minlength={minlength}
+    maxlength={maxlength}
+    min={min}
+    max={max}
+    aria-invalid={hasError}
+    aria-describedby={describedBy}
+    class:list={['input-group__input', inputClass]}
+    {...rest}
+  />
+
+  {hint && !error && (
+    <p id={`${id}-hint`} class="input-group__hint">{hint}</p>
+  )}
+
+  {error && (
+    <p id={`${id}-error`} class="input-group__error" role="alert">{error}</p>
+  )}
+</div>
+
+<style lang="scss">
+  @use '../../styles/variables' as *;
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+  }
+
+  // ----------------------------------------
+  // LABEL
+  // ----------------------------------------
+
+  .input-group__label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .input-group__required {
+    color: var(--color-primary);
+  }
+
+  // ----------------------------------------
+  // INPUT
+  // ----------------------------------------
+
+  .input-group__input {
+    width: 100%;
+    font-family: var(--font-family-body);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+    border: 1.5px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    &:hover:not(:disabled):not(:focus) {
+      border-color: var(--color-border-medium);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    &:disabled {
+      background-color: var(--color-bg-secondary);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    &:read-only {
+      background-color: var(--color-bg-secondary);
+    }
+  }
+
+  // ----------------------------------------
+  // SIZES
+  // ----------------------------------------
+
+  .input-group--sm .input-group__input {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    height: 2rem;
+  }
+
+  .input-group--md .input-group__input {
+    padding: 0.625rem 1rem;
+    font-size: 0.9375rem;
+    height: 2.5rem;
+  }
+
+  .input-group--lg .input-group__input {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    height: 3rem;
+  }
+
+  // ----------------------------------------
+  // ERROR STATE
+  // ----------------------------------------
+
+  .input-group--error .input-group__input {
+    border-color: #DC2626;
+
+    &:focus {
+      border-color: #DC2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+    }
+  }
+
+  // ----------------------------------------
+  // HINT & ERROR TEXT
+  // ----------------------------------------
+
+  .input-group__hint {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .input-group__error {
+    font-size: 0.8125rem;
+    color: #DC2626;
+    margin: 0;
+  }
+</style>

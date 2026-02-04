@@ -1,0 +1,123 @@
+---
+// ========================================
+// PROPERTY GRID COMPONENT
+// Configurable property listing grid
+// ========================================
+
+import type { Property } from '../../../types/database'
+import PropertyCard from '../../properties/PropertyCard.astro'
+
+export interface Props {
+  properties: Property[]
+  columns?: 2 | 3 | 4
+  gap?: 'sm' | 'md' | 'lg'
+  source?: string
+  emptyMessage?: string
+  class?: string
+}
+
+const {
+  properties,
+  columns = 3,
+  gap = 'lg',
+  source = 'property_grid',
+  emptyMessage = 'No properties found',
+  class: className,
+} = Astro.props
+
+const hasProperties = properties && properties.length > 0
+---
+
+{hasProperties ? (
+  <div class:list={['property-grid', `property-grid--cols-${columns}`, `property-grid--gap-${gap}`, className]}>
+    {properties.map((property) => (
+      <PropertyCard property={property} source={source} />
+    ))}
+  </div>
+) : (
+  <div class="property-grid__empty">
+    <p>{emptyMessage}</p>
+  </div>
+)}
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .property-grid {
+    display: grid;
+    width: 100%;
+  }
+
+  // ----------------------------------------
+  // COLUMNS
+  // ----------------------------------------
+
+  .property-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .property-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .property-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: 1280px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ----------------------------------------
+  // GAP
+  // ----------------------------------------
+
+  .property-grid--gap-sm {
+    gap: 1rem;
+  }
+
+  .property-grid--gap-md {
+    gap: 1.5rem;
+  }
+
+  .property-grid--gap-lg {
+    gap: 2rem;
+  }
+
+  // ----------------------------------------
+  // EMPTY STATE
+  // ----------------------------------------
+
+  .property-grid__empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--color-text-muted);
+    }
+  }
+</style>

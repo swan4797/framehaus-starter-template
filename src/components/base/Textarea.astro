@@ -1,0 +1,243 @@
+---
+// ========================================
+// TEXTAREA COMPONENT
+// Reusable textarea with label
+// ========================================
+
+export interface Props {
+  name: string
+  id?: string
+  label?: string
+  placeholder?: string
+  value?: string
+  required?: boolean
+  disabled?: boolean
+  readonly?: boolean
+  error?: string
+  hint?: string
+  rows?: number
+  minlength?: number
+  maxlength?: number
+  resize?: 'none' | 'vertical' | 'horizontal' | 'both'
+  class?: string
+  textareaClass?: string
+  [key: string]: any
+}
+
+const {
+  name,
+  id = name,
+  label,
+  placeholder,
+  value,
+  required = false,
+  disabled = false,
+  readonly = false,
+  error,
+  hint,
+  rows = 4,
+  minlength,
+  maxlength,
+  resize = 'vertical',
+  class: className,
+  textareaClass,
+  ...rest
+} = Astro.props
+
+const hasError = Boolean(error)
+const describedBy = [
+  error && `${id}-error`,
+  hint && `${id}-hint`,
+].filter(Boolean).join(' ') || undefined
+---
+
+<div class:list={['textarea-group', hasError && 'textarea-group--error', className]}>
+  {label && (
+    <label for={id} class="textarea-group__label">
+      {label}
+      {required && <span class="textarea-group__required" aria-hidden="true">*</span>}
+    </label>
+  )}
+
+  <textarea
+    id={id}
+    name={name}
+    placeholder={placeholder}
+    required={required}
+    disabled={disabled}
+    readonly={readonly}
+    rows={rows}
+    minlength={minlength}
+    maxlength={maxlength}
+    aria-invalid={hasError}
+    aria-describedby={describedBy}
+    class:list={['textarea-group__textarea', `textarea-group__textarea--resize-${resize}`, textareaClass]}
+    {...rest}
+  >{value}</textarea>
+
+  {maxlength && (
+    <div class="textarea-group__counter">
+      <span class="textarea-group__counter-current">0</span>/<span>{maxlength}</span>
+    </div>
+  )}
+
+  {hint && !error && (
+    <p id={`${id}-hint`} class="textarea-group__hint">{hint}</p>
+  )}
+
+  {error && (
+    <p id={`${id}-error`} class="textarea-group__error" role="alert">{error}</p>
+  )}
+</div>
+
+<style lang="scss">
+  @use '../../styles/variables' as *;
+
+  .textarea-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+    position: relative;
+  }
+
+  // ----------------------------------------
+  // LABEL
+  // ----------------------------------------
+
+  .textarea-group__label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .textarea-group__required {
+    color: var(--color-primary);
+  }
+
+  // ----------------------------------------
+  // TEXTAREA
+  // ----------------------------------------
+
+  .textarea-group__textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-family-body);
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+    border: 1.5px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    line-height: 1.6;
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    &:hover:not(:disabled):not(:focus) {
+      border-color: var(--color-border-medium);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    &:disabled {
+      background-color: var(--color-bg-secondary);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    &:read-only {
+      background-color: var(--color-bg-secondary);
+    }
+
+    // Resize options
+    &--resize-none {
+      resize: none;
+    }
+
+    &--resize-vertical {
+      resize: vertical;
+    }
+
+    &--resize-horizontal {
+      resize: horizontal;
+    }
+
+    &--resize-both {
+      resize: both;
+    }
+  }
+
+  // ----------------------------------------
+  // ERROR STATE
+  // ----------------------------------------
+
+  .textarea-group--error .textarea-group__textarea {
+    border-color: #DC2626;
+
+    &:focus {
+      border-color: #DC2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+    }
+  }
+
+  // ----------------------------------------
+  // CHARACTER COUNTER
+  // ----------------------------------------
+
+  .textarea-group__counter {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  .textarea-group--error .textarea-group__counter {
+    bottom: 2rem;
+  }
+
+  // ----------------------------------------
+  // HINT & ERROR TEXT
+  // ----------------------------------------
+
+  .textarea-group__hint {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .textarea-group__error {
+    font-size: 0.8125rem;
+    color: #DC2626;
+    margin: 0;
+  }
+</style>
+
+<script>
+  // Character counter functionality
+  document.querySelectorAll('.textarea-group').forEach(group => {
+    const textarea = group.querySelector('textarea')
+    const counter = group.querySelector('.textarea-group__counter-current')
+
+    if (textarea && counter) {
+      const updateCounter = () => {
+        counter.textContent = textarea.value.length.toString()
+      }
+
+      textarea.addEventListener('input', updateCounter)
+      updateCounter()
+    }
+  })
+</script>

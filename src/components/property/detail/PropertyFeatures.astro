@@ -1,0 +1,104 @@
+---
+// ========================================
+// PROPERTY FEATURES COMPONENT
+// Key features list display
+// ========================================
+
+export interface Props {
+  features: string[]
+  title?: string
+  columns?: 1 | 2 | 3
+  class?: string
+}
+
+const {
+  features,
+  title = 'Key Features',
+  columns = 2,
+  class: className,
+} = Astro.props
+
+const hasFeatures = features && features.length > 0
+---
+
+{hasFeatures && (
+  <section class:list={['property-features', `property-features--cols-${columns}`, className]}>
+    <h2 class="property-features__title">{title}</h2>
+
+    <ul class="property-features__list">
+      {features.map((feature) => (
+        <li class="property-features__item">
+          <svg class="property-features__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span>{feature}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .property-features {
+    margin-bottom: 2rem;
+  }
+
+  .property-features__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 1.25rem 0;
+  }
+
+  .property-features__list {
+    display: grid;
+    gap: 0.75rem 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  // Column variants
+  .property-features--cols-1 .property-features__list {
+    grid-template-columns: 1fr;
+  }
+
+  .property-features--cols-2 .property-features__list {
+    grid-template-columns: repeat(2, 1fr);
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .property-features--cols-3 .property-features__list {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .property-features__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+
+  .property-features__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--color-primary);
+    margin-top: 0.125rem;
+  }
+</style>

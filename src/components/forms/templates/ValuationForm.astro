@@ -1,0 +1,65 @@
+---
+// ========================================
+// VALUATION REQUEST FORM TEMPLATE
+// Full valuation request form
+// ========================================
+
+import FormBuilder from '../core/FormBuilder.astro'
+import { formConfigs } from '../../../config/forms'
+
+export interface Props {
+  title?: string
+  description?: string
+  class?: string
+}
+
+const {
+  title = 'Request a Free Valuation',
+  description = "Get an accurate valuation of your property from our local experts. It's free and there's no obligation.",
+  class: className,
+} = Astro.props
+
+const config = formConfigs.valuationRequest
+---
+
+<div class:list={['valuation-form', className]}>
+  {(title || description) && (
+    <div class="valuation-form__header">
+      {title && <h2 class="valuation-form__title">{title}</h2>}
+      {description && <p class="valuation-form__description">{description}</p>}
+    </div>
+  )}
+
+  <FormBuilder
+    config={config}
+    additionalData={{ enquiry_type: 'valuation_request' }}
+  />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .valuation-form {
+    max-width: 640px;
+  }
+
+  .valuation-form__header {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .valuation-form__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+  }
+
+  .valuation-form__description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+</style>

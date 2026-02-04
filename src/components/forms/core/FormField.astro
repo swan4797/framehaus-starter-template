@@ -1,0 +1,232 @@
+---
+// ========================================
+// FORM FIELD COMPONENT
+// Renders a form field based on configuration
+// ========================================
+
+import type { FormFieldConfig } from '../../../config/forms'
+import Input from '../../base/Input.astro'
+import Select from '../../base/Select.astro'
+import Textarea from '../../base/Textarea.astro'
+
+export interface Props extends FormFieldConfig {
+  value?: string | number
+  error?: string
+  class?: string
+}
+
+const {
+  name,
+  type,
+  label,
+  placeholder,
+  required = false,
+  options = [],
+  validation,
+  gridColumn = 'full',
+  autocomplete,
+  defaultValue,
+  value,
+  error,
+  class: className,
+} = Astro.props
+
+const fieldValue = value ?? defaultValue ?? ''
+const gridClass = gridColumn === 'half' ? 'form-field--half' : 'form-field--full'
+---
+
+<div class:list={['form-field', gridClass, className]}>
+  {type === 'text' && (
+    <Input
+      type="text"
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      required={required}
+      autocomplete={autocomplete}
+      value={fieldValue}
+      error={error}
+      pattern={validation?.pattern}
+      minlength={validation?.minLength}
+      maxlength={validation?.maxLength}
+    />
+  )}
+
+  {type === 'email' && (
+    <Input
+      type="email"
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      required={required}
+      autocomplete={autocomplete || 'email'}
+      value={fieldValue}
+      error={error}
+    />
+  )}
+
+  {type === 'tel' && (
+    <Input
+      type="tel"
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      required={required}
+      autocomplete={autocomplete || 'tel'}
+      value={fieldValue}
+      error={error}
+    />
+  )}
+
+  {type === 'number' && (
+    <Input
+      type="number"
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      required={required}
+      value={fieldValue}
+      error={error}
+      min={validation?.min}
+      max={validation?.max}
+    />
+  )}
+
+  {type === 'textarea' && (
+    <Textarea
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      required={required}
+      value={fieldValue?.toString()}
+      error={error}
+      maxlength={validation?.maxLength}
+      minlength={validation?.minLength}
+    />
+  )}
+
+  {type === 'select' && options && (
+    <Select
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      required={required}
+      options={options}
+      value={fieldValue?.toString()}
+      error={error}
+    />
+  )}
+
+  {type === 'date' && (
+    <Input
+      type="date"
+      name={name}
+      label={label}
+      required={required}
+      value={fieldValue}
+      error={error}
+    />
+  )}
+
+  {type === 'checkbox' && (
+    <label class="checkbox-field">
+      <input
+        type="checkbox"
+        name={name}
+        checked={Boolean(fieldValue)}
+        class="checkbox-field__input"
+      />
+      <span class="checkbox-field__checkmark"></span>
+      <span class="checkbox-field__label">{label}</span>
+    </label>
+  )}
+
+  {type === 'hidden' && (
+    <input type="hidden" name={name} value={fieldValue} />
+  )}
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .form-field {
+    width: 100%;
+
+    &--half {
+      @media (min-width: 640px) {
+        grid-column: span 1;
+      }
+    }
+
+    &--full {
+      @media (min-width: 640px) {
+        grid-column: span 2;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // CHECKBOX FIELD
+  // ----------------------------------------
+
+  .checkbox-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  .checkbox-field__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .checkbox-field__checkmark {
+    width: 1.25rem;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    border: 1.5px solid var(--color-border-medium);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-primary);
+    transition:
+      background var(--transition-fast),
+      border-color var(--transition-fast);
+    position: relative;
+    margin-top: 0.125rem;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      width: 5px;
+      height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: translate(-50%, -50%) rotate(45deg) scale(0);
+      transition: transform var(--transition-fast);
+    }
+  }
+
+  .checkbox-field__input:checked + .checkbox-field__checkmark {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+
+    &::after {
+      transform: translate(-50%, -50%) rotate(45deg) scale(1);
+    }
+  }
+
+  .checkbox-field__input:focus + .checkbox-field__checkmark {
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+  }
+
+  .checkbox-field__label {
+    user-select: none;
+  }
+</style>

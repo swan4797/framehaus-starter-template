@@ -1,0 +1,18 @@
+---
+// ========================================
+// CONTACT FORM TEMPLATE
+// Pre-configured contact form
+// ========================================
+
+import FormBuilder from '../core/FormBuilder.astro'
+import { formConfigs } from '../../../config/forms'
+
+export interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+const config = formConfigs.contact
+---
+
+<FormBuilder config={config} class={className} />

@@ -1,0 +1,254 @@
+---
+// ========================================
+// TEAM GRID COMPONENT
+// Configurable team member grid
+// ========================================
+
+import type { TeamMember } from '../../../types/database'
+import type { TeamConfig, TeamCardConfig } from '../../../config/team'
+import { teamConfigs, getCardConfig, filterByDepartment } from '../../../config/team'
+import TeamMemberCard from '../TeamMemberCard.astro'
+
+export interface Props {
+  members: TeamMember[]
+  configId?: string
+  config?: Partial<TeamConfig>
+  cardConfig?: Partial<TeamCardConfig>
+  department?: string | null
+  showFeatured?: boolean
+  emptyMessage?: string
+  class?: string
+}
+
+const {
+  members,
+  configId = 'fullPage',
+  config: configOverride,
+  cardConfig: cardConfigOverride,
+  department = null,
+  showFeatured = true,
+  emptyMessage = 'No team members found',
+  class: className,
+} = Astro.props
+
+// Merge configs
+const baseConfig = teamConfigs[configId] || teamConfigs.fullPage
+const config = { ...baseConfig, ...configOverride }
+const cardConfig = getCardConfig({ ...config.grid.cardConfig, ...cardConfigOverride })
+
+// Filter by department if specified
+const filteredMembers = department ? filterByDepartment(members, department) : members
+
+// Separate featured and regular members
+const featuredMembers = showFeatured && config.showFeaturedSection
+  ? filteredMembers.filter(m => m.is_featured)
+  : []
+const regularMembers = showFeatured && config.showFeaturedSection
+  ? filteredMembers.filter(m => !m.is_featured)
+  : filteredMembers
+
+const hasMembers = filteredMembers && filteredMembers.length > 0
+const gridColumns = config.grid.columns
+const gridGap = config.grid.gap
+---
+
+{hasMembers ? (
+  <div class:list={['team-grid', className]}>
+    {/* Featured Members */}
+    {featuredMembers.length > 0 && (
+      <div
+        class:list={[
+          'team-grid__featured',
+          `team-grid__featured--cols-${config.featuredColumns}`,
+          `team-grid__featured--gap-${gridGap}`,
+        ]}
+        style={`max-width: ${config.featuredMaxWidth}`}
+      >
+        {featuredMembers.map((member) => (
+          <TeamMemberCard member={member} featured />
+        ))}
+      </div>
+    )}
+
+    {/* Regular Members */}
+    {regularMembers.length > 0 && (
+      <div
+        class:list={[
+          'team-grid__regular',
+          `team-grid__regular--cols-${gridColumns}`,
+          `team-grid__regular--gap-${gridGap}`,
+        ]}
+        style={`max-width: ${config.maxWidth}`}
+      >
+        {regularMembers.map((member) => (
+          <TeamMemberCard member={member} />
+        ))}
+      </div>
+    )}
+  </div>
+) : (
+  <div class="team-grid__empty">
+    <p>{emptyMessage}</p>
+  </div>
+)}
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .team-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  // ----------------------------------------
+  // FEATURED GRID
+  // ----------------------------------------
+
+  .team-grid__featured {
+    display: grid;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .team-grid__featured--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .team-grid__featured--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .team-grid__featured--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: 1280px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ----------------------------------------
+  // REGULAR GRID
+  // ----------------------------------------
+
+  .team-grid__regular {
+    display: grid;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .team-grid__regular--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .team-grid__regular--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .team-grid__regular--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .team-grid__regular--cols-5 {
+    grid-template-columns: repeat(5, 1fr);
+
+    @media (max-width: 1280px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ----------------------------------------
+  // GAP
+  // ----------------------------------------
+
+  .team-grid__featured--gap-sm,
+  .team-grid__regular--gap-sm {
+    gap: 1rem;
+  }
+
+  .team-grid__featured--gap-md,
+  .team-grid__regular--gap-md {
+    gap: 1.5rem;
+  }
+
+  .team-grid__featured--gap-lg,
+  .team-grid__regular--gap-lg {
+    gap: 2rem;
+  }
+
+  // ----------------------------------------
+  // EMPTY STATE
+  // ----------------------------------------
+
+  .team-grid__empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    width: 100%;
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--color-text-muted);
+    }
+  }
+</style>

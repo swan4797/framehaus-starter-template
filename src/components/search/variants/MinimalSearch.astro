@@ -1,0 +1,180 @@
+---
+// ========================================
+// MINIMAL SEARCH VARIANT
+// Single-field compact search bar
+// ========================================
+
+import { searchConfigs, type SearchConfig } from '../../../config/search'
+import SearchBarCore from '../SearchBarCore.astro'
+
+interface Props {
+  /** Configuration ID from searchConfigs or custom config */
+  configId?: string
+  /** Custom configuration overrides */
+  config?: Partial<SearchConfig>
+  /** Placeholder text */
+  placeholder?: string
+  /** Current search params */
+  currentParams?: Record<string, any>
+  /** Show icon inside input */
+  showIcon?: boolean
+  /** Button text (if empty, uses icon button) */
+  buttonText?: string
+  /** Additional CSS classes */
+  class?: string
+}
+
+const {
+  configId = 'minimal',
+  config: configOverride,
+  placeholder = 'Search properties...',
+  currentParams = {},
+  showIcon = true,
+  buttonText = '',
+  class: className,
+} = Astro.props
+
+// Merge configurations
+const baseConfig = searchConfigs[configId] || searchConfigs.minimal
+const config = { ...baseConfig, ...configOverride }
+
+// Build SearchBarCore config
+const coreConfig = {
+  fields: {
+    location: true,
+  },
+  redirectUrl: config.redirectUrl,
+  currentParams: currentParams,
+  placeholders: {
+    location: placeholder,
+  },
+}
+
+// Icons
+const icons = {
+  search: `<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>`,
+}
+---
+
+<SearchBarCore config={coreConfig}>
+  <div class:list={['minimal-search', className]}>
+    <form class="minimal-search__form" action={config.redirectUrl} method="GET" data-search-form>
+      <div class="minimal-search__input-wrapper">
+        {showIcon && (
+          <svg class="minimal-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.search} />
+        )}
+        <input
+          type="text"
+          name="q"
+          class:list={['minimal-search__input', { 'minimal-search__input--no-icon': !showIcon }]}
+          placeholder={placeholder}
+          value={currentParams.q || ''}
+          autocomplete="off"
+        />
+        <button type="submit" class:list={['minimal-search__submit', { 'minimal-search__submit--icon': !buttonText }]}>
+          {buttonText ? (
+            <span>{buttonText}</span>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.search} />
+          )}
+        </button>
+      </div>
+    </form>
+  </div>
+</SearchBarCore>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  // ----------------------------------------
+  // MINIMAL SEARCH
+  // ----------------------------------------
+
+  .minimal-search {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .minimal-search__form {
+    width: 100%;
+  }
+
+  .minimal-search__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: $bg-white;
+    border: 1px solid $border-light;
+    border-radius: $radius-full;
+    overflow: hidden;
+    transition: border-color $transition-fast, box-shadow $transition-fast;
+
+    &:focus-within {
+      border-color: $accent-coral;
+      box-shadow: 0 0 0 3px rgba($accent-coral, 0.1);
+    }
+  }
+
+  .minimal-search__icon {
+    position: absolute;
+    left: $spacing-4;
+    width: 18px;
+    height: 18px;
+    color: $text-muted;
+    pointer-events: none;
+  }
+
+  .minimal-search__input {
+    flex: 1;
+    min-width: 0;
+    padding: $spacing-3 $spacing-4 $spacing-3 $spacing-11;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    color: $text-primary;
+    background: transparent;
+    border: none;
+    outline: none;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &--no-icon {
+      padding-left: $spacing-4;
+    }
+  }
+
+  .minimal-search__submit {
+    flex-shrink: 0;
+    padding: $spacing-3 $spacing-5;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $bg-white;
+    background: $accent-coral;
+    border: none;
+    border-radius: $radius-full;
+    margin: 3px;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:hover {
+      background: $accent-coral-dark;
+    }
+
+    &--icon {
+      padding: $spacing-2;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+</style>
