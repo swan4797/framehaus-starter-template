@@ -1,0 +1,155 @@
+// ========================================
+// DESIGN SYSTEM VARIABLES
+// Clean, modern marketplace aesthetic
+// ========================================
+//
+// This file provides backward-compatible variables
+// that connect to the new token system.
+//
+// For new code, prefer importing from tokens:
+// @use '../styles/tokens' as *;
+//
+// ========================================
+
+// Import token system
+@use 'tokens/colors' as colors;
+@use 'tokens/typography' as typography;
+@use 'tokens/spacing' as spacing;
+@use 'tokens/effects' as effects;
+@use 'tokens/layout' as layout;
+
+// ----------------------------------------
+// COLOR PALETTE (Legacy aliases)
+// ----------------------------------------
+
+// Primary Accent - Now uses CSS custom properties
+// These can be dynamically set by BrandProvider
+$accent-coral: var(--color-primary);
+$accent-coral-dark: var(--color-primary-dark);
+$accent-coral-light: var(--color-primary-light);
+
+// Text Colors
+$text-primary: var(--color-text-primary);
+$text-secondary: var(--color-text-secondary);
+$text-muted: var(--color-text-muted);
+$text-light: var(--color-text-light);
+
+// Backgrounds
+$bg-white: var(--color-bg-primary);
+$bg-off-white: var(--color-bg-secondary);
+$bg-light-gray: var(--color-bg-tertiary);
+
+// Borders
+$border-light: var(--color-border-light);
+$border-medium: var(--color-border-medium);
+
+// Shadows (now dynamic via tokens)
+$shadow-xs: var(--shadow-xs);
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);
+$shadow-card: var(--shadow-card);
+$shadow-card-hover: var(--shadow-card-hover);
+
+// Focus states
+$focus-ring: var(--focus-ring);
+
+// ----------------------------------------
+// TYPOGRAPHY (Legacy aliases)
+// ----------------------------------------
+
+$font-family-base: var(--font-family-body);
+$font-family-heading: var(--font-family-heading);
+
+// Font Sizes
+$font-size-xs: var(--font-size-xs);
+$font-size-sm: var(--font-size-sm);
+$font-size-base: var(--font-size-base);
+$font-size-lg: var(--font-size-lg);
+$font-size-xl: var(--font-size-xl);
+$font-size-2xl: var(--font-size-2xl);
+$font-size-3xl: var(--font-size-3xl);
+$font-size-4xl: var(--font-size-4xl);
+$font-size-5xl: var(--font-size-5xl);
+
+// Font Weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line Heights
+$line-height-tight: var(--line-height-tight);
+$line-height-base: var(--line-height-base);
+$line-height-relaxed: var(--line-height-relaxed);
+
+// ----------------------------------------
+// SPACING (Legacy aliases)
+// ----------------------------------------
+
+$spacing-0: spacing.$space-0;
+$spacing-1: spacing.$space-1;
+$spacing-2: spacing.$space-2;
+$spacing-3: spacing.$space-3;
+$spacing-4: spacing.$space-4;
+$spacing-5: spacing.$space-5;
+$spacing-6: spacing.$space-6;
+$spacing-8: spacing.$space-8;
+$spacing-10: spacing.$space-10;
+$spacing-12: spacing.$space-12;
+$spacing-16: spacing.$space-16;
+$spacing-20: spacing.$space-20;
+$spacing-24: spacing.$space-24;
+
+// ----------------------------------------
+// BORDER RADIUS (Legacy aliases)
+// ----------------------------------------
+
+$radius-sm: var(--radius-sm);
+$radius-md: var(--radius-md);
+$radius-lg: var(--radius-lg);
+$radius-xl: var(--radius-xl);
+$radius-2xl: var(--radius-2xl);
+$radius-3xl: var(--radius-3xl);
+$radius-full: var(--radius-full);
+
+// ----------------------------------------
+// LAYOUT (Legacy aliases)
+// ----------------------------------------
+
+$container-max-width: layout.$container-max-width;
+$container-padding: layout.$container-padding;
+$container-padding-mobile: layout.$container-padding-mobile;
+
+// Grid
+$grid-gap: layout.$grid-gap;
+$grid-gap-lg: layout.$grid-gap-lg;
+
+// ----------------------------------------
+// TRANSITIONS (Legacy aliases)
+// ----------------------------------------
+
+$transition-fast: var(--transition-fast);
+$transition-base: var(--transition-base);
+$transition-slow: var(--transition-slow);
+$transition-smooth: var(--transition-smooth);
+
+// ----------------------------------------
+// Z-INDEX (Legacy aliases)
+// ----------------------------------------
+
+$z-dropdown: layout.$z-dropdown;
+$z-sticky: layout.$z-sticky;
+$z-fixed: layout.$z-fixed;
+$z-modal-backdrop: layout.$z-overlay;
+$z-modal: layout.$z-modal;
+$z-tooltip: layout.$z-tooltip;
+
+// ----------------------------------------
+// BREAKPOINTS (Legacy aliases)
+// ----------------------------------------
+
+$breakpoint-sm: layout.$breakpoint-sm;
+$breakpoint-md: layout.$breakpoint-md;
+$breakpoint-lg: layout.$breakpoint-lg;
+$breakpoint-xl: layout.$breakpoint-xl;

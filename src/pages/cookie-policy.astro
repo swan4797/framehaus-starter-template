@@ -1,0 +1,316 @@
+---
+// ========================================
+// COOKIE POLICY PAGE
+// GDPR/PECR compliant cookie policy template
+// ========================================
+
+import Layout from '../layouts/Layout.astro'
+import { fetchBrandSettings, getContactInfo } from '../lib/brand'
+
+// Fetch brand settings for dynamic content
+const brand = await fetchBrandSettings(true)
+const contact = getContactInfo(brand)
+
+const businessName = brand.business_name || '[Business Name]'
+const contactEmail = contact.email || '[email@example.com]'
+const contactPhone = contact.phone || '[phone number]'
+const businessAddress = brand.address || '[Business Address]'
+
+// Page meta
+const pageTitle = 'Cookie Policy'
+const pageDescription = `Cookie Policy for ${businessName}. Learn how we use cookies and similar tracking technologies on our website.`
+
+// Last updated date - update this when policy changes
+const lastUpdated = '1 February 2026'
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <div class="legal-page">
+    <div class="legal-page__container">
+      <!-- Header -->
+      <header class="legal-page__header">
+        <h1 class="legal-page__title">Cookie Policy</h1>
+        <p class="legal-page__updated">Last updated: {lastUpdated}</p>
+      </header>
+
+      <!-- Content -->
+      <div class="legal-page__content">
+
+        <section class="legal-section">
+          <h2>1. Introduction</h2>
+          <p>
+            This Cookie Policy explains how {businessName} ("we", "our", or "us") uses cookies and similar tracking technologies when you visit our website. We are committed to being transparent about how we collect and use data.
+          </p>
+          <p>
+            This policy should be read alongside our <a href="/privacy-policy">Privacy Policy</a>, which explains how we handle your personal data.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>2. What Are Cookies?</h2>
+          <p>
+            Cookies are small text files that are placed on your device (computer, tablet, or mobile) when you visit a website. They are widely used to make websites work more efficiently, provide a better user experience, and give website owners information about how visitors use their site.
+          </p>
+          <p>Cookies can be:</p>
+          <ul>
+            <li><strong>Session cookies:</strong> Temporary cookies that are deleted when you close your browser.</li>
+            <li><strong>Persistent cookies:</strong> Cookies that remain on your device for a set period or until you delete them.</li>
+            <li><strong>First-party cookies:</strong> Set by our website directly.</li>
+            <li><strong>Third-party cookies:</strong> Set by other services we use (like analytics or advertising platforms).</li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>3. How We Use Cookies</h2>
+          <p>We use cookies for the following purposes:</p>
+
+          <h3>3.1 Strictly Necessary Cookies</h3>
+          <p>
+            These cookies are essential for the website to function properly. They enable core functionality such as security, session management, and accessibility. You cannot opt out of these cookies as the website cannot function without them.
+          </p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Cookie Name</th>
+                <th>Purpose</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>session_id</td>
+                <td>Maintains your session while browsing the website</td>
+                <td>Session</td>
+              </tr>
+              <tr>
+                <td>cookie_consent</td>
+                <td>Stores your cookie consent preferences</td>
+                <td>1 year</td>
+              </tr>
+              <tr>
+                <td>csrf_token</td>
+                <td>Security token to prevent cross-site request forgery</td>
+                <td>Session</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>3.2 Analytics Cookies</h3>
+          <p>
+            These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously. This helps us improve the website and provide a better experience.
+          </p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Cookie Name</th>
+                <th>Purpose</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>_ga</td>
+                <td>Google Analytics - distinguishes users</td>
+                <td>2 years</td>
+              </tr>
+              <tr>
+                <td>_ga_*</td>
+                <td>Google Analytics - maintains session state</td>
+                <td>2 years</td>
+              </tr>
+              <tr>
+                <td>_gid</td>
+                <td>Google Analytics - distinguishes users</td>
+                <td>24 hours</td>
+              </tr>
+              <tr>
+                <td>stratos_visitor</td>
+                <td>Anonymous visitor tracking for property analytics</td>
+                <td>1 year</td>
+              </tr>
+              <tr>
+                <td>stratos_session</td>
+                <td>Session tracking for property viewing analytics</td>
+                <td>30 minutes</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>3.3 Functionality Cookies</h3>
+          <p>
+            These cookies enable enhanced functionality and personalisation, such as remembering your preferences, saved properties, and search history.
+          </p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Cookie Name</th>
+                <th>Purpose</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>saved_properties</td>
+                <td>Stores your saved/favourited properties</td>
+                <td>1 year</td>
+              </tr>
+              <tr>
+                <td>search_preferences</td>
+                <td>Remembers your property search preferences</td>
+                <td>30 days</td>
+              </tr>
+              <tr>
+                <td>recently_viewed</td>
+                <td>Tracks recently viewed properties</td>
+                <td>30 days</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>3.4 Marketing Cookies</h3>
+          <p>
+            These cookies are used to track visitors across websites and display relevant advertisements. They help us and our advertising partners to deliver ads that are more relevant to your interests.
+          </p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Cookie Name</th>
+                <th>Purpose</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>_fbp</td>
+                <td>Facebook Pixel - tracks visits for ad targeting</td>
+                <td>3 months</td>
+              </tr>
+              <tr>
+                <td>_gcl_au</td>
+                <td>Google Ads - conversion tracking</td>
+                <td>3 months</td>
+              </tr>
+              <tr>
+                <td>IDE</td>
+                <td>Google DoubleClick - ad targeting</td>
+                <td>1 year</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="legal-section">
+          <h2>4. Your Cookie Choices</h2>
+          <p>When you first visit our website, you will be presented with a cookie consent banner that allows you to:</p>
+          <ul>
+            <li><strong>Accept all cookies:</strong> Enable all cookie categories.</li>
+            <li><strong>Customise preferences:</strong> Choose which categories to allow or reject.</li>
+            <li><strong>Reject non-essential cookies:</strong> Only allow strictly necessary cookies.</li>
+          </ul>
+          <p>
+            You can change your cookie preferences at any time by clicking the "Cookie Settings" link in the website footer.
+          </p>
+
+          <div class="legal-highlight">
+            <p><strong>Note:</strong> Disabling certain cookies may affect the functionality of our website and your user experience.</p>
+          </div>
+        </section>
+
+        <section class="legal-section">
+          <h2>5. Managing Cookies in Your Browser</h2>
+          <p>
+            Most web browsers allow you to control cookies through their settings. You can usually find these settings in the "Options" or "Preferences" menu of your browser.
+          </p>
+          <p>For more information on managing cookies in popular browsers:</p>
+          <ul>
+            <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer">Google Chrome</a></li>
+            <li><a href="https://support.mozilla.org/en-US/kb/cookies-information-websites-store-on-your-computer" target="_blank" rel="noopener noreferrer">Mozilla Firefox</a></li>
+            <li><a href="https://support.apple.com/en-gb/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer">Safari</a></li>
+            <li><a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer">Microsoft Edge</a></li>
+          </ul>
+          <p>
+            Please note that blocking all cookies will have a negative impact on the usability of many websites, including ours.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>6. Third-Party Cookies</h2>
+          <p>Some cookies on our website are set by third parties. We use the following third-party services:</p>
+
+          <h3>Google Analytics</h3>
+          <p>
+            We use Google Analytics to understand how visitors use our website. Google Analytics collects information about page visits, time on site, and how you found our website. This data is anonymised and aggregated.
+          </p>
+          <p>
+            You can opt out of Google Analytics by installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Google Analytics Opt-out Browser Add-on</a>.
+          </p>
+
+          <h3>Social Media</h3>
+          <p>
+            If you interact with social media buttons on our website (Facebook, Twitter, Instagram, LinkedIn), these platforms may set cookies. Please refer to their respective privacy policies for more information.
+          </p>
+
+          <h3>Property Portals</h3>
+          <p>
+            When viewing properties that are also listed on Rightmove, Zoopla, or OnTheMarket, these portals may set their own cookies when you click through to their sites.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>7. Similar Technologies</h2>
+          <p>In addition to cookies, we may use similar technologies including:</p>
+          <ul>
+            <li><strong>Local Storage:</strong> Stores data in your browser that persists even after you close the browser. Used for features like saved properties.</li>
+            <li><strong>Session Storage:</strong> Similar to local storage but cleared when you close the browser tab.</li>
+            <li><strong>Pixels/Web Beacons:</strong> Tiny images embedded in web pages or emails that help us track page views and email opens.</li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>8. Do Not Track</h2>
+          <p>
+            Some browsers have a "Do Not Track" (DNT) feature that sends a signal to websites requesting that your browsing not be tracked. Our website does not currently respond to DNT signals, but you can still control cookies through our consent tool and browser settings.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>9. Changes to This Policy</h2>
+          <p>
+            We may update this Cookie Policy from time to time to reflect changes in our practices or for legal, operational, or regulatory reasons. We will post any changes on this page with an updated "Last updated" date.
+          </p>
+          <p>
+            We encourage you to review this policy periodically to stay informed about how we use cookies.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>10. More Information</h2>
+          <p>For more information about cookies and how to manage them, you can visit:</p>
+          <ul>
+            <li><a href="https://www.aboutcookies.org" target="_blank" rel="noopener noreferrer">AboutCookies.org</a></li>
+            <li><a href="https://www.allaboutcookies.org" target="_blank" rel="noopener noreferrer">AllAboutCookies.org</a></li>
+            <li><a href="https://ico.org.uk/for-organisations/guide-to-pecr/cookies-and-similar-technologies/" target="_blank" rel="noopener noreferrer">ICO Guidance on Cookies</a></li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>11. Contact Us</h2>
+          <p>
+            If you have any questions about our use of cookies or this Cookie Policy, please contact us:
+          </p>
+          <div class="legal-contact-box">
+            <p><strong>{businessName}</strong></p>
+            <p>Email: <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+            <p>Phone: <a href={`tel:${contactPhone.replace(/\s/g, '')}`}>{contactPhone}</a></p>
+            <p>Address: {businessAddress}</p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style lang="scss">
+  @use './legal-template.scss';
+</style>

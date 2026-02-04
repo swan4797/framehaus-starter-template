@@ -161,49 +161,150 @@ export function getCachedBrandSettings(): BrandSettings | null {
   return null
 }
 
+// ========================================
+// CSS GENERATION HELPERS
+// ========================================
+
 /**
- * Generate CSS variables from brand settings
- * Useful for injecting into <style> tags
+ * Convert hex color to RGB values string
  */
-export function generateCssVariables(brand: BrandSettings): string {
-  const borderRadiusMap = {
-    none: '0px',
+export function hexToRgb(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (!result) return '0, 0, 0'
+  return `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+}
+
+/**
+ * Darken a hex color by a percentage
+ */
+export function darkenColor(hex: string, percent: number): string {
+  const num = parseInt(hex.replace('#', ''), 16)
+  const amt = Math.round(2.55 * percent)
+  const R = Math.max((num >> 16) - amt, 0)
+  const G = Math.max(((num >> 8) & 0x00ff) - amt, 0)
+  const B = Math.max((num & 0x0000ff) - amt, 0)
+  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`
+}
+
+/**
+ * Lighten a hex color by a percentage
+ */
+export function lightenColor(hex: string, percent: number): string {
+  const num = parseInt(hex.replace('#', ''), 16)
+  const amt = Math.round(2.55 * percent)
+  const R = Math.min((num >> 16) + amt, 255)
+  const G = Math.min(((num >> 8) & 0x00ff) + amt, 255)
+  const B = Math.min((num & 0x0000ff) + amt, 255)
+  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`
+}
+
+/**
+ * Get border radius CSS value from setting
+ */
+export function getBorderRadiusValue(setting: string): string {
+  const map: Record<string, string> = {
+    none: '0',
     small: '4px',
     medium: '8px',
-    large: '12px',
+    large: '16px',
     full: '9999px',
   }
+  return map[setting] || map.medium
+}
 
-  const shadowMap = {
+/**
+ * Get shadow CSS value from setting
+ */
+export function getShadowValue(setting: string): string {
+  const map: Record<string, string> = {
     none: 'none',
-    small: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    medium: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-    large: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+    small: '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
+    medium: '0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.03)',
+    large: '0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)',
   }
+  return map[setting] || map.medium
+}
+
+/**
+ * Generate CSS variables from brand settings
+ * Connects to the token system in /styles/tokens/
+ */
+export function generateCssVariables(brand: BrandSettings): string {
+  const primaryDark = darkenColor(brand.primary_color, 10)
+  const primaryLight = lightenColor(brand.primary_color, 10)
+
+  // Derive additional colors from brand settings
+  const textMuted = (brand as any).text_muted || '#9CA3AF'
+  const bgTertiary = (brand as any).background_tertiary || darkenColor(brand.background_secondary, 2)
+  const borderLight = (brand as any).border_light || '#E5E7EB'
+  const borderMedium = (brand as any).border_medium || '#D1D5DB'
+  const borderDark = (brand as any).border_dark || '#9CA3AF'
 
   return `
+    /* Brand Colors - Dynamic from Stratos CRM */
+    --color-primary: ${brand.primary_color};
+    --color-primary-dark: ${primaryDark};
+    --color-primary-light: ${primaryLight};
+    --color-secondary: ${brand.secondary_color};
+    --color-accent: ${brand.accent_color};
+
+    /* Text Colors */
+    --color-text-primary: ${brand.text_primary};
+    --color-text-secondary: ${brand.text_secondary};
+    --color-text-muted: ${textMuted};
+    --color-text-light: ${brand.text_light};
+
+    /* Background Colors */
+    --color-bg-primary: ${brand.background_primary};
+    --color-bg-secondary: ${brand.background_secondary};
+    --color-bg-tertiary: ${bgTertiary};
+    --color-bg-dark: ${brand.background_dark};
+
+    /* Border Colors */
+    --color-border-light: ${borderLight};
+    --color-border-medium: ${borderMedium};
+    --color-border-dark: ${borderDark};
+
+    /* RGB versions for rgba() usage */
+    --color-primary-rgb: ${hexToRgb(brand.primary_color)};
+    --color-text-primary-rgb: ${hexToRgb(brand.text_primary)};
+    --color-bg-primary-rgb: ${hexToRgb(brand.background_primary)};
+
+    /* State Colors */
+    --color-success: ${(brand as any).success_color || '#10B981'};
+    --color-warning: ${(brand as any).warning_color || '#F59E0B'};
+    --color-error: ${(brand as any).error_color || '#EF4444'};
+    --color-info: ${(brand as any).info_color || '#3B82F6'};
+
+    /* Typography */
+    --font-family-heading: '${brand.heading_font_family}', system-ui, -apple-system, sans-serif;
+    --font-family-body: '${brand.body_font_family}', system-ui, -apple-system, sans-serif;
+    --font-weight-heading: ${brand.heading_font_weight};
+    --font-weight-body: ${brand.body_font_weight};
+
+    /* Effects - Dynamic from brand settings */
+    --radius-brand: ${getBorderRadiusValue(brand.border_radius)};
+    --shadow-brand: ${getShadowValue(brand.shadow_intensity)};
+
+    /* Legacy aliases for backwards compatibility */
     --brand-primary: ${brand.primary_color};
     --brand-secondary: ${brand.secondary_color};
     --brand-accent: ${brand.accent_color};
-    --brand-text-primary: ${brand.text_primary};
-    --brand-text-secondary: ${brand.text_secondary};
-    --brand-text-light: ${brand.text_light};
-    --brand-bg-primary: ${brand.background_primary};
-    --brand-bg-secondary: ${brand.background_secondary};
-    --brand-bg-dark: ${brand.background_dark};
-    --brand-success: ${brand.success_color || '#10b981'};
-    --brand-warning: ${brand.warning_color || '#f59e0b'};
-    --brand-error: ${brand.error_color || '#ef4444'};
-    --brand-info: ${brand.info_color || '#3b82f6'};
-    
-    --brand-font-heading: ${brand.heading_font_family}, sans-serif;
-    --brand-font-body: ${brand.body_font_family}, sans-serif;
-    --brand-font-weight-heading: ${brand.heading_font_weight};
-    --brand-font-weight-body: ${brand.body_font_weight};
-    
-    --brand-border-radius: ${borderRadiusMap[brand.border_radius]};
-    --brand-shadow: ${shadowMap[brand.shadow_intensity]};
   `.trim()
+}
+
+/**
+ * Get Google Fonts URL for brand fonts
+ */
+export function getGoogleFontsUrl(brand: BrandSettings): string {
+  const fonts = new Set([brand.heading_font_family, brand.body_font_family])
+  const fontParams = Array.from(fonts)
+    .filter(f => f && f !== 'system-ui' && f !== 'Inter')
+    .map(f => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700;800`)
+    .join('&')
+
+  if (!fontParams) return ''
+  return `https://fonts.googleapis.com/css2?${fontParams}&display=swap`
 }
 /**
  * Get contact information from brand settings

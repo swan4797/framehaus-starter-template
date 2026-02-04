@@ -56,16 +56,9 @@ const hasFeaturedSection = hasSection(pageContent, 'featured_properties')
 const hasWhyChooseSection = hasSection(pageContent, 'why_choose_us')
 const hasTestimonialsSection = hasSection(pageContent, 'testimonials')
 
-// Fetch properties
-const [featuredResponse, saleResponse, letResponse] = await Promise.all([
-  searchProperties({ listing_type: 'sale', limit: 6, sort_by: 'newest' }),
-  searchProperties({ listing_type: 'sale', limit: 3, sort_by: 'newest' }),
-  searchProperties({ listing_type: 'let', limit: 3, sort_by: 'newest' }),
-])
-
-const featuredProperties = featuredResponse?.properties.filter(p => p.is_featured).slice(0, 3) || []
-const saleProperties = saleResponse?.properties || []
-const letProperties = letResponse?.properties || []
+// Fetch all properties (mixed sale and let)
+const allPropertiesResponse = await searchProperties({ limit: 6, sort_by: 'newest' })
+const allProperties = allPropertiesResponse?.properties || []
 
 // Property showcase images for hero
 const propertyImages = [
@@ -115,8 +108,8 @@ const propertyImages = [
     showMaxPrice={true}
   />
 
-  <!-- Featured Properties (block_key: featured_properties) -->
-  {featuredProperties.length > 0 && (
+  <!-- Latest Properties -->
+  {allProperties.length > 0 && (
     <section class="property-section">
       <div class="property-section__container">
         <div class="property-section__header">
@@ -125,21 +118,39 @@ const propertyImages = [
             {hasFeaturedSection && featuredContent ? (
               <div class="property-section__subtitle" set:html={featuredContent} />
             ) : (
-              <p class="property-section__subtitle">Carefully selected homes that won't last long</p>
+              <p class="property-section__subtitle">Our latest properties for sale and to rent</p>
             )}
           </div>
-          <a href="/search" class="property-section__link">
-            View all properties
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
+          <div class="property-section__controls">
+            <div class="slider-nav">
+              <button class="slider-nav__btn slider-nav__btn--prev" id="slider-prev" aria-label="Previous">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+              </button>
+              <button class="slider-nav__btn slider-nav__btn--next" id="slider-next" aria-label="Next">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+            <a href="/search" class="property-section__link">
+              View all
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
         </div>
 
-        <div class="property-section__grid">
-          {featuredProperties.map(property => (
-            <PropertyCard property={property} featured={true} source="featured" />
-          ))}
+        <div class="property-slider" id="property-slider">
+          <div class="property-slider__track">
+            {allProperties.map(property => (
+              <div class="property-slider__item">
+                <PropertyCard property={property} source="homepage" />
+              </div>
+            ))}
+          </div>
         </div>
 
         <div class="property-section__mobile-cta">
@@ -151,75 +162,45 @@ const propertyImages = [
     </section>
   )}
 
-  <!-- Properties For Sale -->
-  {saleProperties.length > 0 && (
-    <section class="property-section property-section--alt">
-      <div class="property-section__container">
-        <div class="property-section__header">
-          <div class="property-section__title-group">
-            <h2 class="property-section__title">Recently Added For Sale</h2>
-            <p class="property-section__subtitle">The latest properties on the market</p>
-          </div>
-          <a href="/search?listing_type=sale" class="property-section__link">
-            View all for sale
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
+  <script>
+    // Property slider navigation
+    const slider = document.getElementById('property-slider');
+    const prevBtn = document.getElementById('slider-prev');
+    const nextBtn = document.getElementById('slider-next');
 
-        <div class="property-section__grid">
-          {saleProperties.map(property => (
-            <PropertyCard property={property} source="homepage_sale" />
-          ))}
-        </div>
+    if (slider && prevBtn && nextBtn) {
+      const track = slider.querySelector('.property-slider__track');
+      const items = slider.querySelectorAll('.property-slider__item');
 
-        <div class="property-section__mobile-cta">
-          <a href="/search?listing_type=sale" class="property-section__link">
-            View all for sale
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </section>
-  )}
+      const getScrollAmount = () => {
+        if (!items.length) return 300;
+        const item = items[0] as HTMLElement;
+        const style = window.getComputedStyle(track);
+        const gap = parseInt(style.gap) || 24;
+        return item.offsetWidth + gap;
+      };
 
-  <!-- Properties To Rent -->
-  {letProperties.length > 0 && (
-    <section class="property-section">
-      <div class="property-section__container">
-        <div class="property-section__header">
-          <div class="property-section__title-group">
-            <h2 class="property-section__title">Recently Added To Rent</h2>
-            <p class="property-section__subtitle">Available rental properties</p>
-          </div>
-          <a href="/search?listing_type=let" class="property-section__link">
-            View all to rent
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
+      prevBtn.addEventListener('click', () => {
+        slider.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+      });
 
-        <div class="property-section__grid">
-          {letProperties.map(property => (
-            <PropertyCard property={property} source="homepage_rent" />
-          ))}
-        </div>
+      nextBtn.addEventListener('click', () => {
+        slider.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+      });
 
-        <div class="property-section__mobile-cta">
-          <a href="/search?listing_type=let" class="property-section__link">
-            View all to rent
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </section>
-  )}
+      // Update button states on scroll
+      const updateButtons = () => {
+        const isAtStart = slider.scrollLeft <= 0;
+        const isAtEnd = slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 10;
+
+        prevBtn.classList.toggle('slider-nav__btn--disabled', isAtStart);
+        nextBtn.classList.toggle('slider-nav__btn--disabled', isAtEnd);
+      };
+
+      slider.addEventListener('scroll', updateButtons);
+      updateButtons();
+    }
+  </script>
 
   <!-- Why Choose Us (block_key: why_choose_us) -->
   <section class="why-us">
@@ -551,8 +532,10 @@ const propertyImages = [
       }
     }
 
-    &__grid {
-      @include property-grid;
+    &__controls {
+      display: flex;
+      align-items: center;
+      gap: $spacing-4;
     }
 
     &__mobile-cta {
@@ -562,6 +545,86 @@ const propertyImages = [
 
       @include md {
         display: none;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // PROPERTY SLIDER
+  // ----------------------------------------
+  .property-slider {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin: 0 -#{$spacing-4};
+    padding: 0 $spacing-4;
+
+    @include md {
+      margin: 0 -#{$spacing-6};
+      padding: 0 $spacing-6;
+    }
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &__track {
+      display: flex;
+      gap: $spacing-6;
+    }
+
+    &__item {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+
+      @include sm {
+        flex: 0 0 320px;
+      }
+
+      @include md {
+        flex: 0 0 calc(33.333% - #{$spacing-4});
+      }
+    }
+  }
+
+  .slider-nav {
+    display: none;
+    align-items: center;
+    gap: $spacing-2;
+
+    @include md {
+      display: flex;
+    }
+
+    &__btn {
+      @include flex-center;
+      width: 40px;
+      height: 40px;
+      border-radius: $radius-full;
+      border: 1px solid $border-light;
+      background: $bg-white;
+      color: $text-primary;
+      cursor: pointer;
+      transition: all $transition-fast;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      &:hover:not(.slider-nav__btn--disabled) {
+        border-color: $accent-coral;
+        color: $accent-coral;
+        background: rgba($accent-coral, 0.05);
+      }
+
+      &--disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
       }
     }
   }

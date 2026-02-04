@@ -18,7 +18,6 @@ export {
 
 // Marker utilities
 export {
-  extractPostcode,
   getPropertyUrl,
   getPropertyPrice,
   isSaleListing,

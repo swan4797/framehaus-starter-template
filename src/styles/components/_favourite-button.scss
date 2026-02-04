@@ -1,0 +1,368 @@
+// ========================================
+// FAVOURITE BUTTON COMPONENT
+// Modern heart button with delightful animations
+// ========================================
+
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ----------------------------------------
+// COMPONENT VARIABLES
+// ----------------------------------------
+
+$btn-bg: rgba(255, 255, 255, 0.95);
+$btn-bg-hover: #FFFFFF;
+$btn-bg-active: #FEF2F2;
+$btn-border: rgba(0, 0, 0, 0.08);
+$btn-border-active: #FCA5A5;
+$btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+$btn-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+$btn-shadow-active: 0 4px 16px rgba(239, 68, 68, 0.25);
+
+$heart-color: #9CA3AF;
+$heart-color-hover: #EF4444;
+$heart-color-active: #EF4444;
+
+// Size variants
+$sizes: (
+  sm: (button: 36px, icon: 18px),
+  md: (button: 44px, icon: 22px),
+  lg: (button: 52px, icon: 26px)
+);
+
+// ----------------------------------------
+// BUTTON BASE
+// ----------------------------------------
+
+.favourite-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: $btn-bg;
+  border: 1px solid $btn-border;
+  border-radius: 50%;
+  box-shadow: $btn-shadow;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  outline: none;
+
+  // Default size (md)
+  width: 44px;
+  height: 44px;
+
+  &:hover {
+    background: $btn-bg-hover;
+    box-shadow: $btn-shadow-hover;
+    transform: scale(1.08);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:focus-visible {
+    box-shadow: $btn-shadow, 0 0 0 3px rgba($heart-color-active, 0.3);
+  }
+
+  // Disabled state
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+// ----------------------------------------
+// SIZE VARIANTS
+// ----------------------------------------
+
+.favourite-btn--sm {
+  width: 36px;
+  height: 36px;
+}
+
+.favourite-btn--lg {
+  width: 52px;
+  height: 52px;
+}
+
+// ----------------------------------------
+// HEART ICONS
+// ----------------------------------------
+
+.favourite-btn__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    opacity 0.2s ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    color 0.2s ease;
+}
+
+.favourite-btn__icon--outline {
+  color: $heart-color;
+  width: 22px;
+  height: 22px;
+
+  .favourite-btn--sm & {
+    width: 18px;
+    height: 18px;
+  }
+
+  .favourite-btn--lg & {
+    width: 26px;
+    height: 26px;
+  }
+
+  .favourite-btn:hover & {
+    color: $heart-color-hover;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  // Hidden when favourited
+  .favourite-btn.is-favourited & {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+}
+
+.favourite-btn__icon--filled {
+  color: $heart-color-active;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.5);
+  width: 22px;
+  height: 22px;
+
+  .favourite-btn--sm & {
+    width: 18px;
+    height: 18px;
+  }
+
+  .favourite-btn--lg & {
+    width: 26px;
+    height: 26px;
+  }
+
+  // Visible when favourited
+  .favourite-btn.is-favourited & {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+// ----------------------------------------
+// FAVOURITED STATE
+// ----------------------------------------
+
+.favourite-btn.is-favourited {
+  background: $btn-bg-active;
+  border-color: $btn-border-active;
+  box-shadow: $btn-shadow-active;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+  }
+}
+
+// ----------------------------------------
+// LOADING SPINNER
+// ----------------------------------------
+
+.favourite-btn__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  width: 20px;
+  height: 20px;
+
+  .favourite-btn--sm & {
+    width: 16px;
+    height: 16px;
+  }
+
+  .favourite-btn--lg & {
+    width: 24px;
+    height: 24px;
+  }
+
+  .favourite-btn.is-loading & {
+    opacity: 1;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+.favourite-btn.is-loading {
+  .favourite-btn__icon--outline,
+  .favourite-btn__icon--filled {
+    opacity: 0 !important;
+  }
+}
+
+// ----------------------------------------
+// PULSE ANIMATION (on toggle)
+// ----------------------------------------
+
+.favourite-btn.is-animating {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: rgba($heart-color-active, 0.3);
+    animation: pulse-ring 0.6s ease-out forwards;
+  }
+}
+
+// ----------------------------------------
+// LABEL (optional)
+// ----------------------------------------
+
+.favourite-btn__label {
+  margin-left: $spacing-2;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  .favourite-btn.is-favourited & {
+    color: $heart-color-active;
+  }
+}
+
+// With label - not circular
+.favourite-btn.favourite-btn--with-label {
+  border-radius: 100px;
+  padding: 0 $spacing-4;
+  width: auto;
+  gap: $spacing-2;
+
+  .favourite-btn__icon {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+  }
+
+  .favourite-btn__icon--outline {
+    .favourite-btn:hover & {
+      transform: scale(1.1);
+    }
+
+    .favourite-btn.is-favourited & {
+      transform: scale(0.5);
+    }
+  }
+
+  .favourite-btn__icon--filled {
+    position: absolute;
+
+    .favourite-btn.is-favourited & {
+      transform: scale(1);
+    }
+  }
+}
+
+// ----------------------------------------
+// ANIMATIONS
+// ----------------------------------------
+
+@keyframes spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.favourite-btn.is-favourited .favourite-btn__icon--filled {
+  animation: heart-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// ----------------------------------------
+// TOAST NOTIFICATIONS
+// ----------------------------------------
+
+.favourite-toast {
+  position: fixed;
+  bottom: $spacing-6;
+  right: $spacing-6;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4 $spacing-5;
+  background: $text-primary;
+  color: $bg-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-lg;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  animation: toast-in 0.3s ease-out;
+
+  &.is-hiding {
+    animation: toast-out 0.3s ease-out forwards;
+  }
+}
+
+.favourite-toast__icon {
+  font-size: 1.25rem;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+}
+

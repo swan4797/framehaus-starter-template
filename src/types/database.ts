@@ -70,7 +70,8 @@ export interface Property {
   id: string
   agency_id: string
   branch_id?: string
-  
+  url_slug?: string
+
   // Address
   display_address: string
   address_line_1?: string
@@ -131,7 +132,8 @@ export interface Property {
   
   // Media
   property_media?: PropertyMedia[]
-  
+  main_image_url?: string | null  // Returned by map search API
+
   // Timestamps
   created_at: string
   updated_at: string
@@ -402,4 +404,109 @@ export interface PaginationState {
   totalPages: number
   totalResults: number
   hasMore: boolean
+}
+
+// ========================================
+// TEAM MEMBER TYPES
+// ========================================
+
+export interface SocialLinks {
+  linkedin?: string
+  twitter?: string
+  instagram?: string
+  facebook?: string
+  youtube?: string
+  website?: string
+}
+
+export interface TeamMember {
+  member_id: string
+  first_name: string
+  last_name: string
+  full_name: string
+  job_title: string | null
+  department: string | null
+  email: string | null
+  phone: string | null
+  mobile_phone: string | null
+  bio: string | null
+  short_bio: string | null
+  profile_photo_url: string | null
+  social_links: SocialLinks
+  specializations: string[]
+  areas_covered: string[]
+  is_featured: boolean
+  display_order: number
+}
+
+export interface TeamMembersResponse {
+  members: TeamMember[]
+  total: number
+}
+
+// ========================================
+// BLOG TYPES
+// ========================================
+
+export type BlogStatus = 'draft' | 'scheduled' | 'published' | 'archived'
+
+export interface BlogAuthor {
+  member_id: string
+  full_name: string
+  job_title?: string | null
+  profile_photo_url: string | null
+}
+
+export interface BlogCategory {
+  category_id: string
+  name: string
+  slug: string
+  color: string | null
+}
+
+export interface BlogTag {
+  tag_id: string
+  name: string
+  slug: string
+}
+
+export interface BlogArticle {
+  article_id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  content: string
+  status: BlogStatus
+  published_at: string | null
+  author_id: string | null
+  author: BlogAuthor | null
+  featured_image_url: string | null
+  featured_image_alt: string | null
+  og_image_url: string | null
+  meta_title: string | null
+  meta_description: string | null
+  canonical_url: string | null
+  is_featured: boolean
+  view_count: number
+  categories: BlogCategory[]
+  tags: BlogTag[]
+  created_at: string
+}
+
+export interface BlogArticlesResponse {
+  articles: BlogArticle[]
+  total: number
+  page: number
+  limit: number
+  hasMore: boolean
+}
+
+export interface BlogSearchParams {
+  article_id?: string
+  slug?: string
+  category_id?: string
+  tag_id?: string
+  featured?: boolean
+  limit?: number
+  page?: number
 }

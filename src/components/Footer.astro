@@ -1,23 +1,33 @@
 ---
 // ========================================
 // FOOTER COMPONENT - STRATOS BRANDED
-// Somerstone-style layout with Stratos colors
-// Primary: #3c5b4b, Secondary: #f6f4f4
+// Dynamic content from Stratos CRM brand_settings
 // ========================================
 
-interface Props {
-  companyName?: string
-  email?: string
-  phone?: string
-  address?: string
+import { fetchBrandSettings, getContactInfo, getSocialLinks } from '../lib/brand'
+import type { BrandSettings } from '../types/brand'
+
+// Fetch brand settings from Stratos CRM
+let brand: BrandSettings
+try {
+  brand = await fetchBrandSettings()
+} catch (error) {
+  console.error('[Footer] Error fetching brand settings:', error)
+  // Fallback handled by fetchBrandSettings internally
+  brand = await fetchBrandSettings()
 }
 
-const { 
-  companyName = 'Your Estate Agency',
-  email = 'hello@youragency.co.uk',
-  phone = '0412 054 507',
-  address = 'London, United Kingdom'
-} = Astro.props
+// Extract contact info and social links
+const contactInfo = getContactInfo(brand)
+const socialLinks = getSocialLinks(brand)
+
+// Check which social links are available
+const hasSocialLinks = Object.values(socialLinks).some(link => link)
+
+// Check if logo URL is valid (not a blob URL)
+const hasValidLogo = brand.logo_light_url &&
+  brand.logo_light_url.trim() !== '' &&
+  !brand.logo_light_url.startsWith('blob:')
 
 const currentYear = new Date().getFullYear()
 ---
@@ -27,12 +37,19 @@ const currentYear = new Date().getFullYear()
     <!-- Logo -->
     <div class="footer-logo-section">
       <a href="/" class="footer-logo-link" aria-label="Home">
-        <svg class="footer-logo" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-          <!-- Geometric pin/location inspired logo -->
-          <path d="M50 10 L85 35 L85 80 L50 130 L15 80 L15 35 Z" fill="currentColor" opacity="0.3"/>
-          <path d="M50 30 L70 45 L70 75 L50 95 L30 75 L30 45 Z" fill="currentColor"/>
-          <circle cx="50" cy="60" r="12" fill="#f6f4f4"/>
-        </svg>
+        {hasValidLogo ? (
+          <img
+            src={brand.logo_light_url}
+            alt={brand.business_name || 'Company Logo'}
+            class="footer-logo-img"
+          />
+        ) : (
+          <svg class="footer-logo" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 10 L85 35 L85 80 L50 130 L15 80 L15 35 Z" fill="currentColor" opacity="0.3"/>
+            <path d="M50 30 L70 45 L70 75 L50 95 L30 75 L30 45 Z" fill="currentColor"/>
+            <circle cx="50" cy="60" r="12" fill="#f6f4f4"/>
+          </svg>
+        )}
       </a>
     </div>
 
@@ -51,39 +68,65 @@ const currentYear = new Date().getFullYear()
         </nav>
       </div>
 
-      <!-- Social Column -->
-      <div class="footer-column">
-        <h3 class="footer-heading">Social</h3>
-        <nav class="footer-nav">
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="footer-link">
-            Facebook
-          </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer-link">
-            Instagram
-          </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="footer-link">
-            LinkedIn
-          </a>
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="footer-link">
-            Twitter
-          </a>
-        </nav>
-      </div>
+      <!-- Social Column (only show if social links exist) -->
+      {hasSocialLinks && (
+        <div class="footer-column">
+          <h3 class="footer-heading">Social</h3>
+          <nav class="footer-nav">
+            {socialLinks.facebook && (
+              <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" class="footer-link">
+                Facebook
+              </a>
+            )}
+            {socialLinks.instagram && (
+              <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" class="footer-link">
+                Instagram
+              </a>
+            )}
+            {socialLinks.linkedin && (
+              <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" class="footer-link">
+                LinkedIn
+              </a>
+            )}
+            {socialLinks.twitter && (
+              <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" class="footer-link">
+                Twitter
+              </a>
+            )}
+            {socialLinks.youtube && (
+              <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" class="footer-link">
+                YouTube
+              </a>
+            )}
+            {socialLinks.tiktok && (
+              <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" class="footer-link">
+                TikTok
+              </a>
+            )}
+          </nav>
+        </div>
+      )}
 
       <!-- Contact Column -->
       <div class="footer-column">
         <h3 class="footer-heading">Contact</h3>
         <div class="footer-contact">
-          <a href={`mailto:${email}`} class="footer-link">
-            {email}
-          </a>
-          <a href={`tel:${phone.replace(/\s/g, '')}`} class="footer-link">
-            {phone}
-          </a>
-          {address && (
-            <p class="footer-address">
-              {address}
-            </p>
+          {contactInfo.email && (
+            <a href={`mailto:${contactInfo.email}`} class="footer-link">
+              {contactInfo.email}
+            </a>
+          )}
+          {contactInfo.phone && (
+            <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} class="footer-link">
+              {contactInfo.phone}
+            </a>
+          )}
+          {contactInfo.addressLines.length > 0 && (
+            <div class="footer-address">
+              {contactInfo.addressLines.map((line) => (
+                <span class="footer-address-line">{line}</span>
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -93,7 +136,7 @@ const currentYear = new Date().getFullYear()
         <h3 class="footer-heading">Legal</h3>
         <nav class="footer-nav">
           <a href="/privacy-policy" class="footer-link">Privacy Policy</a>
-          <a href="/terms-conditions" class="footer-link">Terms & Conditions</a>
+          <a href="/terms-and-conditions" class="footer-link">Terms & Conditions</a>
           <a href="/cookie-policy" class="footer-link">Cookie Policy</a>
           <a href="/complaints" class="footer-link">Complaints</a>
         </nav>
@@ -102,43 +145,62 @@ const currentYear = new Date().getFullYear()
 
     <!-- Massive Brand Name -->
     <div class="footer-brand">
-      <h2 class="brand-name" aria-label={companyName}>
-        {companyName.toLowerCase()}
+      <h2 class="brand-name" aria-label={brand.business_name || 'Your Estate Agency'}>
+        {(brand.business_name || 'Your Estate Agency').toLowerCase()}
       </h2>
     </div>
 
     <!-- Copyright -->
     <div class="footer-bottom">
       <p class="footer-copyright">
-        © {currentYear} {companyName}. All rights reserved.
+        © {currentYear} {brand.business_name || 'Your Estate Agency'}. All rights reserved.
       </p>
     </div>
   </div>
 </footer>
 
-<style>
+<style lang="scss">
+  // ========================================
+  // FOOTER - DESIGN SYSTEM
+  // Clean, modern marketplace aesthetic
+  // ========================================
+
+  // Design tokens
+  $accent-coral: #FF5A5F;
+  $accent-coral-dark: #E74E52;
+  $text-primary: #1A1A1A;
+  $bg-white: #FFFFFF;
+  $bg-footer: #1A1A1A; // Dark neutral (matches Why Choose Us section)
+  $text-footer: #FFFFFF;
+  $text-footer-muted: rgba(255, 255, 255, 0.7);
+  $border-footer: rgba(255, 255, 255, 0.15);
+  $transition-fast: 150ms ease;
+  $transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  $container-max-width: 1280px;
+  $radius-md: 8px;
+
   .site-footer {
-    background: #3c5b4b;
-    color: #f6f4f4;
+    background: $bg-footer;
+    color: $text-footer;
     padding: 4rem 0 2rem;
     margin-top: auto;
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   .footer-container {
-    max-width: 1400px;
+    max-width: $container-max-width;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
   }
 
   /* Logo Section */
   .footer-logo-section {
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
   }
 
   .footer-logo-link {
     display: inline-block;
-    transition: opacity 0.3s ease;
+    transition: opacity $transition-fast;
   }
 
   .footer-logo-link:hover {
@@ -146,17 +208,25 @@ const currentYear = new Date().getFullYear()
   }
 
   .footer-logo {
-    width: 70px;
-    height: 100px;
-    color: #f6f4f4;
+    width: 60px;
+    height: 85px;
+    color: $text-footer;
+  }
+
+  .footer-logo-img {
+    max-width: 160px;
+    max-height: 60px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
   }
 
   /* Footer Content Grid */
   .footer-content {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4rem;
-    padding-bottom: 4rem;
+    gap: 3rem;
+    padding-bottom: 3rem;
   }
 
   .footer-column {
@@ -166,11 +236,11 @@ const currentYear = new Date().getFullYear()
   }
 
   .footer-heading {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(246, 244, 244, 0.7);
+    color: $text-footer-muted;
     margin: 0;
   }
 
@@ -178,70 +248,76 @@ const currentYear = new Date().getFullYear()
   .footer-nav {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.625rem;
   }
 
   .footer-link {
     font-size: 0.9375rem;
     font-weight: 500;
-    color: #f6f4f4;
+    color: $text-footer;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color $transition-fast;
     width: fit-content;
-  }
 
-  .footer-link:hover {
-    color: #ffffff;
+    &:hover {
+      color: $accent-coral;
+    }
   }
 
   /* Contact Section */
   .footer-contact {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.625rem;
   }
 
   .footer-address {
     font-size: 0.9375rem;
     font-weight: 500;
-    color: rgba(246, 244, 244, 0.9);
+    color: $text-footer-muted;
     margin: 0;
     line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .footer-address-line {
+    display: block;
   }
 
   /* Massive Brand Name */
   .footer-brand {
-    padding: 2rem 0 3rem;
+    padding: 2.5rem 0;
     overflow: hidden;
   }
 
   .brand-name {
-    font-size: clamp(3rem, 15vw, 12rem);
-    font-weight: 900;
-    line-height: 0.85;
-    color: #f6f4f4;
+    font-size: clamp(3rem, 12vw, 10rem);
+    font-weight: 800;
+    line-height: 0.9;
+    color: $text-footer;
     margin: 0;
     letter-spacing: -0.03em;
     text-transform: lowercase;
     word-break: break-word;
-    /* Initial state - hidden */
+    // Initial state - hidden
     opacity: 0;
-    transform: translateY(60px);
-    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
-                transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(50px);
+    transition: opacity 0.8s $transition-smooth,
+                transform 0.8s $transition-smooth;
   }
 
-  /* Animated state when visible */
+  // Animated state when visible
   .brand-name.animate-in {
     opacity: 1;
     transform: translateY(0);
   }
 
-  /* Alternative fade-up animation using keyframes */
   @keyframes fadeUp {
     from {
       opacity: 0;
-      transform: translateY(60px);
+      transform: translateY(50px);
     }
     to {
       opacity: 1;
@@ -250,18 +326,21 @@ const currentYear = new Date().getFullYear()
   }
 
   .brand-name.use-keyframe {
-    animation: fadeUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: fadeUp 0.8s $transition-smooth forwards;
   }
 
   /* Bottom Bar */
   .footer-bottom {
     padding-top: 2rem;
-    border-top: 1px solid rgba(246, 244, 244, 0.2);
+    border-top: 1px solid $border-footer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .footer-copyright {
     font-size: 0.875rem;
-    color: rgba(246, 244, 244, 0.7);
+    color: $text-footer-muted;
     margin: 0;
     text-align: center;
   }
@@ -270,56 +349,55 @@ const currentYear = new Date().getFullYear()
   @media (max-width: 1024px) {
     .footer-content {
       grid-template-columns: repeat(2, 1fr);
-      gap: 3rem 2rem;
+      gap: 2.5rem 2rem;
     }
 
     .brand-name {
-      font-size: clamp(2.5rem, 12vw, 10rem);
+      font-size: clamp(2.5rem, 10vw, 8rem);
     }
   }
 
   @media (max-width: 768px) {
     .site-footer {
-      padding: 3rem 0 2rem;
-    }
-
-    .footer-container {
-      padding: 0 1.5rem;
+      padding: 3rem 0 1.5rem;
     }
 
     .footer-logo-section {
-      margin-bottom: 3rem;
+      margin-bottom: 2.5rem;
     }
 
     .footer-logo {
-      width: 60px;
-      height: 86px;
+      width: 50px;
+      height: 71px;
     }
 
     .footer-content {
       grid-template-columns: 1fr;
-      gap: 2.5rem;
-      padding-bottom: 3rem;
+      gap: 2rem;
+      padding-bottom: 2.5rem;
     }
 
     .footer-brand {
-      padding: 2rem 0 2.5rem;
+      padding: 2rem 0;
     }
 
     .brand-name {
-      font-size: clamp(2rem, 12vw, 8rem);
-      line-height: 0.9;
+      font-size: clamp(2rem, 12vw, 6rem);
     }
   }
 
   @media (max-width: 480px) {
+    .footer-container {
+      padding: 0 1rem;
+    }
+
     .footer-logo {
-      width: 50px;
-      height: 72px;
+      width: 44px;
+      height: 62px;
     }
 
     .footer-heading {
-      font-size: 0.625rem;
+      font-size: 0.6875rem;
     }
 
     .footer-link,
@@ -328,7 +406,7 @@ const currentYear = new Date().getFullYear()
     }
 
     .brand-name {
-      font-size: clamp(1.75rem, 15vw, 6rem);
+      font-size: clamp(1.75rem, 14vw, 5rem);
     }
 
     .footer-copyright {
@@ -361,7 +439,6 @@ const currentYear = new Date().getFullYear()
       transition: none;
     }
 
-    /* Disable animation for users who prefer reduced motion */
     .brand-name {
       opacity: 1 !important;
       transform: none !important;

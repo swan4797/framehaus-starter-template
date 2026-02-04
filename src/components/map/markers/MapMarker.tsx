@@ -25,36 +25,48 @@ export interface MarkerOptions {
 // ----------------------------------------
 
 /**
- * Extract UK postcode from address string
+ * Generate SEO-friendly property URL
+ * Uses url_slug from API if available
  */
-export function extractPostcode(address: string): string | null {
-  const postcodeRegex = /\b([A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2})\b/i
-  const match = address.match(postcodeRegex)
-  return match ? match[1].toUpperCase() : null
-}
-
-/**
- * Generate property URL - mirrors getPropertyUrl in lib/utils.ts
- */
-export function getPropertyUrl(property: Property): string {
-  let postcode = (property as any).postcode || ''
-
-  if (!postcode && property.display_address) {
-    const extracted = extractPostcode(property.display_address)
-    if (extracted) {
-      postcode = extracted
-    }
+export function getPropertyUrl(property: Property & { url_slug?: string | null }): string {
+  // Use url_slug if available (from API)
+  if ((property as any).url_slug) {
+    return `/properties/${(property as any).url_slug}`
   }
 
-  const postcodeSlug = postcode.replace(/\s+/g, '-').toLowerCase()
-  const addressSlug = (property.display_address || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  // Fallback: generate slug client-side (for legacy data)
+  const parts: string[] = []
 
-  return postcodeSlug
-    ? `/properties/${postcodeSlug}/${addressSlug}-${property.id}`
-    : `/properties/unknown/${addressSlug}-${property.id}`
+  // Bedrooms
+  if (property.bedrooms === 0) {
+    parts.push('studio')
+  } else if (property.bedrooms && property.bedrooms > 0) {
+    parts.push(`${property.bedrooms}-bed`)
+  }
+
+  // Property type
+  if (property.property_type && property.property_type !== 'other') {
+    parts.push(property.property_type.toLowerCase().replace(/\s+/g, '-'))
+  }
+
+  // Location (extract street name from address)
+  const address = property.display_address || ''
+  if (address) {
+    const streetPart = address.split(',')[0]
+      .replace(/^(flat|unit|apartment)\s*\d+[a-z]?\s*/i, '')
+      .replace(/^\d+[a-z]?\s+/i, '')
+    const locationSlug = streetPart
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 50)
+    if (locationSlug) parts.push(locationSlug)
+  }
+
+  // Fallback if no parts
+  if (parts.length === 0) parts.push('property')
+
+  return `/properties/${parts.join('-')}`
 }
 
 /**

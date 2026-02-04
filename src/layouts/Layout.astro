@@ -4,9 +4,12 @@
 // Main layout with navigation, SEO, and footer
 // ========================================
 
-import { siteConfig, apiConfig } from '../lib/config'
+import { siteConfig } from '../lib/config'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
 import CookieConsent from '../components/CookieConsent.astro'
-import "../styles/global.css";
+import BrandProvider from '../components/BrandProvider.astro'
+
 interface Props {
   title?: string
   description?: string
@@ -14,7 +17,6 @@ interface Props {
   canonicalUrl?: string
   noIndex?: boolean
 }
-import Footer from '../components/Footer.astro'
 
 const {
   title = siteConfig.name,
@@ -56,7 +58,10 @@ const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.n
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={ogImage} />
 
-    <!-- Fonts -->
+    <!-- Brand Provider - Dynamic theming from Stratos CRM -->
+    <BrandProvider />
+
+    <!-- Fallback Inter font (brand fonts loaded by BrandProvider) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -65,176 +70,139 @@ const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.n
     />
   </head>
 
-  <body class="min-h-screen flex flex-col bg-gray-50">
-    <!-- Navigation -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo -->
-          <div class="flex-shrink-0">
-            <a href="/" class="flex items-center">
-              <span class="text-2xl font-bold text-blue-600">{siteConfig.name}</span>
-            </a>
-          </div>
-
-          <!-- Navigation Links -->
-          <div class="hidden md:flex md:space-x-8">
-            <a
-              href="/search?listing_type=sale"
-              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              For Sale
-            </a>
-            <a
-              href="/search?listing_type=let"
-              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              To Rent
-            </a>
-            <a
-              href="/valuation"
-              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              Get a Valuation
-            </a>
-            <a
-              href="/contact"
-              class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              Contact
-            </a>
-          </div>
-
-          <!-- Mobile Menu Button -->
-          <div class="md:hidden">
-            <button
-              type="button"
-              class="text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-md p-2"
-              id="mobile-menu-button"
-              aria-expanded="false"
-            >
-              <span class="sr-only">Open menu</span>
-              <svg
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                ></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div class="hidden md:hidden" id="mobile-menu">
-          <div class="px-2 pt-2 pb-3 space-y-1">
-            <a
-              href="/search?listing_type=sale"
-              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-            >
-              For Sale
-            </a>
-            <a
-              href="/search?listing_type=let"
-              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-            >
-              To Rent
-            </a>
-            <a
-              href="/valuation"
-              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-            >
-              Get a Valuation
-            </a>
-            <a
-              href="/contact"
-              class="block text-gray-700 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-            >
-              Contact
-            </a>
-          </div>
-        </div>
-      </nav>
-    </header>
+  <body class="body_wrapper">
+    <!-- Header Navigation -->
+    <Header />
 
     <!-- Main Content -->
-    <main class="flex-grow">
+    <main class="main_content">
       <slot />
     </main>
 
     <!-- Footer -->
-     <Footer />
-
-    <!-- Mobile Menu Toggle Script -->
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const button = document.getElementById('mobile-menu-button')
-        const menu = document.getElementById('mobile-menu')
-
-        if (button && menu) {
-          button.addEventListener('click', () => {
-            const isHidden = menu.classList.contains('hidden')
-            if (isHidden) {
-              menu.classList.remove('hidden')
-              button.setAttribute('aria-expanded', 'true')
-            } else {
-              menu.classList.add('hidden')
-              button.setAttribute('aria-expanded', 'false')
-            }
-          })
-        }
-      })
-    </script>
+    <Footer />
 
     <!-- Session Management -->
-    <!-- Initialize Stratos Tracker -->
+    <!-- Initialize Stratos Tracker (GDPR Compliant) -->
     <script>
-		import { StratosTracker } from '../lib/stratos-tracker';
-		import { initSession } from '../lib/session';
-		
-		// Initialize session management
-		initSession();
-		
-		// Create tracker instance
-		const tracker = new StratosTracker({
-		  apiUrl: import.meta.env.PUBLIC_SUPABASE_URL,
-		  apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY,
-		  trackingEnabled: true,
-		  debug: import.meta.env.DEV, // Debug in development only
-		});
-		window.StratosTracker = tracker;
-		// Initialize tracker
-		tracker.init();
-		// Track page view on every page
-		tracker.trackPageView();
-		// Make tracker globally available
-		
+      import { StratosTracker } from '../lib/stratos-tracker';
+      import { initSession, hasAnalyticsConsent } from '../lib/session';
 
-		console.log('Stratos Tracker initialized');
-	  </script>
+      // Create tracker instance (does NOT track yet - waits for consent)
+      const tracker = new StratosTracker({
+        apiUrl: import.meta.env.PUBLIC_SUPABASE_URL,
+        apiKey: import.meta.env.PUBLIC_WEBSITE_API_KEY,
+        trackingEnabled: true,
+        debug: import.meta.env.DEV, // Debug in development only
+      });
+
+      // Make tracker globally available
+      window.StratosTracker = tracker;
+
+      // GDPR: Only initialize if consent already given (returning visitor)
+      if (hasAnalyticsConsent()) {
+        console.log('[GDPR] Analytics consent found - initializing tracker');
+        initSession();
+        tracker.init();
+        tracker.trackPageView();
+      } else {
+        console.log('[GDPR] No analytics consent - tracker waiting for consent');
+        // Tracker will auto-initialize when consent is given via cookieConsentUpdated event
+      }
+    </script>
 
     <!-- Cookie Consent -->
     <CookieConsent />
   </body>
 </html>
 
-<style is:global>
+<style lang="scss" is:global>
+  // ========================================
+  // GLOBAL STYLES
+  // Uses token system for dynamic theming
+  // ========================================
+
+  @use '../styles/tokens' as tokens;
+
+  // ========================================
+  // GLOBAL RESETS
+  // ========================================
   * {
     box-sizing: border-box;
-
-  }
-
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
   }
 
   html {
     scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-family-body);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-base);
+    background: var(--color-bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  // ========================================
+  // LAYOUT STRUCTURE
+  // ========================================
+
+  .body_wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-primary);
+    padding-top: var(--header-height);
+
+    @media (max-width: 768px) {
+      padding-top: var(--header-height-mobile);
+    }
+  }
+
+  .main_content {
+    flex-grow: 1;
+    width: 100%;
+  }
+
+  // ========================================
+  // TYPOGRAPHY DEFAULTS
+  // ========================================
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-heading);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-primary-dark);
+    }
+  }
+
+  // ========================================
+  // FOCUS STYLES (Accessibility)
+  // ========================================
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  // ========================================
+  // SELECTION STYLES
+  // ========================================
+
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-text-light);
   }
 </style>

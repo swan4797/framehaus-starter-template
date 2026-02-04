@@ -1,0 +1,330 @@
+---
+// ========================================
+// PROPERTY SEARCH COMPONENT
+// Built on SearchBarCore for consistent behavior
+// ========================================
+//
+// This component extends SearchBarCore, providing:
+// - Custom UI/styling for property search
+// - Simplified props interface
+// - Pre-configured field options
+//
+// USAGE:
+// <PropertySearch />
+// <PropertySearch variant="card" showMaxPrice={false} />
+//
+// ========================================
+
+import SearchBarCore, { type SearchBarConfig } from './search/SearchBarCore.astro'
+
+// ----------------------------------------
+// PROPS
+// ----------------------------------------
+
+interface Props {
+  /** Search form action URL */
+  action?: string
+  /** Placeholder text for search input */
+  placeholder?: string
+  /** Layout variant: 'default' | 'card' | 'minimal' */
+  variant?: 'default' | 'card' | 'minimal'
+  /** Show listing type filter (Sale/Rent) */
+  showListingType?: boolean
+  /** Show property type filter */
+  showPropertyType?: boolean
+  /** Show max price filter */
+  showMaxPrice?: boolean
+  /** Default values */
+  defaults?: {
+    listing_type?: string
+    property_type?: string
+    max_price?: string
+  }
+}
+
+const {
+  action = '/search',
+  placeholder = 'Search for properties',
+  variant = 'default',
+  showListingType = true,
+  showPropertyType = true,
+  showMaxPrice = true,
+  defaults = {}
+} = Astro.props
+
+// ----------------------------------------
+// FILTER OPTIONS
+// ----------------------------------------
+
+const listingTypeOptions = [
+  { value: '', label: 'Buy / Rent' },
+  { value: 'sale', label: 'For Sale' },
+  { value: 'let', label: 'To Rent' },
+]
+
+const propertyTypeOptions = [
+  { value: '', label: 'Type' },
+  { value: 'house', label: 'House' },
+  { value: 'flat', label: 'Flat' },
+  { value: 'bungalow', label: 'Bungalow' },
+  { value: 'maisonette', label: 'Maisonette' },
+  { value: 'land', label: 'Land' },
+]
+
+// Sales prices: £100,000 to £2,000,000 in £100,000 increments
+const salePriceOptions = [
+  { value: '', label: 'Max Price' },
+  { value: '100000', label: '£100,000' },
+  { value: '200000', label: '£200,000' },
+  { value: '300000', label: '£300,000' },
+  { value: '400000', label: '£400,000' },
+  { value: '500000', label: '£500,000' },
+  { value: '600000', label: '£600,000' },
+  { value: '700000', label: '£700,000' },
+  { value: '800000', label: '£800,000' },
+  { value: '900000', label: '£900,000' },
+  { value: '1000000', label: '£1,000,000' },
+  { value: '1100000', label: '£1,100,000' },
+  { value: '1200000', label: '£1,200,000' },
+  { value: '1300000', label: '£1,300,000' },
+  { value: '1400000', label: '£1,400,000' },
+  { value: '1500000', label: '£1,500,000' },
+  { value: '1600000', label: '£1,600,000' },
+  { value: '1700000', label: '£1,700,000' },
+  { value: '1800000', label: '£1,800,000' },
+  { value: '1900000', label: '£1,900,000' },
+  { value: '2000000', label: '£2,000,000' },
+]
+
+// Lettings prices: £500 to £5,000 in £500 increments
+const letPriceOptions = [
+  { value: '', label: 'Max Price' },
+  { value: '500', label: '£500 pcm' },
+  { value: '1000', label: '£1,000 pcm' },
+  { value: '1500', label: '£1,500 pcm' },
+  { value: '2000', label: '£2,000 pcm' },
+  { value: '2500', label: '£2,500 pcm' },
+  { value: '3000', label: '£3,000 pcm' },
+  { value: '3500', label: '£3,500 pcm' },
+  { value: '4000', label: '£4,000 pcm' },
+  { value: '4500', label: '£4,500 pcm' },
+  { value: '5000', label: '£5,000 pcm' },
+]
+
+// Default to sale prices (will be updated dynamically via JS)
+const defaultListingType = defaults.listing_type || 'sale'
+const maxPriceOptions = defaultListingType === 'let' ? letPriceOptions : salePriceOptions
+
+// ----------------------------------------
+// SEARCH BAR CORE CONFIG
+// ----------------------------------------
+
+const searchConfig: SearchBarConfig = {
+  fields: {
+    listingType: showListingType,
+    propertyType: showPropertyType,
+    maxPrice: showMaxPrice,
+    location: true,
+  },
+  redirectUrl: action,
+  currentParams: {
+    listing_type: defaults.listing_type as 'sale' | 'let' | undefined,
+    property_type: defaults.property_type,
+    max_price: defaults.max_price ? parseInt(defaults.max_price) : undefined,
+  },
+  placeholders: {
+    location: placeholder,
+  },
+}
+
+// Variant class
+const variantClass = variant !== 'default' ? `property-search--${variant}` : ''
+
+// ----------------------------------------
+// ICONS
+// ----------------------------------------
+
+const icons = {
+  search: `<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>`,
+  book: `<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>`,
+  home: `<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+  pound: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>`,
+}
+---
+
+<SearchBarCore config={searchConfig}>
+  <section class={`property-search ${variantClass}`}>
+    <div class="property-search__container">
+      <form class="property-search__form" action={action} method="GET" data-search-form>
+        <!-- Search Input with Button -->
+        <div class="property-search__input-group">
+          <div class="property-search__input-wrapper">
+            <svg class="property-search__input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.search} />
+            <input
+              type="text"
+              name="q"
+              class="property-search__input"
+              placeholder={placeholder}
+              autocomplete="off"
+            />
+          </div>
+          <button type="submit" class="property-search__submit">
+            Search
+          </button>
+        </div>
+
+        <!-- Filter Dropdowns -->
+        <div class="property-search__filters">
+          {showListingType && (
+            <div class="property-search__filter" data-filter="listing">
+              <svg class="property-search__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.book} />
+              <span class="property-search__filter-label" data-label="listing">Buy / Rent</span>
+              <select name="listing_type" class="property-search__filter-select" data-select="listing">
+                {listingTypeOptions.map(opt => (
+                  <option value={opt.value} selected={defaults.listing_type === opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {showPropertyType && (
+            <div class="property-search__filter" data-filter="type">
+              <svg class="property-search__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.home} />
+              <span class="property-search__filter-label" data-label="type">Type</span>
+              <select name="property_type" class="property-search__filter-select" data-select="type">
+                {propertyTypeOptions.map(opt => (
+                  <option value={opt.value} selected={defaults.property_type === opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {showMaxPrice && (
+            <div class="property-search__filter" data-filter="maxprice">
+              <svg class="property-search__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.pound} />
+              <span class="property-search__filter-label" data-label="maxprice">Max Price</span>
+              <select
+                name="max_price"
+                class="property-search__filter-select"
+                data-select="maxprice"
+                data-sale-prices={JSON.stringify(salePriceOptions)}
+                data-let-prices={JSON.stringify(letPriceOptions)}
+              >
+                {maxPriceOptions.map(opt => (
+                  <option value={opt.value} selected={defaults.max_price === opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+      </form>
+    </div>
+  </section>
+</SearchBarCore>
+
+<script>
+  // ========================================
+  // PROPERTY SEARCH - CLIENT SCRIPT
+  // Filter label updates + dynamic price dropdown
+  // ========================================
+
+  interface PriceOption {
+    value: string
+    label: string
+  }
+
+  const DEFAULT_LABELS: Record<string, string> = {
+    listing: 'Buy / Rent',
+    type: 'Type',
+    maxprice: 'Max Price'
+  }
+
+  function updatePriceDropdown(listingSelect: HTMLSelectElement, priceSelect: HTMLSelectElement): void {
+    const listingType = listingSelect.value
+    const salePrices = priceSelect.dataset.salePrices
+    const letPrices = priceSelect.dataset.letPrices
+
+    if (!salePrices || !letPrices) return
+
+    const prices: PriceOption[] = listingType === 'let'
+      ? JSON.parse(letPrices)
+      : JSON.parse(salePrices)
+
+    // Store current value to check if it's still valid
+    const currentValue = priceSelect.value
+
+    // Clear and rebuild options
+    priceSelect.innerHTML = ''
+    prices.forEach(opt => {
+      const option = document.createElement('option')
+      option.value = opt.value
+      option.textContent = opt.label
+      priceSelect.appendChild(option)
+    })
+
+    // Check if current value exists in new options, otherwise reset
+    const valueExists = prices.some(opt => opt.value === currentValue)
+    if (valueExists && currentValue) {
+      priceSelect.value = currentValue
+    } else {
+      priceSelect.value = ''
+    }
+
+    // Update the label
+    const priceLabel = document.querySelector('[data-label="maxprice"]')
+    if (priceLabel) {
+      if (priceSelect.selectedIndex > 0) {
+        priceLabel.textContent = priceSelect.options[priceSelect.selectedIndex].text
+      } else {
+        priceLabel.textContent = DEFAULT_LABELS.maxprice
+      }
+    }
+  }
+
+  function initPropertySearch(): void {
+    const listingSelect = document.querySelector('[data-select="listing"]') as HTMLSelectElement | null
+    const priceSelect = document.querySelector('[data-select="maxprice"]') as HTMLSelectElement | null
+
+    // Handle listing type change -> update price dropdown
+    if (listingSelect && priceSelect) {
+      listingSelect.addEventListener('change', () => {
+        updatePriceDropdown(listingSelect, priceSelect)
+      })
+    }
+
+    // Handle all filter label updates
+    document.querySelectorAll('.property-search__filter-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement
+        const filterType = target.dataset.select
+        if (!filterType) return
+
+        const label = document.querySelector(`[data-label="${filterType}"]`)
+        if (!label) return
+
+        if (target.selectedIndex > 0) {
+          label.textContent = target.options[target.selectedIndex].text
+        } else {
+          label.textContent = DEFAULT_LABELS[filterType] || ''
+        }
+      })
+    })
+  }
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPropertySearch)
+  } else {
+    initPropertySearch()
+  }
+</script>
+
+<style lang="scss">
+  @use '../styles/components/property-search';
+</style>

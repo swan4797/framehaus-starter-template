@@ -1,0 +1,1019 @@
+// ========================================
+// MAP SEARCH STYLES
+// Coral theme styling for map search page
+// ========================================
+
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ----------------------------------------
+// CSS CUSTOM PROPERTIES
+// ----------------------------------------
+
+:root {
+  // Map accent colors (coral theme)
+  --map-accent: #{$accent-coral};
+  --map-accent-dark: #{$accent-coral-dark};
+  --map-accent-light: #{$accent-coral-light};
+  --map-accent-rgb: 255, 90, 95;
+
+  // Sidebar dimensions
+  --map-sidebar-width: 380px;
+  --map-sidebar-width-mobile: 100%;
+
+  // Transitions
+  --map-transition-fast: #{$transition-fast};
+  --map-transition-base: #{$transition-base};
+}
+
+// ----------------------------------------
+// MAIN CONTAINER
+// ----------------------------------------
+
+.map-search-page {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.map-search-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+// ----------------------------------------
+// PROPERTY LIST SIDEBAR
+// ----------------------------------------
+
+.map-sidebar {
+  width: var(--map-sidebar-width);
+  height: 100%;
+  overflow-y: auto;
+  background-color: $bg-off-white;
+  border-right: 1px solid $border-light;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+
+  @include mobile-only {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 40vh;
+    z-index: 1000;
+    border-right: none;
+    border-top: 1px solid $border-light;
+    border-radius: $radius-xl $radius-xl 0 0;
+  }
+}
+
+// Sidebar Header
+.map-sidebar__header {
+  padding: $spacing-5 $spacing-4;
+  border-bottom: 1px solid $border-light;
+  position: sticky;
+  top: 0;
+  background: $bg-white;
+  z-index: 10;
+  box-shadow: $shadow-xs;
+}
+
+.map-sidebar__title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  font-family: $font-family-heading;
+}
+
+.map-sidebar__subtitle {
+  margin: $spacing-1 0 0 0;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+// Loading State
+.map-sidebar__loading {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  color: $text-secondary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+}
+
+.map-sidebar__loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Property Cards Container
+.map-sidebar__cards {
+  padding: $spacing-4;
+  flex: 1;
+  overflow-y: auto;
+}
+
+// ----------------------------------------
+// PROPERTY CARD (Row Layout)
+// ----------------------------------------
+
+.map-property-card {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: $spacing-3;
+  border-radius: $radius-lg;
+  border: 2px solid $border-light;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  background: $bg-white;
+  transition:
+    border-color var(--map-transition-fast),
+    box-shadow var(--map-transition-fast),
+    transform var(--map-transition-fast);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--map-accent);
+    box-shadow: $shadow-card-hover;
+    transform: translateY(-1px);
+  }
+
+  &.is-hovered {
+    border-color: var(--map-accent);
+    box-shadow: 0 0 0 2px rgba(var(--map-accent-rgb), 0.2);
+  }
+
+  &.is-selected {
+    border-color: var(--map-accent);
+    box-shadow: 0 0 0 3px rgba(var(--map-accent-rgb), 0.25);
+  }
+}
+
+// Card Image
+.map-property-card__image {
+  position: relative;
+  width: 140px;
+  min-width: 140px;
+  height: 120px;
+  overflow: hidden;
+  background: $bg-light-gray;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-slow;
+  }
+
+  .map-property-card:hover & img {
+    transform: scale(1.05);
+  }
+}
+
+.map-property-card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $bg-light-gray 0%, $border-light 100%);
+  font-size: 2rem;
+}
+
+// Card Badges
+.map-property-card__badge {
+  position: absolute;
+  padding: 2px 6px;
+  border-radius: $radius-sm;
+  font-size: 9px;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+
+  &--featured {
+    top: 6px;
+    left: 6px;
+    background: var(--map-accent);
+    color: $bg-white;
+  }
+
+  &--images {
+    bottom: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: $bg-white;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: $font-weight-medium;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+}
+
+// Card Content
+.map-property-card__content {
+  padding: $spacing-3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.map-property-card__price {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin-bottom: $spacing-1;
+  font-family: $font-family-heading;
+}
+
+.map-property-card__price-suffix {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  margin-left: 2px;
+}
+
+.map-property-card__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+  margin-bottom: $spacing-2;
+}
+
+.map-property-card__detail {
+  background: $bg-light-gray;
+  padding: 2px 6px;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: $text-secondary;
+  text-transform: capitalize;
+}
+
+.map-property-card__address {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: $line-height-tight;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ----------------------------------------
+// EMPTY STATE
+// ----------------------------------------
+
+.map-empty-state {
+  text-align: center;
+  padding: $spacing-12 $spacing-6;
+  background: $bg-white;
+  border-radius: $radius-lg;
+  border: 1px solid $border-light;
+}
+
+.map-empty-state__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto $spacing-4;
+  background: $bg-light-gray;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+
+.map-empty-state__title {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.map-empty-state__text {
+  margin: $spacing-2 0 0 0;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: $line-height-base;
+}
+
+// ----------------------------------------
+// MAP VIEW CONTAINER
+// ----------------------------------------
+
+.map-view {
+  flex: 1;
+  height: 100%;
+  position: relative;
+
+  @include mobile-only {
+    height: 60vh;
+  }
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+// ----------------------------------------
+// MAP OVERLAYS
+// ----------------------------------------
+
+.map-overlay {
+  position: absolute;
+  z-index: 1000;
+
+  &--top-left {
+    top: $spacing-4;
+    left: $spacing-4;
+  }
+
+  &--top-right {
+    top: $spacing-4;
+    right: $spacing-4;
+  }
+}
+
+// Search This Area Button
+.map-search-area-btn {
+  padding: $spacing-3 $spacing-5;
+  background: var(--map-accent);
+  color: $bg-white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  box-shadow: $shadow-md;
+  transition:
+    background var(--map-transition-fast),
+    transform var(--map-transition-fast);
+  font-family: $font-family-base;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+
+  &:hover {
+    background: var(--map-accent-dark);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Loading Overlay
+.map-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+.map-loading-text {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: var(--map-accent);
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+// ----------------------------------------
+// AIRBNB-STYLE PRICE MARKERS
+// ----------------------------------------
+
+.custom-price-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.price-pin {
+  background: $bg-white;
+  color: $text-primary;
+  padding: 6px 10px;
+  border-radius: $radius-full;
+  font-size: 13px;
+  font-weight: $font-weight-bold;
+  font-family: $font-family-base;
+  white-space: nowrap;
+  box-shadow: $shadow-md;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all var(--map-transition-fast);
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  min-width: auto;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid $bg-white;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+  }
+
+  &:hover,
+  &.is-hovered {
+    background: $text-primary;
+    color: $bg-white;
+    transform: scale(1.08);
+    z-index: 9999 !important;
+    box-shadow: $shadow-lg;
+
+    &::after {
+      border-top-color: $text-primary;
+    }
+  }
+
+  &.is-selected {
+    background: var(--map-accent);
+    color: $bg-white;
+    transform: scale(1.1);
+    z-index: 9999 !important;
+    box-shadow: 0 4px 14px rgba(var(--map-accent-rgb), 0.4);
+
+    &::after {
+      border-top-color: var(--map-accent);
+    }
+  }
+
+  &.is-featured {
+    background: linear-gradient(135deg, var(--map-accent), var(--map-accent-dark));
+    color: $bg-white;
+
+    &::after {
+      border-top-color: var(--map-accent);
+    }
+  }
+}
+
+// Ensure marker is above others when hovered/selected
+.leaflet-marker-icon:has(.price-pin:hover),
+.leaflet-marker-icon:has(.price-pin.is-hovered),
+.leaflet-marker-icon:has(.price-pin.is-selected) {
+  z-index: 9999 !important;
+}
+
+// ----------------------------------------
+// CLUSTER MARKERS
+// ----------------------------------------
+
+.custom-cluster-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.cluster-marker {
+  background: var(--map-accent);
+  color: $bg-white;
+  border-radius: $radius-full;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-bold;
+  border: 3px solid $bg-white;
+  box-shadow: $shadow-md;
+  font-family: $font-family-base;
+}
+
+// ----------------------------------------
+// MAP POPUP STYLES
+// ----------------------------------------
+
+.property-popup {
+  min-width: 220px;
+  font-family: $font-family-base;
+
+  img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: $radius-md $radius-md 0 0;
+    margin: -14px -14px 12px -14px;
+    width: calc(100% + 28px);
+  }
+}
+
+.popup-content {
+  padding: 0;
+}
+
+.popup-price {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin-bottom: $spacing-1;
+}
+
+.popup-details {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin-bottom: $spacing-1;
+}
+
+.popup-address {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin-bottom: $spacing-3;
+  line-height: $line-height-base;
+}
+
+.popup-link {
+  display: inline-block;
+  color: var(--map-accent);
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  text-decoration: none;
+  transition: color var(--map-transition-fast);
+
+  &:hover {
+    color: var(--map-accent-dark);
+    text-decoration: underline;
+  }
+}
+
+// Custom Leaflet popup styling
+.leaflet-popup-content-wrapper {
+  border-radius: $radius-lg !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 14px !important;
+}
+
+// ----------------------------------------
+// BACK LINK
+// ----------------------------------------
+
+.map-back-link {
+  position: absolute;
+  top: $spacing-4;
+  left: $spacing-4;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-4;
+  background: $bg-white;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  transition:
+    background var(--map-transition-fast),
+    box-shadow var(--map-transition-fast);
+
+  &:hover {
+    background: $bg-off-white;
+    box-shadow: $shadow-lg;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// ----------------------------------------
+// FILTERS PANEL
+// ----------------------------------------
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+// Filter Toggle Button
+.map-filters-toggle {
+  position: absolute;
+  top: $spacing-4;
+  right: $spacing-4;
+  z-index: 1000;
+  padding: $spacing-3 $spacing-4;
+  background: var(--map-accent);
+  color: $bg-white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  box-shadow: $shadow-md;
+  transition: background var(--map-transition-fast);
+  font-family: $font-family-base;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+
+  &:hover {
+    background: var(--map-accent-dark);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.map-filters-toggle__badge {
+  background: $bg-white;
+  color: var(--map-accent);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}
+
+// Filter Panel Backdrop
+.map-filters-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  animation: fadeIn 0.2s ease-out;
+}
+
+// Filter Panel
+.map-filters-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 360px;
+  max-width: 90vw;
+  background: $bg-white;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+  z-index: 1002;
+  overflow-y: auto;
+  animation: slideInLeft 0.3s ease-out;
+  font-family: $font-family-base;
+  display: flex;
+  flex-direction: column;
+}
+
+// Panel Header
+.map-filters-panel__header {
+  padding: $spacing-6;
+  border-bottom: 2px solid $border-light;
+  position: sticky;
+  top: 0;
+  background: $bg-white;
+  z-index: 10;
+}
+
+.map-filters-panel__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-2;
+}
+
+.map-filters-panel__title {
+  margin: 0;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.map-filters-panel__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-1;
+  color: $text-secondary;
+  transition: color var(--map-transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.map-filters-panel__count {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+// Panel Body
+.map-filters-panel__body {
+  padding: $spacing-6;
+  flex: 1;
+  overflow-y: auto;
+}
+
+// Filter Section
+.map-filter-section {
+  margin-bottom: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.map-filter-section__label {
+  display: block;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin-bottom: $spacing-2;
+}
+
+.map-filter-section__hint {
+  margin: $spacing-2 0 0 0;
+  font-size: $font-size-xs;
+  color: $text-secondary;
+  font-style: italic;
+}
+
+// Toggle Buttons (Sale/Let)
+.map-filter-toggles {
+  display: flex;
+  gap: $spacing-2;
+}
+
+.map-filter-toggle-btn {
+  flex: 1;
+  padding: $spacing-3;
+  border: 2px solid $border-light;
+  background: $bg-white;
+  color: $text-secondary;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all var(--map-transition-fast);
+  text-transform: capitalize;
+
+  &:hover {
+    border-color: $border-medium;
+  }
+
+  &.is-active {
+    border-color: var(--map-accent);
+    background: var(--map-accent);
+    color: $bg-white;
+  }
+}
+
+// Number Grid (Bedrooms/Bathrooms)
+.map-filter-number-grid {
+  display: grid;
+  gap: $spacing-2;
+
+  &--5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  &--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.map-filter-number-btn {
+  padding: $spacing-3 $spacing-2;
+  border: 2px solid $border-light;
+  background: $bg-white;
+  color: $text-secondary;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all var(--map-transition-fast);
+
+  &:hover {
+    border-color: $border-medium;
+  }
+
+  &.is-active {
+    border-color: var(--map-accent);
+    background: var(--map-accent);
+    color: $bg-white;
+  }
+}
+
+// Price Grid
+.map-filter-price-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-3;
+}
+
+// Select Input
+.map-filter-select {
+  width: 100%;
+  padding: $spacing-3;
+  border: 2px solid $border-light;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-family: $font-family-base;
+  outline: none;
+  background: $bg-white;
+  cursor: pointer;
+  transition: border-color var(--map-transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-3 center;
+  padding-right: $spacing-10;
+
+  &:focus {
+    border-color: var(--map-accent);
+  }
+}
+
+// Text Input with Icon
+.map-filter-input-wrapper {
+  position: relative;
+}
+
+.map-filter-input {
+  width: 100%;
+  padding: $spacing-3 $spacing-10;
+  border: 2px solid $border-light;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-family: $font-family-base;
+  outline: none;
+  background: $bg-white;
+  transition: border-color var(--map-transition-fast);
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    border-color: var(--map-accent);
+  }
+}
+
+.map-filter-input-icon {
+  position: absolute;
+  left: $spacing-3;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: $text-secondary;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.map-filter-input-clear {
+  position: absolute;
+  right: $spacing-2;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-1;
+  color: $text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+  transition: all var(--map-transition-fast);
+
+  &:hover {
+    background: $bg-light-gray;
+    color: $text-primary;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// Checkbox
+.map-filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  cursor: pointer;
+
+  input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--map-accent);
+  }
+
+  span {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+}
+
+// Panel Footer
+.map-filters-panel__footer {
+  padding: $spacing-6;
+  border-top: 2px solid $border-light;
+  position: sticky;
+  bottom: 0;
+  background: $bg-white;
+  display: flex;
+  gap: $spacing-3;
+}
+
+.map-filter-btn {
+  flex: 1;
+  padding: $spacing-3;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all var(--map-transition-fast);
+  font-family: $font-family-base;
+
+  &--secondary {
+    border: 2px solid $border-light;
+    background: $bg-white;
+    color: $text-secondary;
+
+    &:hover:not(:disabled) {
+      background: $bg-light-gray;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &--primary {
+    border: none;
+    background: var(--map-accent);
+    color: $bg-white;
+
+    &:hover {
+      background: var(--map-accent-dark);
+    }
+  }
+}

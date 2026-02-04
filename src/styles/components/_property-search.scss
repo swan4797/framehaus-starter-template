@@ -1,0 +1,318 @@
+// ========================================
+// PROPERTY SEARCH COMPONENT
+// Homepage search bar with filters
+// ========================================
+
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ----------------------------------------
+// COMPONENT VARIABLES
+// ----------------------------------------
+
+$search-padding-y: $spacing-5;
+$search-padding-y-desktop: $spacing-8;
+$search-padding-x: $spacing-5;
+$search-field-bg: #FFFFFF;
+$search-field-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+$search-field-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$search-icon-color: $text-muted;
+$search-icon-size: 22px;
+
+// ----------------------------------------
+// SEARCH WRAPPER
+// ----------------------------------------
+
+.property-search {
+  padding: $spacing-8 0;
+  background: #FFFFFF;
+
+  @include md {
+    padding: $spacing-10 0;
+  }
+}
+
+.property-search__container {
+  @include container;
+}
+
+// ----------------------------------------
+// SEARCH FORM
+// ----------------------------------------
+
+.property-search__form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  @include lg {
+    flex-direction: row;
+    align-items: stretch;
+    gap: $spacing-5;
+  }
+}
+
+// ----------------------------------------
+// SEARCH INPUT GROUP (Text + Button)
+// ----------------------------------------
+
+.property-search__input-group {
+  display: flex;
+  align-items: center;
+  background: $search-field-bg;
+  border-radius: $radius-lg;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: $search-field-shadow;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  transition: box-shadow $transition-fast, border-color $transition-fast;
+
+  @include lg {
+    flex: 0 0 40%;
+    max-width: 40%;
+  }
+
+  &:hover {
+    box-shadow: $search-field-shadow-hover;
+  }
+
+  &:focus-within {
+    border-color: $accent-coral;
+    box-shadow: $search-field-shadow;
+  }
+}
+
+.property-search__input-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: $search-padding-y $spacing-4;
+
+  @include lg {
+    padding: $search-padding-y-desktop $search-padding-x;
+  }
+}
+
+.property-search__input-icon {
+  flex-shrink: 0;
+  width: $search-icon-size;
+  height: $search-icon-size;
+  color: $search-icon-color;
+  margin-right: $spacing-3;
+}
+
+.property-search__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  color: $text-primary;
+  background: transparent;
+  border: none;
+  outline: none;
+
+  @include lg {
+    font-size: $font-size-lg;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.property-search__submit {
+  flex-shrink: 0;
+  align-self: stretch;
+  margin: $spacing-2;
+  padding: $spacing-4 $spacing-6;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $bg-white;
+  background: $accent-coral;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background $transition-fast, transform $transition-fast;
+  white-space: nowrap;
+
+  @include lg {
+    margin: $spacing-3;
+    padding: $spacing-5 $spacing-8;
+    font-size: $font-size-lg;
+  }
+
+  &:hover {
+    background: $accent-coral-dark;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// ----------------------------------------
+// FILTER DROPDOWNS
+// ----------------------------------------
+
+.property-search__filters {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  @include sm {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+  }
+
+  @include lg {
+    flex: 1;
+    flex-wrap: nowrap;
+    gap: $spacing-5;
+  }
+}
+
+.property-search__filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $search-padding-y $spacing-10 $search-padding-y $search-padding-x;
+  background: $search-field-bg;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: $radius-lg;
+  box-shadow: $search-field-shadow;
+  cursor: pointer;
+  transition: box-shadow $transition-fast, border-color $transition-fast;
+  flex: 1;
+  min-width: 140px;
+
+  @include lg {
+    padding: $search-padding-y-desktop $spacing-12 $search-padding-y-desktop $search-padding-x;
+  }
+
+  // Dropdown arrow
+  &::after {
+    content: '';
+    position: absolute;
+    right: $spacing-5;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid $text-muted;
+    pointer-events: none;
+  }
+
+  &:hover {
+    box-shadow: $search-field-shadow-hover;
+  }
+
+  @include sm {
+    flex: 1 1 calc(33.333% - #{$spacing-4});
+  }
+
+  @include lg {
+    // Each dropdown ~20% of total width (3 dropdowns = 60%)
+    flex: 1 1 33.333%;
+  }
+}
+
+.property-search__filter-icon {
+  flex-shrink: 0;
+  width: $search-icon-size;
+  height: $search-icon-size;
+  color: $search-icon-color;
+
+  @include lg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.property-search__filter-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: $font-size-base;
+}
+
+.property-search__filter-label {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
+  white-space: nowrap;
+  pointer-events: none;
+
+  @include lg {
+    font-size: $font-size-lg;
+  }
+}
+
+// ----------------------------------------
+// ALTERNATIVE LAYOUT: CONTAINED CARD
+// ----------------------------------------
+
+.property-search--card {
+  background: $bg-off-white;
+  padding: $spacing-8 0;
+
+  @include md {
+    padding: $spacing-10 0;
+  }
+
+  .property-search__form {
+    background: $search-field-bg;
+    border-radius: $radius-xl;
+    padding: $spacing-5;
+    box-shadow: $shadow-lg;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+
+    @include md {
+      padding: $spacing-6;
+    }
+  }
+
+  .property-search__input-group,
+  .property-search__filter {
+    border: 1px solid $border-light;
+    box-shadow: none;
+
+    &:hover {
+      box-shadow: none;
+      border-color: $border-medium;
+    }
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px rgba($accent-coral, 0.1);
+    }
+  }
+}
+
+// ----------------------------------------
+// ALTERNATIVE LAYOUT: MINIMAL
+// ----------------------------------------
+
+.property-search--minimal {
+  padding: 0;
+  background: transparent;
+
+  .property-search__input-group,
+  .property-search__filter {
+    box-shadow: none;
+    border: 1px solid $border-light;
+
+    &:hover {
+      border-color: $border-medium;
+      box-shadow: none;
+    }
+  }
+}

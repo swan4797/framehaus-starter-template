@@ -2,6 +2,7 @@
 // ========================================
 // VIEWING REQUEST FORM COMPONENT
 // Contact form for requesting property viewings
+// Aligned with site theme and design system
 // ========================================
 
 import type { Property } from '../../types/database'
@@ -13,433 +14,264 @@ interface Props {
 const { property } = Astro.props
 ---
 
-<div class="viewing-form-container">
-  <div class="viewing-form-card">
-    <div class="form-header">
-      <svg class="form-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-      </svg>
-      <div>
-        <h3 class="form-title">Request a Viewing</h3>
-        <p class="form-subtitle">{property.display_address}</p>
+<div class="viewing-form">
+  <div class="viewing-form__card">
+    <!-- Header -->
+    <div class="viewing-form__header">
+      <div class="viewing-form__header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+          <line x1="16" x2="16" y1="2" y2="6"/>
+          <line x1="8" x2="8" y1="2" y2="6"/>
+          <line x1="3" x2="21" y1="10" y2="10"/>
+        </svg>
+      </div>
+      <div class="viewing-form__header-content">
+        <h3 class="viewing-form__title">Request a Viewing</h3>
+        <p class="viewing-form__subtitle">{property.display_address}</p>
       </div>
     </div>
 
-    <form id="viewing-form" class="viewing-form">
+    <!-- Form -->
+    <form id="viewing-form" class="viewing-form__body">
       <!-- Honeypot field for bot protection -->
       <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
 
-      <div class="form-group">
-        <label for="name" class="form-label">Full Name *</label>
-        <input 
-          type="text" 
+      <!-- Name Field -->
+      <div class="viewing-form__field">
+        <label for="name" class="viewing-form__label">
+          Full Name
+          <span class="viewing-form__required">*</span>
+        </label>
+        <input
+          type="text"
           id="name"
-          name="name" 
-          required 
-          placeholder="John Smith" 
-          class="form-input"
+          name="name"
+          required
+          placeholder="Your full name"
+          class="viewing-form__input"
         />
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="email" class="form-label">Email *</label>
-          <input 
-            type="email" 
+      <!-- Email & Phone Row -->
+      <div class="viewing-form__row">
+        <div class="viewing-form__field">
+          <label for="email" class="viewing-form__label">
+            Email
+            <span class="viewing-form__required">*</span>
+          </label>
+          <input
+            type="email"
             id="email"
-            name="email" 
-            required 
-            placeholder="john@example.com" 
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="phone" class="form-label">Phone *</label>
-          <input 
-            type="tel" 
-            id="phone"
-            name="phone" 
+            name="email"
             required
-            placeholder="07XXX XXXXXX" 
-            class="form-input"
+            placeholder="you@example.com"
+            class="viewing-form__input"
+          />
+        </div>
+
+        <div class="viewing-form__field">
+          <label for="phone" class="viewing-form__label">
+            Phone
+            <span class="viewing-form__required">*</span>
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            required
+            placeholder="07XXX XXXXXX"
+            class="viewing-form__input"
           />
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="preferred_date" class="form-label">Preferred Date</label>
-          <input 
-            type="date" 
-            id="preferred_date"
-            name="preferred_date"
-            min={new Date().toISOString().split('T')[0]}
-            class="form-input"
-          />
+      <!-- Date & Time Row -->
+      <div class="viewing-form__row">
+        <div class="viewing-form__field viewing-form__field--full">
+          <label class="viewing-form__label">Preferred Date</label>
+          <input type="hidden" id="preferred_date" name="preferred_date" value="" />
+          <div class="viewing-form__calendar" id="calendar">
+            <div class="viewing-form__calendar-header">
+              <button type="button" class="viewing-form__calendar-nav" id="prev-month" aria-label="Previous month">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <span class="viewing-form__calendar-title" id="calendar-title"></span>
+              <button type="button" class="viewing-form__calendar-nav" id="next-month" aria-label="Next month">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+            <div class="viewing-form__calendar-weekdays">
+              <span>Sun</span>
+              <span>Mon</span>
+              <span>Tue</span>
+              <span>Wed</span>
+              <span>Thu</span>
+              <span>Fri</span>
+              <span>Sat</span>
+            </div>
+            <div class="viewing-form__calendar-grid" id="calendar-grid">
+              <!-- Days will be populated by JavaScript -->
+            </div>
+            <div class="viewing-form__calendar-selected" id="calendar-selected">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <span class="viewing-form__calendar-selected-text" id="calendar-selected-text"></span>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="preferred_time" class="form-label">Preferred Time</label>
-          <select 
-            id="preferred_time"
-            name="preferred_time"
-            class="form-input"
-          >
-            <option value="">Any time</option>
-            <option value="morning">Morning (9am - 12pm)</option>
-            <option value="afternoon">Afternoon (12pm - 5pm)</option>
-            <option value="evening">Evening (5pm - 7pm)</option>
-          </select>
+        <div class="viewing-form__field">
+          <label class="viewing-form__label">Preferred Time</label>
+          <input type="hidden" id="preferred_time" name="preferred_time" value="" />
+          <div class="viewing-form__time-picker">
+            <button type="button" class="viewing-form__time-option is-selected" data-value="">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span class="viewing-form__time-label">Flexible</span>
+            </button>
+            <button type="button" class="viewing-form__time-option" data-value="morning">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2"/>
+                <path d="M12 20v2"/>
+                <path d="m4.93 4.93 1.41 1.41"/>
+                <path d="m17.66 17.66 1.41 1.41"/>
+                <path d="M2 12h2"/>
+                <path d="M20 12h2"/>
+                <path d="m6.34 17.66-1.41 1.41"/>
+                <path d="m19.07 4.93-1.41 1.41"/>
+              </svg>
+              <span class="viewing-form__time-label">Morning</span>
+              <span class="viewing-form__time-range">9am - 12pm</span>
+            </button>
+            <button type="button" class="viewing-form__time-option" data-value="afternoon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 4v2"/>
+                <path d="M12 18v2"/>
+                <path d="m6.34 6.34-1.41-1.41"/>
+                <path d="m17.66 17.66 1.41 1.41"/>
+                <path d="M4 12H2"/>
+                <path d="M22 12h-2"/>
+              </svg>
+              <span class="viewing-form__time-label">Afternoon</span>
+              <span class="viewing-form__time-range">12pm - 5pm</span>
+            </button>
+            <button type="button" class="viewing-form__time-option" data-value="evening">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+              </svg>
+              <span class="viewing-form__time-label">Evening</span>
+              <span class="viewing-form__time-range">5pm - 7pm</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="message" class="form-label">Additional Information</label>
-        <textarea 
+      <!-- Message Field -->
+      <div class="viewing-form__field">
+        <label for="message" class="viewing-form__label">Additional Information</label>
+        <textarea
           id="message"
-          name="message" 
-          placeholder="Any questions or special requirements?" 
+          name="message"
+          placeholder="Any questions or special requirements for your viewing?"
           rows="3"
-          class="form-textarea"
+          class="viewing-form__textarea"
         ></textarea>
       </div>
 
-      <div class="form-checkbox">
-        <input 
-          type="checkbox" 
+      <!-- Marketing Opt-in -->
+      <div class="viewing-form__checkbox">
+        <input
+          type="checkbox"
           id="marketing_opt_in"
           name="marketing_opt_in"
-          class="checkbox-input"
+          class="viewing-form__checkbox-input"
         />
-        <label for="marketing_opt_in" class="checkbox-label">
+        <label for="marketing_opt_in" class="viewing-form__checkbox-label">
           Keep me updated with similar properties and market news
         </label>
       </div>
 
       <input type="hidden" name="property_id" value={property.id} />
 
-      <button type="submit" class="submit-btn">
+      <!-- Submit Button -->
+      <button type="submit" class="viewing-form__submit">
         <span>Request Viewing</span>
-        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="9 11 12 14 22 4"></polyline>
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" x2="19" y1="12" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
         </svg>
       </button>
 
-      <p class="privacy-notice">
-        By submitting this form, you agree to our privacy policy. We will never share your data.
+      <!-- Privacy Notice -->
+      <p class="viewing-form__privacy">
+        By submitting, you agree to our <a href="/privacy">privacy policy</a>. We'll never share your data.
       </p>
     </form>
 
-    <div id="success-message" class="message message-success">
-      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-      </svg>
-      <div>
-        <p class="message-title">Viewing Request Received!</p>
-        <p class="message-text">We'll contact you shortly to confirm your viewing appointment.</p>
+    <!-- Success Message -->
+    <div id="success-message" class="viewing-form__message viewing-form__message--success">
+      <div class="viewing-form__message-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <div class="viewing-form__message-content">
+        <p class="viewing-form__message-title">Viewing Request Sent!</p>
+        <p class="viewing-form__message-text">We'll be in touch shortly to confirm your appointment.</p>
       </div>
     </div>
 
-    <div id="error-message" class="message message-error">
-      <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" x2="12" y1="8" y2="12"></line>
-        <line x1="12" x2="12.01" y1="16" y2="16"></line>
-      </svg>
-      <div>
-        <p class="message-title">Something went wrong</p>
-        <p class="message-text">Please try again or call us directly.</p>
+    <!-- Error Message -->
+    <div id="error-message" class="viewing-form__message viewing-form__message--error">
+      <div class="viewing-form__message-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" x2="12" y1="8" y2="12"></line>
+          <line x1="12" x2="12.01" y1="16" y2="16"></line>
+        </svg>
+      </div>
+      <div class="viewing-form__message-content">
+        <p class="viewing-form__message-title">Something went wrong</p>
+        <p class="viewing-form__message-text">Please try again or call us directly.</p>
       </div>
     </div>
   </div>
 </div>
 
-<style>
-  .viewing-form-container {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .viewing-form-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e5e7eb;
-    overflow: hidden;
-  }
-
-  .form-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.25rem 1.5rem;
-    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
-    color: #f6f4f4;
-  }
-
-  .form-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-
-  .form-title {
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.3;
-  }
-
-  .form-subtitle {
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 0.875rem;
-    margin: 0;
-    opacity: 0.9;
-    line-height: 1.4;
-  }
-
-  .viewing-form {
-    padding: 1.5rem;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-    flex: 1;
-  }
-
-  .form-row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 0;
-  }
-
-  .form-row .form-group {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .form-label {
-    display: block;
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
-  }
-
-  .form-input,
-  .form-textarea {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 0.9375rem;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    background: white;
-    color: #1f2937;
-  }
-
-  .form-input:focus,
-  .form-textarea:focus {
-    outline: none;
-    border-color: #3c5b4b;
-    box-shadow: 0 0 0 3px rgba(60, 91, 75, 0.1);
-  }
-
-  .form-input::placeholder,
-  .form-textarea::placeholder {
-    color: #9ca3af;
-  }
-
-  .form-textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .form-checkbox {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.625rem;
-    margin-bottom: 1.25rem;
-    margin-top: 1.25rem;
-  }
-
-  .checkbox-input {
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid #d1d5db;
-    border-radius: 4px;
-    cursor: pointer;
-    flex-shrink: 0;
-    margin-top: 0.125rem;
-  }
-
-  .checkbox-input:checked {
-    background: #3c5b4b;
-    border-color: #3c5b4b;
-  }
-
-  .checkbox-label {
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 0.875rem;
-    color: #6b7280;
-    line-height: 1.5;
-    cursor: pointer;
-  }
-
-  .submit-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.625rem;
-    padding: 0.875rem 1.5rem;
-    background: linear-gradient(135deg, #3c5b4b 0%, #2d4639 100%);
-    color: #f6f4f4;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .submit-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(60, 91, 75, 0.25);
-  }
-
-  .submit-btn:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  .submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .btn-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .privacy-notice {
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 0.75rem;
-    color: #9ca3af;
-    text-align: center;
-    margin-top: 1rem;
-    margin-bottom: 0;
-    line-height: 1.5;
-  }
-
-  .message {
-    display: none;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 1.25rem 1.5rem;
-    margin: 1.5rem;
-    border-radius: 8px;
-    font-family: 'Garet', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
-  .message.show {
-    display: flex;
-  }
-
-  .message-icon {
-    flex-shrink: 0;
-    margin-top: 0.125rem;
-  }
-
-  .message-title {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    margin: 0 0 0.25rem 0;
-    line-height: 1.4;
-  }
-
-  .message-text {
-    font-size: 0.875rem;
-    margin: 0;
-    line-height: 1.5;
-    opacity: 0.9;
-  }
-
-  .message-success {
-    background: #ecfdf5;
-    color: #065f46;
-    border: 1.5px solid #a7f3d0;
-  }
-
-  .message-success .message-icon {
-    color: #10b981;
-  }
-
-  .message-error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1.5px solid #fecaca;
-  }
-
-  .message-error .message-icon {
-    color: #ef4444;
-  }
-
-  @media (max-width: 640px) {
-    .viewing-form-container {
-      max-width: 100%;
-    }
-
-    .form-row {
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .form-header {
-      padding: 1rem 1.25rem;
-    }
-
-    .viewing-form {
-      padding: 1.25rem;
-    }
-
-    .form-title {
-      font-size: 1rem;
-    }
-
-    .form-subtitle {
-      font-size: 0.8125rem;
-    }
-  }
+<style lang="scss">
+  @use '../../styles/forms/viewing-request-form';
 </style>
 
 <script>
   import { getSessionId } from '../../lib/session';
-  
+
   const form = document.querySelector('#viewing-form') as HTMLFormElement;
   const successMessage = document.querySelector('#success-message') as HTMLElement;
   const errorMessage = document.querySelector('#error-message') as HTMLElement;
   const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
-  
+
   // Track when user starts filling the form
   let formStarted = false;
-  
+
   const trackFormStart = async () => {
     if (formStarted) return;
     formStarted = true;
-    
+
     const sessionId = getSessionId();
     const propertyId = (form.querySelector('[name="property_id"]') as HTMLInputElement)?.value;
-    
+
     try {
       await fetch(
         `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/track-event`,
@@ -464,41 +296,218 @@ const { property } = Astro.props
       console.error('Failed to track form start:', error);
     }
   };
-  
+
   // Add event listeners to track form interaction
   form?.querySelectorAll('input, textarea, select').forEach(element => {
     element.addEventListener('focus', trackFormStart, { once: true });
   });
-  
+
+  // Time picker functionality
+  const timeOptions = document.querySelectorAll('.viewing-form__time-option');
+  const timeInput = document.querySelector('#preferred_time') as HTMLInputElement;
+
+  timeOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      // Track form start on first interaction
+      trackFormStart();
+
+      // Remove selected class from all options
+      timeOptions.forEach(opt => opt.classList.remove('is-selected'));
+
+      // Add selected class to clicked option
+      option.classList.add('is-selected');
+
+      // Update hidden input value
+      if (timeInput) {
+        timeInput.value = (option as HTMLElement).dataset.value || '';
+      }
+    });
+  });
+
+  // Calendar functionality
+  const dateInput = document.querySelector('#preferred_date') as HTMLInputElement;
+  const calendarGrid = document.querySelector('#calendar-grid') as HTMLElement;
+  const calendarTitle = document.querySelector('#calendar-title') as HTMLElement;
+  const prevMonthBtn = document.querySelector('#prev-month') as HTMLButtonElement;
+  const nextMonthBtn = document.querySelector('#next-month') as HTMLButtonElement;
+  const calendarSelected = document.querySelector('#calendar-selected') as HTMLElement;
+  const calendarSelectedText = document.querySelector('#calendar-selected-text') as HTMLElement;
+
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+  let selectedDate: Date | null = null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const formatSelectedDate = (date: Date): string => {
+    const dayName = days[date.getDay()];
+    const dayNum = date.getDate();
+    const monthName = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${dayName}, ${dayNum} ${monthName} ${year}`;
+  };
+
+  const renderCalendar = () => {
+    if (!calendarGrid || !calendarTitle) return;
+
+    // Update title
+    calendarTitle.textContent = `${months[currentMonth]} ${currentYear}`;
+
+    // Disable prev button if current month
+    const isCurrentMonth = currentMonth === today.getMonth() && currentYear === today.getFullYear();
+    prevMonthBtn.disabled = isCurrentMonth;
+
+    // Get first day of month and number of days
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+
+    // Get day of week for first day (0 = Sunday)
+    const startDay = firstDay.getDay();
+
+    // Get days from previous month
+    const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+
+    // Clear grid
+    calendarGrid.innerHTML = '';
+
+    // Add previous month's days (visible but grayed out)
+    for (let i = startDay - 1; i >= 0; i--) {
+      const day = prevMonthLastDay - i;
+      calendarGrid.appendChild(createDayButton(day, true, true));
+    }
+
+    // Add current month's days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day);
+      const isPast = date < today;
+      const isToday = date.getTime() === today.getTime();
+      const isSelected = selectedDate && date.getTime() === selectedDate.getTime();
+
+      calendarGrid.appendChild(createDayButton(day, false, isPast, isToday, isSelected, date));
+    }
+
+    // Add next month's days to complete 6 rows (42 cells)
+    const totalDays = startDay + daysInMonth;
+    const targetCells = 42; // 6 rows × 7 columns
+    const remainingCells = targetCells - totalDays;
+    for (let day = 1; day <= remainingCells; day++) {
+      calendarGrid.appendChild(createDayButton(day, true, true));
+    }
+  };
+
+  const createDayButton = (
+    day: number,
+    isOtherMonth: boolean,
+    isDisabled: boolean,
+    isToday = false,
+    isSelected = false,
+    date?: Date
+  ): HTMLButtonElement => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'viewing-form__calendar-day';
+    btn.textContent = day.toString();
+
+    if (isOtherMonth) btn.classList.add('is-other-month');
+    if (isDisabled) btn.classList.add('is-disabled');
+    if (isToday) btn.classList.add('is-today');
+    if (isSelected) btn.classList.add('is-selected');
+
+    if (!isDisabled && !isOtherMonth && date) {
+      btn.addEventListener('click', () => {
+        trackFormStart();
+        selectDate(date);
+      });
+    }
+
+    return btn;
+  };
+
+  const selectDate = (date: Date) => {
+    selectedDate = date;
+
+    // Update hidden input
+    if (dateInput) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      dateInput.value = `${year}-${month}-${day}`;
+    }
+
+    // Show selected date confirmation
+    if (calendarSelected && calendarSelectedText) {
+      calendarSelectedText.textContent = formatSelectedDate(date);
+      calendarSelected.classList.add('is-visible');
+    }
+
+    // Re-render calendar to show selection
+    renderCalendar();
+  };
+
+  prevMonthBtn?.addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar();
+  });
+
+  nextMonthBtn?.addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendar();
+  });
+
+  // Initial render
+  renderCalendar();
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     if (!submitButton) return;
-    
+
     const formData = new FormData(e.target as HTMLFormElement);
     const sessionId = getSessionId();
     const propertyId = formData.get('property_id') as string;
-    
+
     // Show loading state
     submitButton.disabled = true;
     const originalContent = submitButton.innerHTML;
-    submitButton.innerHTML = '<span>Sending...</span>';
-    
+    submitButton.innerHTML = `
+      <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+      <span>Sending...</span>
+    `;
+
     try {
       // Build message with viewing preferences
       let message = formData.get('message') as string || '';
       const preferredDate = formData.get('preferred_date') as string;
       const preferredTime = formData.get('preferred_time') as string;
-      
+
       if (preferredDate || preferredTime) {
         const preferences = [];
         if (preferredDate) {
           const date = new Date(preferredDate);
-          preferences.push(`Preferred date: ${date.toLocaleDateString('en-GB', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+          preferences.push(`Preferred date: ${date.toLocaleDateString('en-GB', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
           })}`);
         }
         if (preferredTime) {
@@ -509,11 +518,11 @@ const { property } = Astro.props
           };
           preferences.push(`Preferred time: ${timeLabels[preferredTime] || preferredTime}`);
         }
-        
+
         const preferencesText = preferences.join('\n');
         message = message ? `${preferencesText}\n\nAdditional information:\n${message}` : preferencesText;
       }
-      
+
       const response = await fetch(
         `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/submit-enquiry`,
         {
@@ -535,14 +544,14 @@ const { property } = Astro.props
           }),
         }
       );
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         // Hide form and show success message
         form.style.display = 'none';
         successMessage.classList.add('show');
-        
+
         // Track successful submission
         try {
           await fetch(
@@ -569,18 +578,13 @@ const { property } = Astro.props
         } catch (trackError) {
           console.error('Failed to track submission:', trackError);
         }
-        
-        // Optional: Redirect to thank you page after delay
-        // setTimeout(() => {
-        //   window.location.href = '/thank-you';
-        // }, 3000);
       } else {
         throw new Error(result.message || 'Submission failed');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
       errorMessage.classList.add('show');
-      
+
       // Hide error message after 5 seconds
       setTimeout(() => {
         errorMessage.classList.remove('show');
@@ -591,3 +595,15 @@ const { property } = Astro.props
     }
   });
 </script>
+
+<style is:global>
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+</style>

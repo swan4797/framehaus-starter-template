@@ -1,0 +1,27 @@
+// ========================================
+// SEARCH BAR STYLES
+// Main entry point for search component styles
+// ========================================
+//
+// USAGE:
+// @use 'styles/components/search' in your Astro component
+//
+// THEMING:
+// Override CSS custom properties in _variables.scss
+// or in your theme's stylesheet
+//
+// STRUCTURE:
+// - _variables.scss : CSS custom properties for theming
+// - _base.scss      : Core structural styles
+// - _fields.scss    : Form field styles
+// - _variants.scss  : Layout variant styles
+//
+// ========================================
+
+// CSS Custom Properties (must be first)
+@use 'variables';
+
+// Core styles
+@use 'base';
+@use 'fields';
+@use 'variants';

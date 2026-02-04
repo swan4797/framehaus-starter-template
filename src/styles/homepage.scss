@@ -1,0 +1,828 @@
+// ========================================
+// HOMEPAGE STYLES
+// Clean, modern marketplace aesthetic
+// ========================================
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ----------------------------------------
+// HERO SECTION
+// Split layout: Text + CTA | Image Grid
+// ----------------------------------------
+
+.hero {
+  background: $bg-white;
+  padding: $spacing-12 0 $spacing-16;
+
+  @include md {
+    padding: $spacing-16 0 $spacing-20;
+  }
+
+  &__container {
+    @include container;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-10;
+    align-items: center;
+
+    @include lg {
+      grid-template-columns: 1fr 1.2fr;
+      gap: $spacing-12;
+    }
+  }
+
+  &__content {
+    text-align: center;
+
+    @include lg {
+      text-align: left;
+      padding-right: $spacing-8;
+    }
+  }
+
+  &__headline {
+    @include heading-xl;
+    margin-bottom: $spacing-5;
+  }
+
+  &__description {
+    @include body-lg;
+    margin-bottom: $spacing-8;
+    max-width: 480px;
+
+    @include lg {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  &__cta {
+    @include btn-primary;
+    padding: $spacing-4 $spacing-8;
+    font-size: $font-size-lg;
+    border-radius: $radius-md;
+  }
+
+  // Image Grid (2x2)
+  &__images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-4;
+
+    @include sm {
+      gap: $spacing-5;
+    }
+  }
+
+  &__image-item {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    background: $bg-light-gray;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform $transition-slow;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// ----------------------------------------
+// SEARCH BAR
+// Horizontal filter bar with accent CTA
+// ----------------------------------------
+
+.search-bar {
+  background: $bg-off-white;
+  padding: $spacing-8 0;
+  border-top: 1px solid $border-light;
+  border-bottom: 1px solid $border-light;
+
+  &__container {
+    @include container;
+  }
+
+  &__wrapper {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: $spacing-5;
+    box-shadow: $shadow-md;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-4;
+
+    @include md {
+      grid-template-columns: 2fr repeat(2, 1fr) auto;
+      padding: $spacing-5 $spacing-6;
+    }
+
+    @include lg {
+      grid-template-columns: 2fr repeat(3, 1fr) auto;
+    }
+  }
+
+  &__input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: $spacing-4;
+    width: 20px;
+    height: 20px;
+    color: $text-muted;
+    pointer-events: none;
+  }
+
+  &__input {
+    @include input-base;
+    padding-left: $spacing-12;
+  }
+
+  &__select {
+    @include input-base;
+    padding-right: $spacing-10;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right $spacing-3 center;
+  }
+
+  &__submit {
+    @include btn-primary;
+    padding: $spacing-4 $spacing-8;
+    border-radius: $radius-md;
+
+    @include mobile-only {
+      width: 100%;
+    }
+  }
+}
+
+// ----------------------------------------
+// PROPERTY SECTIONS
+// Featured, For Sale, To Rent
+// ----------------------------------------
+
+.property-section {
+  @include section-padding;
+  background: $bg-white;
+
+  &--alt {
+    background: $bg-off-white;
+  }
+
+  &__container {
+    @include container;
+  }
+
+  &__header {
+    @include flex-between;
+    margin-bottom: $spacing-10;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+  }
+
+  &__title-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    @include heading-lg;
+    margin-bottom: $spacing-2;
+  }
+
+  &__subtitle {
+    @include body-base;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $accent-coral;
+    text-decoration: none;
+    transition: gap $transition-fast;
+
+    &:hover {
+      gap: $spacing-3;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      transition: transform $transition-fast;
+    }
+
+    &:hover svg {
+      transform: translateX(4px);
+    }
+  }
+
+  &__grid {
+    @include property-grid;
+  }
+
+  &__mobile-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: $spacing-10;
+
+    @include md {
+      display: none;
+    }
+  }
+}
+
+// ----------------------------------------
+// PROPERTY CARD (Refined)
+// ----------------------------------------
+
+.property-card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  // Image
+  &__image-wrapper {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: $bg-light-gray;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-slow;
+
+    .property-card:hover & {
+      transform: scale(1.05);
+    }
+  }
+
+  // Favourite Button
+  &__favourite {
+    position: absolute;
+    top: $spacing-3;
+    right: $spacing-3;
+    z-index: 10;
+  }
+
+  // Badges
+  &__badges {
+    position: absolute;
+    bottom: $spacing-3;
+    left: $spacing-3;
+    display: flex;
+    gap: $spacing-2;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+    padding: $spacing-1 $spacing-3;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    border-radius: $radius-sm;
+    backdrop-filter: blur(8px);
+  }
+
+  &__badge--type {
+    background: rgba(0, 0, 0, 0.7);
+    color: $bg-white;
+  }
+
+  &__badge--featured {
+    background: $accent-coral;
+    color: $bg-white;
+  }
+
+  // Content
+  &__content {
+    padding: $spacing-5;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    flex: 1;
+  }
+
+  // Price
+  &__price {
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-1;
+  }
+
+  &__price-value {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    letter-spacing: -0.02em;
+  }
+
+  &__price-suffix {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+  }
+
+  // Address
+  &__address {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin: 0;
+    @include truncate;
+    transition: color $transition-fast;
+
+    .property-card:hover & {
+      color: $accent-coral;
+    }
+  }
+
+  // Property Type
+  &__type {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  // Features
+  &__features {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-4 0;
+    border-top: 1px solid $border-light;
+    border-bottom: 1px solid $border-light;
+  }
+
+  &__feature {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      color: $text-muted;
+    }
+  }
+
+  // Summary
+  &__summary {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    line-height: $line-height-relaxed;
+    margin: 0;
+    @include line-clamp(2);
+  }
+
+  // Footer
+  &__footer {
+    @include flex-between;
+    padding-top: $spacing-3;
+    margin-top: auto;
+  }
+
+  &__date {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: $font-size-xs;
+    color: $text-muted;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__view-link {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $accent-coral;
+    transition: gap $transition-fast;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      transition: transform $transition-fast;
+    }
+
+    .property-card:hover & {
+      gap: $spacing-2;
+
+      svg {
+        transform: translateX(3px);
+      }
+    }
+  }
+}
+
+// ----------------------------------------
+// WHY CHOOSE US SECTION
+// ----------------------------------------
+
+.why-us {
+  @include section-padding;
+  background: $text-primary;
+  color: $bg-white;
+
+  &__container {
+    @include container;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-12;
+  }
+
+  &__title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-semibold;
+    margin-bottom: $spacing-4;
+    color: $bg-white;
+
+    @include md {
+      font-size: $font-size-4xl;
+    }
+  }
+
+  &__subtitle {
+    font-size: $font-size-xl;
+    color: rgba($bg-white, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+
+    @include md {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include lg {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  &__item {
+    text-align: center;
+  }
+
+  &__icon {
+    @include flex-center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto $spacing-4;
+    border-radius: $radius-xl;
+    background: linear-gradient(135deg, $accent-coral, $accent-coral-dark);
+
+    svg {
+      width: 32px;
+      height: 32px;
+      color: $bg-white;
+    }
+  }
+
+  &__item-title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    margin-bottom: $spacing-2;
+    color: $bg-white;
+  }
+
+  &__item-desc {
+    font-size: $font-size-base;
+    color: rgba($bg-white, 0.7);
+    line-height: $line-height-relaxed;
+  }
+}
+
+// ----------------------------------------
+// ABOUT SECTION
+// ----------------------------------------
+
+.about-section {
+  @include section-padding;
+  background: $bg-white;
+
+  &__container {
+    @include container;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-12;
+    align-items: center;
+
+    @include lg {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__content {
+    // Text content
+  }
+
+  &__title {
+    @include heading-lg;
+    margin-bottom: $spacing-6;
+  }
+
+  &__text {
+    @include body-lg;
+    margin-bottom: $spacing-8;
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-6;
+    margin-bottom: $spacing-8;
+  }
+
+  &__stat {
+    padding-left: $spacing-4;
+    border-left: 4px solid $accent-coral;
+  }
+
+  &__stat-value {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin-bottom: $spacing-1;
+  }
+
+  &__stat-label {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $accent-coral;
+    text-decoration: none;
+
+    &:hover {
+      gap: $spacing-3;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      transition: transform $transition-fast;
+    }
+
+    &:hover svg {
+      transform: translateX(4px);
+    }
+  }
+
+  &__image-wrapper {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -24px;
+      right: -24px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba($accent-coral, 0.1);
+      z-index: -1;
+    }
+  }
+
+  &__image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-lg;
+  }
+}
+
+// ----------------------------------------
+// CTA BANNER
+// Valuation / Contact CTA
+// ----------------------------------------
+
+.cta-banner {
+  @include section-padding;
+  position: relative;
+  background: linear-gradient(135deg, $accent-coral 0%, $accent-coral-dark 50%, $text-primary 100%);
+  color: $bg-white;
+  overflow: hidden;
+
+  // Pattern overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  &__container {
+    @include container;
+    position: relative;
+    text-align: center;
+  }
+
+  &__icon {
+    @include flex-center;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto $spacing-6;
+    border-radius: 50%;
+    background: rgba($bg-white, 0.1);
+    backdrop-filter: blur(8px);
+
+    svg {
+      width: 40px;
+      height: 40px;
+      color: $bg-white;
+    }
+  }
+
+  &__title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-semibold;
+    margin-bottom: $spacing-4;
+
+    @include md {
+      font-size: $font-size-5xl;
+    }
+  }
+
+  &__subtitle {
+    font-size: $font-size-xl;
+    margin-bottom: $spacing-2;
+    opacity: 0.95;
+
+    @include md {
+      font-size: $font-size-2xl;
+    }
+  }
+
+  &__text {
+    font-size: $font-size-lg;
+    opacity: 0.85;
+    margin-bottom: $spacing-8;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    justify-content: center;
+    margin-bottom: $spacing-8;
+
+    @include sm {
+      flex-direction: row;
+    }
+  }
+
+  &__btn-primary {
+    @include btn-base;
+    background: $bg-white;
+    color: $accent-coral;
+    padding: $spacing-4 $spacing-8;
+    font-size: $font-size-lg;
+    box-shadow: $shadow-lg;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &__btn-secondary {
+    @include btn-base;
+    background: rgba($bg-white, 0.1);
+    color: $bg-white;
+    border: 2px solid rgba($bg-white, 0.3);
+    padding: $spacing-4 $spacing-8;
+    font-size: $font-size-lg;
+
+    &:hover {
+      background: rgba($bg-white, 0.2);
+      border-color: rgba($bg-white, 0.5);
+    }
+  }
+
+  &__trust {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: $spacing-6;
+    font-size: $font-size-sm;
+    opacity: 0.85;
+  }
+
+  &__trust-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      opacity: 0.9;
+    }
+  }
+}
+
+// ----------------------------------------
+// NEWSLETTER SECTION
+// ----------------------------------------
+
+.newsletter {
+  @include section-padding-sm;
+  background: $bg-off-white;
+
+  &__container {
+    @include container;
+    max-width: 640px;
+    text-align: center;
+  }
+
+  &__title {
+    @include heading-md;
+    margin-bottom: $spacing-4;
+  }
+
+  &__text {
+    @include body-base;
+    margin-bottom: $spacing-8;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+
+    @include sm {
+      flex-direction: row;
+    }
+  }
+
+  &__input {
+    @include input-base;
+    flex: 1;
+  }
+
+  &__submit {
+    @include btn-primary;
+    padding: $spacing-4 $spacing-8;
+  }
+
+  &__disclaimer {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin-top: $spacing-4;
+  }
+}

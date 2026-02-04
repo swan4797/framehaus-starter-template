@@ -103,21 +103,80 @@ export function slugify(text: string): string {
 }
 
 /**
- * Generate property URL
- * Format: /properties/[postcode]/[address-slug]-[id]
+ * Extract location slug from address
+ * Strips unit/flat numbers and extracts street name
  */
-export function getPropertyUrl(property: Property): string {
-  const postcode = property.postcode.replace(/\s+/g, '-').toLowerCase()
-  const addressSlug = slugify(property.display_address)
-  return `/properties/${postcode}/${addressSlug}-${property.id}`
+function extractLocationSlug(address: string | null | undefined): string {
+  if (!address) return ''
+
+  // Get the first part before comma (street address)
+  const streetPart = address.split(',')[0].trim()
+
+  // Remove flat/unit/apartment prefixes with numbers
+  const cleanStreet = streetPart
+    .replace(/^(flat|unit|apartment)\s*\d+[a-z]?\s*/i, '')
+    .replace(/^\d+[a-z]?\s+/i, '')  // Remove leading house numbers
+
+  // Slugify and limit length
+  return slugify(cleanStreet).substring(0, 50)
 }
 
 /**
- * Extract property ID from URL
- * Handles format: /properties/[postcode]/[address-slug]-[id]
+ * Generate property URL
+ * SEO-friendly format: /properties/{slug}
+ * Example: /properties/3-bed-semi-detached-baker-street
  */
-export function extractPropertyIdFromUrl(pathname: string): string | null {
-  const match = pathname.match(/\/properties\/[^\/]+\/[^\/]+-([a-f0-9-]{36})$/i)
+export function getPropertyUrl(property: Property & { url_slug?: string | null }): string {
+  // Use url_slug if available (from API)
+  if (property.url_slug) {
+    return `/properties/${property.url_slug}`
+  }
+
+  // Fallback: generate slug client-side (for legacy data without url_slug)
+  const parts: string[] = []
+
+  // 1. Bedrooms component
+  if (property.bedrooms === 0) {
+    parts.push('studio')
+  } else if (property.bedrooms && property.bedrooms > 0) {
+    parts.push(`${property.bedrooms}-bed`)
+  }
+
+  // 2. Property type component
+  if (property.property_type && property.property_type !== 'other') {
+    parts.push(property.property_type.toLowerCase().replace(/\s+/g, '-'))
+  }
+
+  // 3. Location component (street name from address)
+  const location = extractLocationSlug(property.display_address)
+  if (location) {
+    parts.push(location)
+  }
+
+  // Fallback if no parts
+  if (parts.length === 0) {
+    parts.push('property')
+  }
+
+  return `/properties/${parts.join('-')}`
+}
+
+/**
+ * Extract property slug from URL
+ * Handles SEO format: /properties/{slug}
+ * Returns the slug (everything after /properties/)
+ */
+export function extractPropertySlugFromUrl(pathname: string): string | null {
+  const match = pathname.match(/\/properties\/([^\/]+)$/)
+  return match ? match[1] : null
+}
+
+/**
+ * Extract full property ID from old URL format (for redirects)
+ * Handles old format: /properties/[postcode]/[address-slug]-[full-uuid]
+ */
+export function extractFullPropertyIdFromUrl(pathname: string): string | null {
+  const match = pathname.match(/-([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i)
   return match ? match[1] : null
 }
 

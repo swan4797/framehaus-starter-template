@@ -1,0 +1,189 @@
+// ========================================
+// SEARCH BAR VARIANT STYLES
+// Layout variants for different contexts
+// ========================================
+
+@use '../../variables' as *;
+@use '../../mixins' as *;
+
+// ----------------------------------------
+// VARIANT: SIDEBAR
+// Full-featured search for search pages
+// ----------------------------------------
+
+.search-bar--sidebar .search-bar__form {
+  background: var(--search-bar-bg);
+  padding: var(--search-bar-padding);
+  border-radius: var(--search-bar-radius);
+  box-shadow: var(--search-bar-shadow);
+  border: 1px solid var(--search-bar-border);
+
+  @include mobile-only {
+    padding: var(--search-bar-padding-mobile);
+  }
+}
+
+// ----------------------------------------
+// VARIANT: HERO
+// Compact horizontal layout for homepages
+// ----------------------------------------
+
+.search-bar--hero .search-bar__form {
+  background: var(--search-bar-bg);
+  padding: $spacing-3;
+  border-radius: $radius-2xl;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.search-bar--hero .search-bar__main-fields {
+  @include md {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: $spacing-3;
+  }
+
+  @include lg {
+    grid-template-columns: 2fr 1fr 1fr auto;
+  }
+}
+
+.search-bar--hero .search-bar__label {
+  display: none;
+}
+
+.search-bar--hero .search-bar__input,
+.search-bar--hero .search-bar__select {
+  height: 56px;
+  font-size: $font-size-base;
+}
+
+.search-bar--hero .search-bar__btn {
+  height: 56px;
+  font-size: $font-size-base;
+}
+
+.search-bar--hero .search-bar__field-row {
+  @include md {
+    grid-template-columns: 1fr;
+    gap: $spacing-3;
+  }
+}
+
+.search-bar--hero .search-bar__actions {
+  padding-top: 0;
+
+  @include md {
+    flex-direction: row;
+  }
+}
+
+// Hero responsive stacking
+@include mobile-only {
+  .search-bar--hero .search-bar__main-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ----------------------------------------
+// VARIANT: COMPACT
+// Smaller version for widgets/cards
+// ----------------------------------------
+
+.search-bar--compact .search-bar__form {
+  background: var(--search-bar-bg);
+  padding: $spacing-4;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+}
+
+.search-bar--compact .search-bar__main-fields {
+  gap: $spacing-3;
+
+  @include sm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+.search-bar--compact .search-bar__input,
+.search-bar--compact .search-bar__select {
+  height: 44px;
+  font-size: $font-size-sm;
+}
+
+.search-bar--compact .search-bar__btn {
+  padding: $spacing-3 $spacing-5;
+}
+
+.search-bar--compact .search-bar__actions {
+  padding-top: $spacing-1;
+}
+
+// ----------------------------------------
+// VARIANT: INLINE
+// No container styling, inherits parent
+// ----------------------------------------
+
+.search-bar--inline .search-bar__form {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.search-bar--inline .search-bar__actions {
+  flex-direction: column;
+}
+
+// ----------------------------------------
+// VARIANT: MINIMAL
+// Very simple, just fields
+// ----------------------------------------
+
+.search-bar--minimal .search-bar__form {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  gap: $spacing-3;
+}
+
+.search-bar--minimal .search-bar__toggle-group {
+  margin-bottom: 0;
+}
+
+.search-bar--minimal .search-bar__actions {
+  padding-top: 0;
+}
+
+// ----------------------------------------
+// VARIANT: FLOATING
+// For overlaying on hero images
+// ----------------------------------------
+
+.search-bar--floating .search-bar__form {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: $spacing-6;
+  border-radius: $radius-2xl;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+// ----------------------------------------
+// VARIANT: CARD
+// For use inside card components
+// ----------------------------------------
+
+.search-bar--card .search-bar__form {
+  background: $bg-off-white;
+  padding: $spacing-5;
+  border-radius: $radius-lg;
+  border: 1px solid $border-light;
+}
+
+.search-bar--card .search-bar__input,
+.search-bar--card .search-bar__select {
+  background: $bg-white;
+}

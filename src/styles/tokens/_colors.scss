@@ -1,0 +1,54 @@
+// ========================================
+// COLOR TOKENS
+// Dynamic colors via CSS custom properties
+// Connected to Stratos CRM brand settings
+// ========================================
+//
+// IMPORTANT: CSS custom properties are set dynamically
+// by BrandProvider.astro based on the agency's brand
+// settings in Stratos CRM. Do NOT hardcode :root values here.
+//
+// USAGE:
+// color: var(--color-primary);
+// background: var(--color-bg-primary);
+//
+// For rgba() usage with dynamic colors:
+// background: rgba(var(--color-primary-rgb), 0.5);
+//
+// ========================================
+
+// ----------------------------------------
+// SCSS VARIABLES
+// Reference CSS custom properties set by BrandProvider
+// ----------------------------------------
+
+// Brand Colors
+$color-primary: var(--color-primary);
+$color-primary-dark: var(--color-primary-dark);
+$color-primary-light: var(--color-primary-light);
+$color-secondary: var(--color-secondary);
+$color-accent: var(--color-accent);
+
+// Text Colors
+$color-text-primary: var(--color-text-primary);
+$color-text-secondary: var(--color-text-secondary);
+$color-text-muted: var(--color-text-muted);
+$color-text-light: var(--color-text-light);
+
+// Background Colors
+$color-bg-primary: var(--color-bg-primary);
+$color-bg-secondary: var(--color-bg-secondary);
+$color-bg-tertiary: var(--color-bg-tertiary);
+$color-bg-dark: var(--color-bg-dark);
+
+// Border Colors
+$color-border-light: var(--color-border-light);
+$color-border-medium: var(--color-border-medium);
+$color-border-dark: var(--color-border-dark);
+
+// State Colors
+$color-success: var(--color-success);
+$color-warning: var(--color-warning);
+$color-error: var(--color-error);
+$color-info: var(--color-info);
+

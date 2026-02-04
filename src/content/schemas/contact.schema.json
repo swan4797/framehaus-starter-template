@@ -1,0 +1,127 @@
+{
+  "pageSlug": "contact",
+  "displayName": "Contact",
+  "description": "Contact information and form settings",
+  "icon": "Mail",
+  "sections": [
+    {
+      "id": "hero",
+      "name": "Page Hero",
+      "fields": [
+        {
+          "id": "hero_title",
+          "type": "text",
+          "label": "Page Title",
+          "required": true,
+          "default": "Contact Us"
+        },
+        {
+          "id": "hero_subtitle",
+          "type": "text",
+          "label": "Subtitle"
+        }
+      ]
+    },
+    {
+      "id": "contact_info",
+      "name": "Contact Information",
+      "description": "Office details and contact methods",
+      "fields": [
+        {
+          "id": "address",
+          "type": "richtext",
+          "label": "Office Address"
+        },
+        {
+          "id": "phone",
+          "type": "text",
+          "label": "Phone Number"
+        },
+        {
+          "id": "email",
+          "type": "text",
+          "label": "Email Address"
+        },
+        {
+          "id": "opening_hours",
+          "type": "richtext",
+          "label": "Opening Hours"
+        },
+        {
+          "id": "map_embed",
+          "type": "text",
+          "label": "Google Maps Embed URL",
+          "description": "Paste the embed URL from Google Maps"
+        }
+      ]
+    },
+    {
+      "id": "form_settings",
+      "name": "Contact Form",
+      "description": "Form text and settings",
+      "fields": [
+        {
+          "id": "form_title",
+          "type": "text",
+          "label": "Form Title",
+          "default": "Get in Touch"
+        },
+        {
+          "id": "form_description",
+          "type": "text",
+          "label": "Form Description"
+        },
+        {
+          "id": "submit_button_text",
+          "type": "text",
+          "label": "Submit Button Text",
+          "default": "Send Message"
+        },
+        {
+          "id": "success_message",
+          "type": "richtext",
+          "label": "Success Message",
+          "default": "Thank you for your message. We'll be in touch soon."
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "name": "Social Media",
+      "description": "Social media links",
+      "collapsed": true,
+      "fields": [
+        {
+          "id": "social_links",
+          "type": "repeater",
+          "label": "Social Links",
+          "itemSchema": {
+            "fields": [
+              {
+                "id": "platform",
+                "type": "select",
+                "label": "Platform",
+                "options": [
+                  { "value": "facebook", "label": "Facebook" },
+                  { "value": "instagram", "label": "Instagram" },
+                  { "value": "twitter", "label": "Twitter/X" },
+                  { "value": "linkedin", "label": "LinkedIn" },
+                  { "value": "youtube", "label": "YouTube" },
+                  { "value": "tiktok", "label": "TikTok" }
+                ],
+                "required": true
+              },
+              {
+                "id": "url",
+                "type": "text",
+                "label": "Profile URL",
+                "required": true
+              }
+            ]
+          },
+          "validation": { "maxItems": 6 }
+        }
+      ]
+    }
+  ]
+}

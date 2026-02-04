@@ -1,0 +1,58 @@
+---
+// ========================================
+// BRAND PROVIDER
+// Injects dynamic brand styles from Stratos CRM
+// ========================================
+//
+// This component fetches brand settings and injects
+// CSS custom properties into :root, connecting
+// Stratos CRM branding to the site's token system.
+//
+// USAGE:
+// Include in Layout.astro <head> section:
+// <BrandProvider />
+//
+// ========================================
+
+import { fetchBrandSettings, generateCssVariables, getGoogleFontsUrl, getDefaultBrandSettings } from '../lib/brand'
+
+// Fetch brand settings from Stratos API
+let brand = getDefaultBrandSettings()
+let googleFontsUrl = ''
+
+try {
+  brand = await fetchBrandSettings()
+  googleFontsUrl = getGoogleFontsUrl(brand)
+} catch (error) {
+  console.error('[BrandProvider] Error fetching brand settings:', error)
+}
+
+// Generate CSS variables
+const cssVariables = generateCssVariables(brand)
+---
+
+<!-- Google Fonts (if custom fonts configured) -->
+{googleFontsUrl && (
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href={googleFontsUrl} rel="stylesheet" />
+)}
+
+<!-- Brand CSS Custom Properties -->
+<style is:global set:html={`:root { ${cssVariables} }`}></style>
+
+<!-- Favicon (if configured) -->
+{brand.favicon_url && (
+  <link rel="icon" type="image/x-icon" href={brand.favicon_url} />
+)}
+
+<!-- SEO Meta Tags (if configured) -->
+{brand.meta_description && (
+  <meta name="description" content={brand.meta_description} />
+)}
+{brand.og_title && (
+  <meta property="og:title" content={brand.og_title} />
+)}
+{brand.business_name && (
+  <meta property="og:site_name" content={brand.business_name} />
+)}

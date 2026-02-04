@@ -1,0 +1,187 @@
+{
+  "pageSlug": "about",
+  "displayName": "About Us",
+  "description": "Company information and team",
+  "icon": "Users",
+  "sections": [
+    {
+      "id": "hero",
+      "name": "Page Hero",
+      "fields": [
+        {
+          "id": "hero_title",
+          "type": "text",
+          "label": "Page Title",
+          "required": true,
+          "default": "About Us"
+        },
+        {
+          "id": "hero_subtitle",
+          "type": "text",
+          "label": "Subtitle"
+        },
+        {
+          "id": "hero_image",
+          "type": "image",
+          "label": "Hero Image"
+        }
+      ]
+    },
+    {
+      "id": "story",
+      "name": "Our Story",
+      "description": "Company history and mission",
+      "fields": [
+        {
+          "id": "story_title",
+          "type": "text",
+          "label": "Section Title",
+          "default": "Our Story"
+        },
+        {
+          "id": "story_content",
+          "type": "richtext",
+          "label": "Content",
+          "description": "Tell your company's story"
+        },
+        {
+          "id": "story_image",
+          "type": "image",
+          "label": "Image"
+        }
+      ]
+    },
+    {
+      "id": "values",
+      "name": "Our Values",
+      "description": "Company values and principles",
+      "fields": [
+        {
+          "id": "values_title",
+          "type": "text",
+          "label": "Section Title",
+          "default": "Our Values"
+        },
+        {
+          "id": "values_list",
+          "type": "repeater",
+          "label": "Values",
+          "itemSchema": {
+            "fields": [
+              {
+                "id": "title",
+                "type": "text",
+                "label": "Value Title",
+                "required": true
+              },
+              {
+                "id": "description",
+                "type": "richtext",
+                "label": "Description"
+              },
+              {
+                "id": "icon",
+                "type": "text",
+                "label": "Icon Name"
+              }
+            ]
+          },
+          "validation": { "minItems": 1, "maxItems": 6 }
+        }
+      ]
+    },
+    {
+      "id": "team",
+      "name": "Team",
+      "description": "Team members",
+      "collapsed": true,
+      "fields": [
+        {
+          "id": "team_title",
+          "type": "text",
+          "label": "Section Title",
+          "default": "Meet the Team"
+        },
+        {
+          "id": "team_description",
+          "type": "text",
+          "label": "Section Description"
+        },
+        {
+          "id": "team_members",
+          "type": "repeater",
+          "label": "Team Members",
+          "itemSchema": {
+            "fields": [
+              {
+                "id": "name",
+                "type": "text",
+                "label": "Name",
+                "required": true
+              },
+              {
+                "id": "role",
+                "type": "text",
+                "label": "Role/Title",
+                "required": true
+              },
+              {
+                "id": "bio",
+                "type": "richtext",
+                "label": "Bio"
+              },
+              {
+                "id": "photo",
+                "type": "image",
+                "label": "Photo"
+              },
+              {
+                "id": "email",
+                "type": "text",
+                "label": "Email"
+              },
+              {
+                "id": "phone",
+                "type": "text",
+                "label": "Phone"
+              }
+            ]
+          },
+          "validation": { "maxItems": 20 }
+        }
+      ]
+    },
+    {
+      "id": "stats",
+      "name": "Statistics",
+      "description": "Company achievements",
+      "collapsed": true,
+      "fields": [
+        {
+          "id": "stats_list",
+          "type": "repeater",
+          "label": "Stats",
+          "itemSchema": {
+            "fields": [
+              {
+                "id": "value",
+                "type": "text",
+                "label": "Value",
+                "placeholder": "e.g., 500+",
+                "required": true
+              },
+              {
+                "id": "label",
+                "type": "text",
+                "label": "Label",
+                "placeholder": "e.g., Properties Sold",
+                "required": true
+              }
+            ]
+          },
+          "validation": { "maxItems": 4 }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,409 @@
+---
+// ========================================
+// ABOUT PAGE - DYNAMIC CONTENT
+// Fetches content from Stratos CRM Page Content feature
+// Falls back to defaults if content unavailable
+// ========================================
+
+import Layout from '../layouts/Layout.astro'
+import { fetchBrandSettings, getContactInfo } from '../lib/brand'
+import {
+  getPageContent,
+  getAllSections,
+  getSectionTitle,
+  getSectionContent,
+  getSectionImage,
+  hasSection,
+  type PageContent,
+  type ContentBlock,
+} from '../lib/pages'
+
+// ========================================
+// FETCH DATA
+// ========================================
+
+// Fetch brand settings
+const brand = await fetchBrandSettings(true)
+const contact = getContactInfo(brand)
+
+// Fetch page content from Stratos CRM
+const pageContent = await getPageContent('about')
+
+// Extract hero data with fallbacks - using page title and main content
+const heroTitle = pageContent?.page_title || 'About Us'
+const heroSubtitle = 'Your trusted partner in property'
+const heroImage = pageContent?.hero_image_url ? {
+  url: pageContent.hero_image_url,
+  alt: pageContent.hero_image_alt || heroTitle
+} : null
+const heroCTA = { label: 'View Properties', url: '/properties' }
+
+// ========================================
+// SPECIFIC SECTION BLOCK KEYS
+// These match the block_keys from Stratos CRM
+// ========================================
+
+// Our Story section (block_key: our_story)
+const ourStoryTitle = getSectionTitle(pageContent, 'our_story', 'Our Story')
+const ourStoryContent = getSectionContent(pageContent, 'our_story', '<p>What started as a small family business has grown into a thriving agency with a reputation for excellence.</p>')
+const ourStoryImage = getSectionImage(pageContent, 'our_story')
+
+// Our Values section (block_key: our_values)
+const ourValuesTitle = getSectionTitle(pageContent, 'our_values', 'Our Values')
+const ourValuesContent = getSectionContent(pageContent, 'our_values', '<ul><li><strong>Integrity:</strong> We always do what\'s right for our clients.</li><li><strong>Excellence:</strong> We strive for the highest standards.</li></ul>')
+const ourValuesImage = getSectionImage(pageContent, 'our_values')
+
+// Meet The Team section (block_key: meet_the_team)
+const meetTeamTitle = getSectionTitle(pageContent, 'meet_the_team', 'Meet The Team')
+const meetTeamContent = getSectionContent(pageContent, 'meet_the_team', '<p>Our experienced team brings together decades of local property knowledge.</p>')
+const meetTeamImage = getSectionImage(pageContent, 'meet_the_team')
+
+// Check which sections exist in CRM
+const hasOurStory = hasSection(pageContent, 'our_story')
+const hasOurValues = hasSection(pageContent, 'our_values')
+const hasMeetTeam = hasSection(pageContent, 'meet_the_team')
+
+// Get all content sections from the CRM (for any additional dynamic sections)
+const allSections = getAllSections(pageContent)
+const knownBlockKeys = ['our_story', 'our_values', 'meet_the_team']
+const additionalSections = allSections.filter(s => !knownBlockKeys.includes(s.block_key))
+
+// Check if we have content
+const hasHeroImage = !!heroImage?.url
+const hasContent = allSections.length > 0
+
+// Page meta
+const pageTitle = 'About Us'
+const pageDescription = heroSubtitle || 'Learn more about our team and our commitment to helping you find your perfect property.'
+
+// Partner/Affiliation names - UK estate agent industry
+const partners = [
+  { name: 'Rightmove' },
+  { name: 'Zoopla' },
+  { name: 'OnTheMarket' },
+  { name: 'Propertymark' },
+  { name: 'RICS' },
+  { name: 'TPO' },
+  { name: 'TDS' }
+]
+
+// Testimonial (static for now - could be dynamic later)
+const testimonial = {
+  quote: "Working with this team was an absolute pleasure. They understood exactly what we were looking for and found us our dream home within weeks. Their local knowledge and dedication made all the difference.",
+  author: "Sarah & James Mitchell",
+  role: "Happy Homeowners",
+  avatars: [
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face'
+  ]
+}
+
+// Debug: Log content status (remove in production)
+console.log('[About Page] Content fetched:', pageContent ? 'Yes' : 'No (using defaults)')
+console.log('[About Page] Sections count:', allSections.length)
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <div class="static-page">
+
+    <!-- Hero Section - Dynamic from Stratos -->
+    <section class="hero">
+      <div class="hero__container">
+        <div class="hero__left">
+          <h1 class="hero__title">
+            {heroTitle.split(' ').length > 3 ? (
+              <>
+                <span class="hero__title-line">{heroTitle.split(' ').slice(0, Math.ceil(heroTitle.split(' ').length / 2)).join(' ')}</span>
+                <span class="hero__title-line">{heroTitle.split(' ').slice(Math.ceil(heroTitle.split(' ').length / 2)).join(' ')} <span class="hero__title-accent">/</span></span>
+              </>
+            ) : (
+              <span class="hero__title-line">{heroTitle} <span class="hero__title-accent">/</span></span>
+            )}
+          </h1>
+        </div>
+        <div class="hero__right">
+          <p class="hero__tagline">
+            {heroSubtitle || brand.tagline || 'Your trusted partner in property, delivering exceptional service since day one.'}
+          </p>
+          {heroCTA && (
+            <a href={heroCTA.url} class="hero__btn">
+              {heroCTA.label}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" x2="19" y1="12" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Hero Image - if provided from Stratos */}
+      {hasHeroImage && heroImage && (
+        <div class="hero__image-container">
+          <img
+            src={heroImage.url}
+            alt={heroImage.alt || heroTitle}
+            class="hero__image"
+            loading="lazy"
+          />
+        </div>
+      )}
+    </section>
+
+    <!-- Showcase Section (Static design element) -->
+    <section class="showcase">
+      <div class="showcase__container">
+        <div class="showcase__card showcase__card--primary">
+          <div class="showcase__card-content">
+            <div class="showcase__card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <h2 class="showcase__card-title">Complete Property Services</h2>
+            <p class="showcase__card-text">From finding your dream home to selling your property, we handle every step of your journey with care and expertise.</p>
+            <div class="showcase__features">
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Sales & Lettings
+              </div>
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Property Management
+              </div>
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Free Valuations
+              </div>
+            </div>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop"
+            alt="Property services"
+            class="showcase__card-image"
+          />
+        </div>
+
+        <div class="showcase__card showcase__card--secondary">
+          <div class="showcase__card-content">
+            <h3 class="showcase__card-subtitle">Local Expertise</h3>
+            <p class="showcase__card-text">Deep knowledge of the local market means we find opportunities others miss.</p>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&h=500&fit=crop"
+            alt="Local expertise"
+            class="showcase__card-image showcase__card-image--tall"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section class="partners">
+      <div class="partners__container">
+        <p class="partners__label">Proudly affiliated with</p>
+        <div class="partners__carousel">
+          <div class="partners__track">
+            {/* Render 4 sets of logos for seamless infinite scroll */}
+            {[...Array(4)].map((_, setIndex) => (
+              partners.map((partner, i) => (
+                <div class="partners__logo-wrapper" aria-hidden={setIndex > 0 ? "true" : undefined}>
+                  <span class="partners__logo-text">{partner.name}</span>
+                </div>
+              ))
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Sections from Stratos CRM -->
+    <section class="content">
+      <div class="content__container">
+
+        <!-- OUR STORY Section (block_key: our_story) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">Our Story</span>
+            <h2 class="content__title">{ourStoryTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            <div class="content__text" set:html={ourStoryContent} />
+            {ourStoryImage?.url && (
+              <img
+                src={ourStoryImage.url}
+                alt={ourStoryImage.alt || 'Our Story'}
+                class="content__image"
+                loading="lazy"
+              />
+            )}
+          </div>
+        </div>
+
+        <!-- OUR VALUES Section (block_key: our_values) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">Our Values</span>
+            <h2 class="content__title">{ourValuesTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            <div class="content__text" set:html={ourValuesContent} />
+            {ourValuesImage?.url && (
+              <img
+                src={ourValuesImage.url}
+                alt={ourValuesImage.alt || 'Our Values'}
+                class="content__image"
+                loading="lazy"
+              />
+            )}
+          </div>
+        </div>
+
+        <!-- MEET THE TEAM Section (block_key: meet_the_team) -->
+        <div class="content__row content__row--cta">
+          <div class="content__left">
+            <span class="content__label">The Team</span>
+            <h2 class="content__title">{meetTeamTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            <div class="content__text" set:html={meetTeamContent} />
+            {meetTeamImage?.url && (
+              <img
+                src={meetTeamImage.url}
+                alt={meetTeamImage.alt || 'Meet The Team'}
+                class="content__image"
+                loading="lazy"
+              />
+            )}
+            <a href="/contact" class="content__btn content__btn--primary">
+              Get in Touch
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" x2="19" y1="12" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Additional dynamic sections from CRM (beyond the known block keys) -->
+        {additionalSections.map((block: ContentBlock) => (
+          <div class="content__row">
+            <div class="content__left">
+              <span class="content__label">{block.block_key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+              {block.section?.title && (
+                <h2 class="content__title">{block.section.title}</h2>
+              )}
+            </div>
+            <div class="content__divider"></div>
+            <div class="content__right">
+              {block.section?.content && (
+                <div class="content__text" set:html={block.section.content} />
+              )}
+              {block.section?.image?.url && (
+                <img
+                  src={block.section.image.url}
+                  alt={block.section.image.alt || block.block_key}
+                  class="content__image"
+                  loading="lazy"
+                />
+              )}
+            </div>
+          </div>
+        ))}
+
+      </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="testimonial">
+      <div class="testimonial__container">
+        <div class="testimonial__left">
+          <div class="testimonial__avatars">
+            {testimonial.avatars.map((avatar, index) => (
+              <img
+                src={avatar}
+                alt="Happy client"
+                class="testimonial__avatar"
+                style={`z-index: ${testimonial.avatars.length - index};`}
+                loading="lazy"
+              />
+            ))}
+          </div>
+        </div>
+        <div class="testimonial__right">
+          <blockquote class="testimonial__quote">
+            "{testimonial.quote}"
+          </blockquote>
+          <div class="testimonial__author">
+            <span class="testimonial__author-name">{testimonial.author}</span>
+            <span class="testimonial__author-role">{testimonial.role}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+      <div class="cta__container">
+        <h2 class="cta__title">Ready to find your perfect property?</h2>
+        <p class="cta__text">
+          Whether you're buying, selling, or renting, we're here to help every step of the way.
+        </p>
+        <div class="cta__actions">
+          <a href="/contact" class="cta__btn cta__btn--primary">
+            Get Started
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" x2="19" y1="12" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a href="/valuation" class="cta__btn cta__btn--secondary">
+            Free Valuation
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Debug info (remove in production) -->
+    {import.meta.env.DEV && (
+      <div class="debug-info">
+        <details>
+          <summary>Page Content Debug</summary>
+          <pre>{JSON.stringify({
+            hasContent: !!pageContent,
+            heroTitle,
+            blocks: {
+              our_story: hasOurStory ? ourStoryTitle : '(fallback)',
+              our_values: hasOurValues ? ourValuesTitle : '(fallback)',
+              meet_the_team: hasMeetTeam ? meetTeamTitle : '(fallback)',
+            },
+            additionalSections: additionalSections.map((b: ContentBlock) => b.block_key),
+            totalSections: allSections.length
+          }, null, 2)}</pre>
+        </details>
+      </div>
+    )}
+
+  </div>
+</Layout>
+
+<style lang="scss">
+  @use './static-template.scss';
+</style>

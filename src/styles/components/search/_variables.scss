@@ -1,0 +1,107 @@
+// ========================================
+// SEARCH BAR CSS CUSTOM PROPERTIES
+// Theme-able variables for search components
+// ========================================
+
+@use '../../variables' as *;
+
+// ----------------------------------------
+// CSS CUSTOM PROPERTIES
+// Override these in your theme to customize
+// ----------------------------------------
+
+:root {
+  // Container
+  --search-bar-bg: #{$bg-white};
+  --search-bar-border: #{$border-light};
+  --search-bar-radius: #{$radius-xl};
+  --search-bar-shadow: #{$shadow-sm};
+  --search-bar-padding: #{$spacing-6};
+  --search-bar-padding-mobile: #{$spacing-5};
+  --search-bar-gap: #{$spacing-5};
+
+  // Fields
+  --search-field-bg: #{$bg-off-white};
+  --search-field-bg-hover: #{$bg-light-gray};
+  --search-field-bg-focus: #{$bg-white};
+  --search-field-border: #{$border-light};
+  --search-field-border-hover: #{$border-medium};
+  --search-field-border-focus: var(--color-primary);
+  --search-field-radius: #{$radius-md};
+  --search-field-height: 48px;
+  --search-field-padding-x: #{$spacing-4};
+  --search-field-padding-y: #{$spacing-3};
+
+  // Typography
+  --search-label-color: #{$text-primary};
+  --search-label-size: #{$font-size-sm};
+  --search-label-weight: #{$font-weight-semibold};
+  --search-input-color: #{$text-primary};
+  --search-input-size: #{$font-size-sm};
+  --search-placeholder-color: #{$text-muted};
+
+  // Icons
+  --search-icon-color: #{$text-muted};
+  --search-icon-size: 16px;
+
+  // Toggle (Buy/Rent)
+  --search-toggle-bg: #{$bg-light-gray};
+  --search-toggle-radius: #{$radius-lg};
+  --search-toggle-padding: #{$spacing-2};
+  --search-toggle-item-bg: transparent;
+  --search-toggle-item-bg-active: #{$bg-white};
+  --search-toggle-item-color: #{$text-secondary};
+  --search-toggle-item-color-active: var(--color-primary);
+  --search-toggle-item-shadow: #{$shadow-xs};
+
+  // Advanced Toggle
+  --search-advanced-bg: #{$bg-white};
+  --search-advanced-border: #{$border-light};
+  --search-advanced-color: var(--color-primary);
+  --search-advanced-radius: #{$radius-lg};
+
+  // Checkboxes
+  --search-checkbox-bg: #{$bg-white};
+  --search-checkbox-border: #{$border-medium};
+  --search-checkbox-border-checked: var(--color-primary);
+  --search-checkbox-bg-checked: var(--color-primary);
+  --search-checkbox-radius: #{$radius-sm};
+  --search-checkbox-size: 20px;
+
+  // Primary Button
+  --search-btn-primary-bg: var(--color-primary);
+  --search-btn-primary-bg-hover: var(--color-primary-dark);
+  --search-btn-primary-color: var(--color-text-light);
+  --search-btn-primary-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.3);
+
+  // Secondary Button
+  --search-btn-secondary-bg: #{$bg-white};
+  --search-btn-secondary-border: #{$border-light};
+  --search-btn-secondary-color: #{$text-secondary};
+  --search-btn-secondary-bg-hover: #{$bg-off-white};
+  --search-btn-secondary-color-hover: #{$text-primary};
+
+  // Button shared
+  --search-btn-radius: #{$radius-lg};
+  --search-btn-padding-x: #{$spacing-6};
+  --search-btn-padding-y: #{$spacing-4};
+  --search-btn-font-size: #{$font-size-sm};
+  --search-btn-font-weight: #{$font-weight-semibold};
+
+  // Transitions
+  --search-transition-fast: #{$transition-fast};
+  --search-transition-base: #{$transition-base};
+
+  // Focus ring
+  --search-focus-ring-color: rgba(var(--color-primary-rgb), 0.1);
+  --search-focus-ring-width: 3px;
+}
+
+// ----------------------------------------
+// DARK THEME OVERRIDES
+// ----------------------------------------
+
+.search-bar--dark {
+  --search-bar-bg: rgba(255, 255, 255, 0.98);
+  --search-field-bg: rgba(249, 250, 251, 0.95);
+}

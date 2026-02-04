@@ -1,0 +1,266 @@
+---
+// ========================================
+// BUYERS PAGE
+// Services page for property buyers
+// Dynamic content from Stratos CRM
+// ========================================
+
+import Layout from '../layouts/Layout.astro'
+import { fetchBrandSettings, getContactInfo } from '../lib/brand'
+
+// Page content utilities
+import {
+  getPageContent,
+  getSectionTitle,
+  getSectionContent,
+  getSectionImage,
+  hasSection,
+} from '../lib/pages'
+
+const pageTitle = 'Buying a Property'
+const pageDescription = 'Find your perfect home with our expert guidance. We make buying a property simple and stress-free.'
+
+// Fetch brand settings
+const brand = await fetchBrandSettings(true)
+const contact = getContactInfo(brand)
+
+// Fetch buyers page content from Stratos CRM
+const pageContent = await getPageContent('buyers')
+
+// ========================================
+// SPECIFIC SECTION BLOCK KEYS
+// These match the block_keys from Stratos CRM
+// ========================================
+
+// Buyer Services section (block_key: buyer_services)
+const buyerServicesTitle = getSectionTitle(pageContent, 'buyer_services', 'How We Help Buyers')
+const buyerServicesContent = getSectionContent(pageContent, 'buyer_services', '<p>As your local property experts, we can help you find the right home.</p>')
+const buyerServicesImage = getSectionImage(pageContent, 'buyer_services')
+
+// Buying Process section (block_key: buying_process)
+const buyingProcessTitle = getSectionTitle(pageContent, 'buying_process', 'The Buying Process')
+const buyingProcessContent = getSectionContent(pageContent, 'buying_process', '')
+const buyingProcessImage = getSectionImage(pageContent, 'buying_process')
+
+// First Time Buyers section (block_key: first_time_buyers)
+const firstTimeBuyersTitle = getSectionTitle(pageContent, 'first_time_buyers', 'First Time Buyers')
+const firstTimeBuyersContent = getSectionContent(pageContent, 'first_time_buyers', '<p>Buying your first home? We understand it can feel overwhelming. Our team specializes in helping first-time buyers.</p>')
+const firstTimeBuyersImage = getSectionImage(pageContent, 'first_time_buyers')
+
+// Check which sections exist in CRM
+const hasBuyerServices = hasSection(pageContent, 'buyer_services')
+const hasBuyingProcess = hasSection(pageContent, 'buying_process')
+const hasFirstTimeBuyers = hasSection(pageContent, 'first_time_buyers')
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <div class="static-page">
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero__container">
+        <div class="hero__left">
+          <span class="hero__label">For Buyers</span>
+          <h1 class="hero__title">
+            <span class="hero__title-line">Find your perfect</span>
+            <span class="hero__title-line"><span class="hero__title-accent">home</span> with us</span>
+          </h1>
+        </div>
+        <div class="hero__right">
+          <p class="hero__tagline">
+            Whether you're a first-time buyer or looking for your forever home, we'll guide you through every step of the journey.
+          </p>
+          <a href="/search?listing_type=sale" class="hero__btn">
+            Browse Properties
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" x2="19" y1="12" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section class="showcase">
+      <div class="showcase__container">
+        <div class="showcase__card showcase__card--blue">
+          <div class="showcase__card-content">
+            <div class="showcase__card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <h2 class="showcase__card-title">Find Your Dream Home</h2>
+            <p class="showcase__card-text">We'll match you with properties that fit your lifestyle, budget, and aspirations.</p>
+            <div class="showcase__features">
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Personalised Search
+              </div>
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Local Area Expertise
+              </div>
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                First-Time Buyer Support
+              </div>
+            </div>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600&h=400&fit=crop"
+            alt="Dream home"
+            class="showcase__card-image"
+          />
+        </div>
+
+        <div class="showcase__card showcase__card--amber">
+          <div class="showcase__card-content">
+            <h3 class="showcase__card-subtitle">Expert Guidance</h3>
+            <p class="showcase__card-text">From your first viewing to picking up your keys, we're with you every step of the journey.</p>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=400&h=500&fit=crop"
+            alt="Happy buyers"
+            class="showcase__card-image showcase__card-image--tall"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content">
+      <div class="content__container">
+
+        <!-- Row 1: Buyer Services (block_key: buyer_services) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">Our Services</span>
+            <h2 class="content__title">{buyerServicesTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            {hasBuyerServices && buyerServicesContent ? (
+              <div class="content__text" set:html={buyerServicesContent} />
+            ) : (
+              <>
+                <p class="content__text">
+                  Finding the right property can feel overwhelming, but it doesn't have to be. We take the time to understand exactly what you're looking for — your must-haves, your nice-to-haves, and your budget — so we can focus on properties that truly match your needs.
+                </p>
+                <p class="content__text">
+                  With our deep local knowledge, we can tell you about the neighbourhood, schools, transport links, and all the little details that make a house a home.
+                </p>
+              </>
+            )}
+            {buyerServicesImage?.url && (
+              <img src={buyerServicesImage.url} alt={buyerServicesImage.alt || 'Buyer Services'} class="content__image" loading="lazy" />
+            )}
+          </div>
+        </div>
+
+        <!-- Row 2: Buying Process (block_key: buying_process) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">The Process</span>
+            <h2 class="content__title">{buyingProcessTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            {hasBuyingProcess && buyingProcessContent ? (
+              <div class="content__text" set:html={buyingProcessContent} />
+            ) : (
+              <>
+                <p class="content__text">
+                  From your first viewing to picking up your keys, we're with you every step of the way. Our team provides guidance and support throughout the entire buying process.
+                </p>
+                <ul class="content__list">
+                  <li>Personalised property matching</li>
+                  <li>Flexible viewing arrangements</li>
+                  <li>Expert negotiation on your behalf</li>
+                  <li>Mortgage broker introductions</li>
+                  <li>Solicitor recommendations</li>
+                  <li>Regular progress updates</li>
+                </ul>
+              </>
+            )}
+            {buyingProcessImage?.url && (
+              <img src={buyingProcessImage.url} alt={buyingProcessImage.alt || 'Buying Process'} class="content__image" loading="lazy" />
+            )}
+          </div>
+        </div>
+
+        <!-- Row 3: First Time Buyers (block_key: first_time_buyers) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">First-Time Buyers</span>
+            <h2 class="content__title">{firstTimeBuyersTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            {hasFirstTimeBuyers && firstTimeBuyersContent ? (
+              <div class="content__text" set:html={firstTimeBuyersContent} />
+            ) : (
+              <>
+                <p class="content__text">
+                  Buying your first home is exciting but can also feel daunting. We specialise in helping first-time buyers navigate the process with confidence, explaining everything in plain English and ensuring you feel comfortable at every stage.
+                </p>
+                <p class="content__text">
+                  We can also advise on government schemes like Help to Buy and Shared Ownership that might help you get onto the property ladder sooner.
+                </p>
+              </>
+            )}
+            {firstTimeBuyersImage?.url && (
+              <img src={firstTimeBuyersImage.url} alt={firstTimeBuyersImage.alt || 'First Time Buyers'} class="content__image" loading="lazy" />
+            )}
+          </div>
+        </div>
+
+        <!-- Row 4: CTA -->
+        <div class="content__row content__row--cta">
+          <div class="content__left">
+            <span class="content__label">Get Started</span>
+            <h2 class="content__title">Ready to find your new home?</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            <p class="content__text">
+              Register with us today and be the first to hear about properties that match your criteria. Our team is ready to help you find your perfect home.
+            </p>
+            <div class="content__actions">
+              <a href="/search?listing_type=sale" class="content__btn content__btn--primary">
+                Search Properties
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" x2="19" y1="12" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+              <a href="/contact" class="content__btn content__btn--secondary">
+                Register Interest
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</Layout>
+
+<style lang="scss">
+  @use './static-template.scss';
+</style>

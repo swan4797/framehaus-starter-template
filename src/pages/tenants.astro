@@ -1,0 +1,266 @@
+---
+// ========================================
+// TENANTS PAGE
+// Services page for property tenants
+// Dynamic content from Stratos CRM
+// ========================================
+
+import Layout from '../layouts/Layout.astro'
+import { fetchBrandSettings, getContactInfo } from '../lib/brand'
+
+// Page content utilities
+import {
+  getPageContent,
+  getSectionTitle,
+  getSectionContent,
+  getSectionImage,
+  hasSection,
+} from '../lib/pages'
+
+const pageTitle = 'Renting a Property'
+const pageDescription = 'Find your perfect rental home with our expert help. Quality properties and excellent tenant support.'
+
+// Fetch brand settings
+const brand = await fetchBrandSettings(true)
+const contact = getContactInfo(brand)
+
+// Fetch tenants page content from Stratos CRM
+const pageContent = await getPageContent('tenants')
+
+// ========================================
+// SPECIFIC SECTION BLOCK KEYS
+// These match the block_keys from Stratos CRM
+// ========================================
+
+// How To Rent section (block_key: how_to_rent)
+const howToRentTitle = getSectionTitle(pageContent, 'how_to_rent', 'How To Rent')
+const howToRentContent = getSectionContent(pageContent, 'how_to_rent', '')
+const howToRentImage = getSectionImage(pageContent, 'how_to_rent')
+
+// What You Need section (block_key: what_you_need)
+const whatYouNeedTitle = getSectionTitle(pageContent, 'what_you_need', "What You'll Need")
+const whatYouNeedContent = getSectionContent(pageContent, 'what_you_need', '')
+const whatYouNeedImage = getSectionImage(pageContent, 'what_you_need')
+
+// Tenant FAQs section (block_key: tenant_faqs)
+const tenantFaqsTitle = getSectionTitle(pageContent, 'tenant_faqs', 'Frequently Asked Questions')
+const tenantFaqsContent = getSectionContent(pageContent, 'tenant_faqs', '')
+const tenantFaqsImage = getSectionImage(pageContent, 'tenant_faqs')
+
+// Check which sections exist in CRM
+const hasHowToRent = hasSection(pageContent, 'how_to_rent')
+const hasWhatYouNeed = hasSection(pageContent, 'what_you_need')
+const hasTenantFaqs = hasSection(pageContent, 'tenant_faqs')
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <div class="static-page">
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero__container">
+        <div class="hero__left">
+          <span class="hero__label">For Tenants</span>
+          <h1 class="hero__title">
+            <span class="hero__title-line">Find your next</span>
+            <span class="hero__title-line"><span class="hero__title-accent">rental</span> home</span>
+          </h1>
+        </div>
+        <div class="hero__right">
+          <p class="hero__tagline">
+            Discover quality rental properties and enjoy excellent support throughout your tenancy.
+          </p>
+          <a href="/search?listing_type=let" class="hero__btn">
+            Browse Rentals
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" x2="19" y1="12" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section class="showcase">
+      <div class="showcase__container">
+        <div class="showcase__card showcase__card--blue">
+          <div class="showcase__card-content">
+            <div class="showcase__card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+                <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              </svg>
+            </div>
+            <h2 class="showcase__card-title">Quality Rental Homes</h2>
+            <p class="showcase__card-text">Browse verified properties that meet our high standards for comfort and condition.</p>
+            <div class="showcase__features">
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Verified Properties
+              </div>
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Clear, Upfront Costs
+              </div>
+              <div class="showcase__feature">
+                <span class="showcase__feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                Fast Applications
+              </div>
+            </div>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop"
+            alt="Modern rental apartment"
+            class="showcase__card-image"
+          />
+        </div>
+
+        <div class="showcase__card showcase__card--amber">
+          <div class="showcase__card-content">
+            <h3 class="showcase__card-subtitle">Tenant Support</h3>
+            <p class="showcase__card-text">Dedicated support throughout your tenancy with quick responses to any queries or maintenance needs.</p>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=500&fit=crop"
+            alt="Happy tenants"
+            class="showcase__card-image showcase__card-image--tall"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content">
+      <div class="content__container">
+
+        <!-- Row 1: How To Rent (block_key: how_to_rent) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">How To Rent</span>
+            <h2 class="content__title">{howToRentTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            {hasHowToRent && howToRentContent ? (
+              <div class="content__text" set:html={howToRentContent} />
+            ) : (
+              <>
+                <p class="content__text">
+                  Looking for a rental property should be an exciting experience, not a stressful one. We make the process straightforward, with clear information about every property and a simple, transparent application process.
+                </p>
+                <p class="content__text">
+                  Once you've found your home, our dedicated team is here to support you throughout your tenancy, responding quickly to any queries or maintenance issues.
+                </p>
+              </>
+            )}
+            {howToRentImage?.url && (
+              <img src={howToRentImage.url} alt={howToRentImage.alt || 'How To Rent'} class="content__image" loading="lazy" />
+            )}
+          </div>
+        </div>
+
+        <!-- Row 2: What You Need (block_key: what_you_need) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">What You Need</span>
+            <h2 class="content__title">{whatYouNeedTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            {hasWhatYouNeed && whatYouNeedContent ? (
+              <div class="content__text" set:html={whatYouNeedContent} />
+            ) : (
+              <>
+                <p class="content__text">
+                  All our rental properties meet high standards, and we ensure everything is in order before you move in. Here's what you can expect when renting through us.
+                </p>
+                <ul class="content__list">
+                  <li>Verified, quality properties</li>
+                  <li>Flexible viewing times</li>
+                  <li>Clear, upfront costs</li>
+                  <li>Fast application processing</li>
+                  <li>Dedicated tenant support</li>
+                  <li>24/7 emergency contact</li>
+                </ul>
+              </>
+            )}
+            {whatYouNeedImage?.url && (
+              <img src={whatYouNeedImage.url} alt={whatYouNeedImage.alt || 'What You Need'} class="content__image" loading="lazy" />
+            )}
+          </div>
+        </div>
+
+        <!-- Row 3: Tenant FAQs (block_key: tenant_faqs) -->
+        <div class="content__row">
+          <div class="content__left">
+            <span class="content__label">FAQs</span>
+            <h2 class="content__title">{tenantFaqsTitle}</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            {hasTenantFaqs && tenantFaqsContent ? (
+              <div class="content__text" set:html={tenantFaqsContent} />
+            ) : (
+              <>
+                <p class="content__text">
+                  We've streamlined the rental process to get you into your new home as quickly as possible. After you've found a property you love, we'll guide you through referencing, agreements, and move-in — keeping you updated every step of the way.
+                </p>
+                <p class="content__text">
+                  Our team handles all the paperwork and coordinates with landlords, so you can focus on planning your move.
+                </p>
+              </>
+            )}
+            {tenantFaqsImage?.url && (
+              <img src={tenantFaqsImage.url} alt={tenantFaqsImage.alt || 'Tenant FAQs'} class="content__image" loading="lazy" />
+            )}
+          </div>
+        </div>
+
+        <!-- Row 4: CTA -->
+        <div class="content__row content__row--cta">
+          <div class="content__left">
+            <span class="content__label">Get Started</span>
+            <h2 class="content__title">Ready to find your rental?</h2>
+          </div>
+          <div class="content__divider"></div>
+          <div class="content__right">
+            <p class="content__text">
+              Browse our available properties or register with us to be notified when new rentals matching your criteria become available.
+            </p>
+            <div class="content__actions">
+              <a href="/search?listing_type=let" class="content__btn content__btn--primary">
+                View Rentals
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" x2="19" y1="12" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+              <a href="/contact" class="content__btn content__btn--secondary">
+                Register Interest
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</Layout>
+
+<style lang="scss">
+  @use './static-template.scss';
+</style>

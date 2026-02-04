@@ -1,7 +1,7 @@
 ---
 // ========================================
 // PROPERTY CARD COMPONENT
-// Displays property summary in grid/list
+// Clean, modern property listing card
 // Includes click tracking & favourite button
 // ========================================
 
@@ -11,519 +11,187 @@ import {
   getPropertyUrl,
   getDisplayPrice,
   getThumbnailUrl,
-  formatBedrooms,
   formatPropertyType,
-  getStatusBadgeText,
-  getStatusBadgeClass,
-  formatRelativeDate,
 } from '../../lib/utils'
 
 interface Props {
   property: Property
   featured?: boolean
-  source?: string // Track where card is displayed: 'search_results', 'featured', 'similar', 'homepage'
+  source?: string
 }
 
 const { property, featured = false, source = 'search_results' } = Astro.props
 
+// Computed values
 const propertyUrl = getPropertyUrl(property)
 const displayPrice = getDisplayPrice(property)
 const thumbnailUrl = getThumbnailUrl(property)
-const bedrooms = formatBedrooms(property.bedrooms)
 const propertyType = formatPropertyType(property.property_type)
-const statusText = getStatusBadgeText(property.listing_status)
-const statusClass = getStatusBadgeClass(property.listing_status)
-const listedDate = property.listed_date ? formatRelativeDate(property.listed_date) : null
+
+// Build description
+const buildDescription = () => {
+  const parts: string[] = []
+
+  if (property.bedrooms) {
+    parts.push(`${property.bedrooms} bedroom`)
+  }
+
+  if (propertyType) {
+    parts.push(propertyType.toLowerCase())
+  }
+
+  if (property.display_address) {
+    parts.push(`in ${property.display_address}`)
+  }
+
+  return parts.length > 0
+    ? `A ${parts.join(' ')}${property.summary ? `. ${property.summary}` : '.'}`
+    : property.summary || ''
+}
+
+const description = buildDescription()
 ---
 
 <article
-  class:list={[
-    'property-card',
-    { 'featured': featured }
-  ]}
+  class:list={['property-card', { 'featured': featured }]}
   data-property-id={property.id}
   data-source={source}
 >
-  <a href={propertyUrl} class="property-card-link" data-property-url={propertyUrl}>
-    <!-- Image Container -->
-    <div class="image-container">
-      <div class="image-wrapper">
-        <img
-          src={thumbnailUrl}
-          alt={property.display_address}
-          class="property-image"
-          loading="lazy"
-        />
-        <div class="image-overlay"></div>
-      </div>
-      
-      <!-- ❤️ Favourite Button (Top Right) -->
-      <div class="favourite-container" onclick="event.preventDefault(); event.stopPropagation();">
-        <FavouriteButton 
-          propertyId={property.id} 
+  <a href={propertyUrl} class="property-card__link" data-property-url={propertyUrl}>
+
+    <!-- Image Section -->
+    <div class="property-card__image-container">
+      <img
+        src={thumbnailUrl}
+        alt={property.display_address}
+        class="property-card__image"
+        loading="lazy"
+      />
+
+      <!-- Favourite Button -->
+      <div class="property-card__favourite" onclick="event.preventDefault(); event.stopPropagation();">
+        <FavouriteButton
+          propertyId={property.id}
           size="md"
           source={source}
         />
       </div>
-      
+
       <!-- Featured Badge -->
       {featured && (
-        <div class="badge badge-featured">
-          <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        <div class="property-card__badge property-card__badge--featured">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           Featured
         </div>
       )}
-      
-      <!-- Status Badge -->
-      {property.listing_status !== 'available' && (
-        <div class:list={['badge', 'badge-status', statusClass]}>
-          {statusText}
-        </div>
-      )}
-      
+
       <!-- Listing Type Badge -->
-      <div class="badge badge-type">
-        <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="property-card__badge property-card__badge--type">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           {property.listing_type === 'sale' ? (
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
           ) : (
-            <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+            <rect width="18" height="18" x="3" y="3" rx="2"/>
           )}
         </svg>
         {property.listing_type === 'sale' ? 'For Sale' : 'To Rent'}
       </div>
     </div>
 
-    <!-- Content -->
-    <div class="card-content">
+    <!-- Content Section -->
+    <div class="property-card__content">
+
       <!-- Price -->
-      <div class="price-container">
-        <span class="price">{displayPrice}</span>
+      <div class="property-card__price">
+        <span class="property-card__price-value">{displayPrice}</span>
         {property.listing_type === 'let' && (
-          <span class="price-suffix">pcm</span>
+          <span class="property-card__price-suffix">pcm</span>
         )}
       </div>
 
-      <!-- Address -->
-      <h3 class="property-address">
+      <!-- Title -->
+      <h3 class="property-card__title">
         {property.display_address}
       </h3>
 
-      <!-- Property Type -->
-      <p class="property-type">
-        {propertyType}
-      </p>
-
-      <!-- Features -->
-      <div class="features-grid">
-        <!-- Bedrooms -->
-        <div class="feature">
-          <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 4v16"></path>
-            <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
-            <path d="M2 17h20"></path>
-            <path d="M6 8v9"></path>
-          </svg>
-          <span class="feature-text">{property.bedrooms} bed{property.bedrooms !== 1 ? 's' : ''}</span>
-        </div>
-
-        <!-- Bathrooms -->
-        {property.bathrooms > 0 && (
-          <div class="feature">
-            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path>
-              <line x1="10" x2="8" y1="5" y2="7"></line>
-              <line x1="2" x2="22" y1="12" y2="12"></line>
-              <line x1="7" x2="7" y1="19" y2="21"></line>
-              <line x1="17" x2="17" y1="19" y2="21"></line>
-            </svg>
-            <span class="feature-text">{property.bathrooms} bath{property.bathrooms !== 1 ? 's' : ''}</span>
-          </div>
-        )}
-
-        <!-- Receptions -->
-        {property.receptions && property.receptions > 0 && (
-          <div class="feature">
-            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-              <path d="M7 7h.01"></path>
-              <path d="M17 7h.01"></path>
-              <path d="M7 17h.01"></path>
-              <path d="M17 17h.01"></path>
-            </svg>
-            <span class="feature-text">{property.receptions} rec</span>
-          </div>
-        )}
-      </div>
-
-      <!-- Summary -->
-      {property.summary && (
-        <p class="property-summary">
-          {property.summary}
+      <!-- Description -->
+      {description && (
+        <p class="property-card__description">
+          {description}
         </p>
       )}
 
-      <!-- Footer -->
-      <div class="card-footer">
-        <div class="footer-info">
-          {listedDate && (
-            <span class="listed-date">
-              <svg class="date-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-                <line x1="16" x2="16" y1="2" y2="6"></line>
-                <line x1="8" x2="8" y1="2" y2="6"></line>
-                <line x1="3" x2="21" y1="10" y2="10"></line>
-              </svg>
-              {listedDate}
-            </span>
-          )}
-        </div>
-        <span class="view-details">
-          View Details
-          <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" x2="19" y1="12" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
+      <!-- Divider -->
+      <div class="property-card__divider"></div>
+
+      <!-- Specifications -->
+      <div class="property-card__specs">
+        <!-- Square Footage -->
+        {property.floor_area && (
+          <div class="property-card__spec">
+            <svg class="property-card__spec-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/>
+            </svg>
+            <span class="property-card__spec-text">{property.floor_area} sqft</span>
+          </div>
+        )}
+
+        <!-- Bedrooms -->
+        <div class="property-card__spec">
+          <svg class="property-card__spec-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 4v16"/>
+            <path d="M2 8h18a2 2 0 0 1 2 2v10"/>
+            <path d="M2 17h20"/>
+            <path d="M6 8v9"/>
           </svg>
-        </span>
+          <span class="property-card__spec-text">{property.bedrooms}</span>
+        </div>
+
+        <!-- Bathrooms -->
+        <div class="property-card__spec">
+          <svg class="property-card__spec-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/>
+            <line x1="10" x2="8" y1="5" y2="7"/>
+            <line x1="2" x2="22" y1="12" y2="12"/>
+            <line x1="7" x2="7" y1="19" y2="21"/>
+            <line x1="17" x2="17" y1="19" y2="21"/>
+          </svg>
+          <span class="property-card__spec-text">{property.bathrooms}</span>
+        </div>
       </div>
+
     </div>
   </a>
 </article>
 
-<style>
-  /* Card Container */
-  .property-card {
-    position: relative;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .property-card:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4px);
-    border-color: #d1d5db;
-  }
-
-  .property-card.featured {
-    border: 2px solid #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  }
-
-  .property-card.featured:hover {
-    box-shadow: 0 12px 30px rgba(59, 130, 246, 0.25);
-  }
-
-  /* Card Link */
-  .property-card-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  /* Image Container */
-  .image-container {
-    position: relative;
-    height: 240px;
-    overflow: hidden;
-    background: #f3f4f6;
-  }
-
-  .image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .property-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .property-card:hover .property-image {
-    transform: scale(1.08);
-  }
-
-  .image-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.05) 50%,
-      rgba(0, 0, 0, 0.15) 100%
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .property-card:hover .image-overlay {
-    opacity: 1;
-  }
-
-  /* Favourite Button Container */
-  .favourite-container {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    z-index: 20;
-  }
-
-  /* Badges */
-  .badge {
-    position: absolute;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 6px;
-    z-index: 10;
-    backdrop-filter: blur(8px);
-    transition: all 0.2s ease;
-  }
-
-  .badge-icon {
-    width: 12px;
-    height: 12px;
-  }
-
-  .badge-featured {
-    top: 0.75rem;
-    left: 0.75rem;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-  }
-
-  .badge-featured .badge-icon {
-    fill: currentColor;
-  }
-
-  .badge-status {
-    top: 3rem;
-    left: 0.75rem;
-  }
-
-  .badge-type {
-    bottom: 0.75rem;
-    left: 0.75rem;
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-  }
-
-  /* Card Content */
-  .card-content {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  /* Price */
-  .price-container {
-    display: flex;
-    align-items: baseline;
-    gap: 0.375rem;
-  }
-
-  .price {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #111827;
-    letter-spacing: -0.025em;
-  }
-
-  .price-suffix {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #6b7280;
-  }
-
-  /* Address */
-  .property-address {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #111827;
-    line-height: 1.4;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    transition: color 0.2s ease;
-  }
-
-  .property-card:hover .property-address {
-    color: #2563eb;
-  }
-
-  /* Property Type */
-  .property-type {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #6b7280;
-    margin: 0;
-  }
-
-  /* Features Grid */
-  .features-grid {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-top: 1px solid #f3f4f6;
-    border-bottom: 1px solid #f3f4f6;
-  }
-
-  .feature {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-
-  .feature-icon {
-    width: 16px;
-    height: 16px;
-    color: #9ca3af;
-    flex-shrink: 0;
-  }
-
-  .feature-text {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-  }
-
-  /* Summary */
-  .property-summary {
-    font-size: 0.875rem;
-    color: #6b7280;
-    line-height: 1.5;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* Footer */
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 0.75rem;
-    border-top: 1px solid #f3f4f6;
-  }
-
-  .footer-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .listed-date {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    color: #9ca3af;
-    font-weight: 500;
-  }
-
-  .date-icon {
-    width: 12px;
-    height: 12px;
-    color: #d1d5db;
-  }
-
-  .view-details {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #2563eb;
-    transition: all 0.2s ease;
-  }
-
-  .arrow-icon {
-    width: 14px;
-    height: 14px;
-    transition: transform 0.2s ease;
-  }
-
-  .property-card:hover .view-details {
-    gap: 0.5rem;
-  }
-
-  .property-card:hover .arrow-icon {
-    transform: translateX(3px);
-  }
-
-  /* Responsive */
-  @media (max-width: 640px) {
-    .image-container {
-      height: 200px;
-    }
-
-    .card-content {
-      padding: 1rem;
-      gap: 0.625rem;
-    }
-
-    .price {
-      font-size: 1.25rem;
-    }
-
-    .property-address {
-      font-size: 0.9375rem;
-    }
-
-    .features-grid {
-      gap: 0.75rem;
-    }
-
-    .feature-text {
-      font-size: 0.8125rem;
-    }
-  }
+<style lang="scss">
+  @use '../../styles/components/property-card';
 </style>
 
-<!-- ========================================
-     ✅ CLICK TRACKING (Anti-Refresh)
-     Tracks property view on card click only
-     ======================================== -->
 <script>
+  // ========================================
+  // CLICK TRACKING
+  // Tracks property view on card click
+  // ========================================
+
   document.addEventListener('DOMContentLoaded', () => {
-    // Find all property card links
-    const cardLinks = document.querySelectorAll('.property-card-link')
+    const cardLinks = document.querySelectorAll('.property-card__link')
 
     cardLinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        // Get property data
+      link.addEventListener('click', () => {
         const card = link.closest('.property-card')
         if (!card) return
 
-        const propertyId = card.dataset.propertyId
-        const source = card.dataset.source || 'unknown'
-        const propertyUrl = link.dataset.propertyUrl
+        const propertyId = (card as HTMLElement).dataset.propertyId
+        const source = (card as HTMLElement).dataset.source || 'unknown'
+        const propertyUrl = (link as HTMLElement).dataset.propertyUrl
 
         if (!propertyId) return
 
-        // Track property view BEFORE navigation
         if (window.StratosTracker) {
           try {
-            // Track property view (click-based, not page load!)
             window.StratosTracker.trackPropertyView(propertyId, {
               source: source,
               clicked_from: window.location.pathname,
@@ -531,23 +199,18 @@ const listedDate = property.listed_date ? formatRelativeDate(property.listed_dat
               timestamp: new Date().toISOString()
             })
 
-            console.log('🖱️ Property click tracked:', {
+            console.log('[PropertyCard] Click tracked:', {
               property_id: propertyId,
               source: source,
               url: propertyUrl
             })
           } catch (error) {
-            console.error('Error tracking property click:', error)
+            console.error('[PropertyCard] Tracking error:', error)
           }
-        } else {
-          console.warn('StratosTracker not available')
         }
-
-        // Let the navigation continue normally
-        // (no e.preventDefault() needed)
       })
     })
 
-    console.log(`✅ Property card tracking initialized for ${cardLinks.length} cards`)
+    console.log(`[PropertyCard] Tracking initialized for ${cardLinks.length} cards`)
   })
 </script>

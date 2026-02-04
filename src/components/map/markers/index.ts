@@ -4,7 +4,6 @@
 
 export {
   // Helper functions
-  extractPostcode,
   getPropertyUrl,
   getPropertyPrice,
   isSaleListing,

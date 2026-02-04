@@ -1,0 +1,476 @@
+// ========================================
+// SEARCH PAGE COMPONENT
+// Property search results page with sidebar
+// ========================================
+
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ----------------------------------------
+// COMPONENT VARIABLES
+// ----------------------------------------
+
+$hero-gradient-start: $accent-coral;
+$hero-gradient-end: #FF7B7F;
+$hero-padding-mobile: $spacing-8;
+$hero-padding-desktop: $spacing-12;
+
+$sidebar-width: 380px;
+$sidebar-width-tablet: 320px;
+$content-gap: $spacing-8;
+
+$results-header-bg: $bg-white;
+$results-header-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+$results-header-radius: $radius-xl;
+
+$state-container-bg: $bg-white;
+$state-container-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+$state-container-radius: $radius-xl;
+
+// ----------------------------------------
+// PAGE CONTAINER
+// ----------------------------------------
+
+.search-page {
+  min-height: 100vh;
+  background: $bg-off-white;
+}
+
+// ----------------------------------------
+// HERO HEADER
+// ----------------------------------------
+
+.search-page__hero {
+  position: relative;
+  background: linear-gradient(135deg, $hero-gradient-start 0%, $hero-gradient-end 100%);
+  padding: $hero-padding-mobile 0;
+  overflow: hidden;
+
+  @include md {
+    padding: $hero-padding-desktop 0;
+  }
+}
+
+.search-page__hero-background {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  opacity: 0.6;
+}
+
+.search-page__hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.search-page__hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: $font-weight-bold;
+  color: $bg-white;
+  margin: 0 0 $spacing-3 0;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-page__hero-subtitle {
+  font-size: clamp(0.9375rem, 2vw, 1.125rem);
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  margin: 0;
+}
+
+// ----------------------------------------
+// MAIN CONTENT CONTAINER
+// ----------------------------------------
+
+.search-page__container {
+  @include container;
+}
+
+.search-page__main {
+  margin-top: -$spacing-6;
+  padding-bottom: $spacing-16;
+
+  @include mobile-only {
+    padding-bottom: $spacing-12;
+  }
+}
+
+// ----------------------------------------
+// CONTENT GRID (Sidebar + Results)
+// ----------------------------------------
+
+.search-page__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-6;
+  align-items: start;
+
+  @include lg {
+    grid-template-columns: $sidebar-width-tablet 1fr;
+  }
+
+  @include xl {
+    grid-template-columns: $sidebar-width 1fr;
+    gap: $content-gap;
+  }
+}
+
+// ----------------------------------------
+// SIDEBAR
+// ----------------------------------------
+
+.search-page__sidebar {
+  position: sticky;
+  top: 10px;
+}
+
+.search-page__sidebar-sticky {
+  position: static;
+
+  @include lg {
+    position: sticky;
+    top: $spacing-8;
+  }
+}
+
+// ----------------------------------------
+// RESULTS SECTION
+// ----------------------------------------
+
+.search-page__results {
+  min-height: 500px;
+  z-index: 1;
+}
+
+// ----------------------------------------
+// RESULTS HEADER
+// ----------------------------------------
+
+.search-page__results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-4;
+  padding: $spacing-6 $spacing-8;
+  background: $results-header-bg;
+  border-radius: $results-header-radius;
+  box-shadow: $results-header-shadow;
+  border: 1px solid $border-light;
+  margin-bottom: $spacing-8;
+
+  @include mobile-only {
+    padding: $spacing-5 $spacing-6;
+  }
+}
+
+.search-page__results-meta {
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-page__results-count {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin: 0 0 $spacing-2 0;
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-2;
+}
+
+.search-page__count-number {
+  color: $accent-coral;
+}
+
+.search-page__count-text {
+  font-size: $font-size-lg;
+  color: $text-secondary;
+  font-weight: $font-weight-semibold;
+}
+
+.search-page__results-location {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  margin: 0;
+}
+
+.search-page__location-icon {
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+// ----------------------------------------
+// RESULTS CONTROLS
+// ----------------------------------------
+
+.search-page__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: $spacing-4;
+
+  @include sm {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
+}
+
+.search-page__filters-badge {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-4;
+  background: $accent-coral;
+  color: $bg-white;
+  border-radius: 999px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.search-page__badge-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+// ----------------------------------------
+// SORT CONTROL
+// ----------------------------------------
+
+.search-page__sort {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  width: 100%;
+  justify-content: space-between;
+
+  @include sm {
+    width: auto;
+    justify-content: flex-start;
+  }
+}
+
+.search-page__sort-label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+}
+
+.search-page__sort-select {
+  padding: $spacing-2 $spacing-10 $spacing-2 $spacing-4;
+  background: $bg-off-white;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-3 center;
+  transition: border-color $transition-fast, background $transition-fast, box-shadow $transition-fast;
+  flex: 1;
+
+  @include sm {
+    flex: none;
+  }
+
+  &:hover {
+    border-color: $border-medium;
+    background-color: $bg-white;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $accent-coral;
+    box-shadow: 0 0 0 3px rgba($accent-coral, 0.1);
+  }
+}
+
+// ----------------------------------------
+// MAP VIEW LINK
+// ----------------------------------------
+
+.search-page__map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-4;
+  background: $bg-white;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  text-decoration: none;
+  transition: border-color $transition-fast, background $transition-fast, color $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: $accent-coral;
+    color: $accent-coral;
+    background: rgba($accent-coral, 0.04);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $accent-coral;
+    box-shadow: 0 0 0 3px rgba($accent-coral, 0.1);
+  }
+}
+
+.search-page__map-icon {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+// ----------------------------------------
+// PROPERTY GRID
+// ----------------------------------------
+
+.search-page__property-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-6;
+
+  @include sm {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  @include xl {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+// ----------------------------------------
+// PAGINATION
+// ----------------------------------------
+
+.search-page__pagination {
+  margin-top: $spacing-12;
+}
+
+// ----------------------------------------
+// STATE CONTAINERS (Error/Empty)
+// ----------------------------------------
+
+.search-page__state {
+  background: $state-container-bg;
+  border-radius: $state-container-radius;
+  box-shadow: $state-container-shadow;
+  border: 1px solid $border-light;
+  padding: $spacing-16 $spacing-8;
+  text-align: center;
+
+  @include mobile-only {
+    padding: $spacing-12 $spacing-6;
+  }
+}
+
+.search-page__state-icon {
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto $spacing-6;
+
+  @include mobile-only {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+.search-page__state-icon--error {
+  color: #EF4444;
+}
+
+.search-page__state-icon--empty {
+  color: $text-muted;
+}
+
+.search-page__state-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin: 0 0 $spacing-3 0;
+}
+
+.search-page__state-message {
+  font-size: $font-size-base;
+  color: $text-secondary;
+  margin: 0 0 $spacing-8 0;
+  line-height: $line-height-relaxed;
+}
+
+// ----------------------------------------
+// SUGGESTIONS (Empty State)
+// ----------------------------------------
+
+.search-page__suggestions {
+  max-width: 400px;
+  margin: 0 auto $spacing-8;
+  padding: $spacing-6;
+  background: $bg-off-white;
+  border-radius: $radius-md;
+  text-align: left;
+}
+
+.search-page__suggestions-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin: 0 0 $spacing-3 0;
+}
+
+.search-page__suggestions-list {
+  margin: 0;
+  padding-left: $spacing-6;
+  list-style: disc;
+
+  li {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin-bottom: $spacing-2;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// ----------------------------------------
+// STATE BUTTON
+// ----------------------------------------
+
+.search-page__state-button {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-4 $spacing-6;
+  background: $accent-coral;
+  color: $bg-white;
+  text-decoration: none;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    background: $accent-coral-dark;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba($accent-coral, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

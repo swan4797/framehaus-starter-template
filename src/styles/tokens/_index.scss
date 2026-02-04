@@ -1,0 +1,38 @@
+// ========================================
+// DESIGN TOKENS - MAIN EXPORT
+// Centralized theming system
+// ========================================
+//
+// This file imports all design tokens and should be
+// the single import point for accessing the design system.
+//
+// USAGE:
+// @use '../styles/tokens' as *;
+//
+// ARCHITECTURE:
+// - _colors.scss     : Color palette with CSS custom properties
+// - _typography.scss : Font families, sizes, weights
+// - _spacing.scss    : Spacing scale
+// - _effects.scss    : Shadows, radius, transitions
+// - _layout.scss     : Container, grid, breakpoints, z-index
+//
+// DYNAMIC THEMING:
+// CSS custom properties (--color-primary, etc.) can be
+// overridden at runtime by the BrandProvider component
+// based on the agency's Stratos CRM brand settings.
+//
+// ========================================
+
+// Core tokens
+@forward 'colors';
+@forward 'typography';
+@forward 'spacing';
+@forward 'effects';
+@forward 'layout';
+
+// Re-export for @use
+@use 'colors' as *;
+@use 'typography' as *;
+@use 'spacing' as *;
+@use 'effects' as *;
+@use 'layout' as *;

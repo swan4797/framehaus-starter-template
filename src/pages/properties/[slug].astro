@@ -1,36 +1,36 @@
 ---
 // ========================================
 // PROPERTY DETAILS PAGE
-// Clean, modern property details page
-// Design: Consistent with template theme
+// SEO-friendly URL format: /properties/{slug}
 // ========================================
 
 export const prerender = false
 
-import Layout from '../../../layouts/Layout.astro'
-import ImageGallery from '../../../components/propertydetails/ImageGallery.astro'
-import ViewingRequestForm from '../../../components/forms/ViewingRequestForm.astro'
-import { getPropertyDetails } from '../../../lib/api'
+import Layout from '../../layouts/Layout.astro'
+import ImageGallery from '../../components/propertydetails/ImageGallery.astro'
+import ViewingRequestForm from '../../components/forms/ViewingRequestForm.astro'
+import { getPropertyBySlug } from '../../lib/api'
 import {
-  extractPropertyIdFromUrl,
+  extractPropertySlugFromUrl,
   getDisplayPrice,
   formatPropertyType,
   formatDate,
   getStatusBadgeText,
   pluralize,
-} from '../../../lib/utils'
-import { PropertyMapSection } from '../../../components/map/PropertyMapIframe'
-import { SimilarProperties } from '../../../components/propertydetails/SimilarProperties'
-import { fetchBrandSettings, getContactInfo } from '../../../lib/brand'
+} from '../../lib/utils'
+import { PropertyMapSection } from '../../components/map/PropertyMapIframe'
+import { SimilarProperties } from '../../components/propertydetails/SimilarProperties'
+import { fetchBrandSettings, getContactInfo } from '../../lib/brand'
 
-// Fetch property
-const propertyId = extractPropertyIdFromUrl(Astro.url.pathname)
+// Extract slug from URL
+const slug = extractPropertySlugFromUrl(Astro.url.pathname)
 
-if (!propertyId) {
+if (!slug) {
   return Astro.redirect('/search')
 }
 
-const property = await getPropertyDetails(propertyId)
+// Fetch property by slug
+const property = await getPropertyBySlug(slug)
 
 if (!property) {
   return Astro.redirect('/search')

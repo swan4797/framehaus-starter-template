@@ -1,0 +1,234 @@
+// ========================================
+// SEARCH BAR FIELD STYLES
+// Form field styling for search components
+// ========================================
+
+@use '../../variables' as *;
+@use '../../mixins' as *;
+
+// ----------------------------------------
+// FIELD GROUP
+// ----------------------------------------
+
+.search-bar__field-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.search-bar__field-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-4;
+
+  @include sm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// ----------------------------------------
+// LABELS
+// ----------------------------------------
+
+.search-bar__label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: var(--search-label-size);
+  font-weight: var(--search-label-weight);
+  color: var(--search-label-color);
+}
+
+.search-bar__label-icon {
+  width: var(--search-icon-size);
+  height: var(--search-icon-size);
+  color: var(--search-icon-color);
+  flex-shrink: 0;
+}
+
+// ----------------------------------------
+// INPUTS & SELECTS
+// ----------------------------------------
+
+.search-bar__input,
+.search-bar__select {
+  width: 100%;
+  height: var(--search-field-height);
+  padding: var(--search-field-padding-y) var(--search-field-padding-x);
+  background: var(--search-field-bg);
+  border: 1px solid var(--search-field-border);
+  border-radius: var(--search-field-radius);
+  font-family: $font-family-base;
+  font-size: var(--search-input-size);
+  color: var(--search-input-color);
+  transition:
+    background var(--search-transition-fast),
+    border-color var(--search-transition-fast),
+    box-shadow var(--search-transition-fast);
+
+  &::placeholder {
+    color: var(--search-placeholder-color);
+  }
+
+  &:hover {
+    border-color: var(--search-field-border-hover);
+  }
+
+  &:focus {
+    outline: none;
+    background: var(--search-field-bg-focus);
+    border-color: var(--search-field-border-focus);
+    box-shadow: 0 0 0 var(--search-focus-ring-width) var(--search-focus-ring-color);
+  }
+}
+
+.search-bar__select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-4 center;
+  padding-right: $spacing-12;
+}
+
+// ----------------------------------------
+// CHECKBOX GRID
+// ----------------------------------------
+
+.search-bar__checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-3;
+
+  @include sm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include lg {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// ----------------------------------------
+// CHECKBOX LABEL
+// ----------------------------------------
+
+.search-bar__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: var(--search-field-bg);
+  border: 1px solid var(--search-field-border);
+  border-radius: var(--search-field-radius);
+  cursor: pointer;
+  transition:
+    background var(--search-transition-fast),
+    border-color var(--search-transition-fast);
+
+  &:hover {
+    background: var(--search-field-bg-hover);
+    border-color: var(--search-field-border-hover);
+  }
+}
+
+.search-bar__checkbox-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.search-bar__checkbox-box {
+  position: relative;
+  width: var(--search-checkbox-size);
+  height: var(--search-checkbox-size);
+  background: var(--search-checkbox-bg);
+  border: 2px solid var(--search-checkbox-border);
+  border-radius: var(--search-checkbox-radius);
+  flex-shrink: 0;
+  transition:
+    background var(--search-transition-fast),
+    border-color var(--search-transition-fast);
+}
+
+.search-bar__checkbox-input:checked + .search-bar__checkbox-box {
+  background: var(--search-checkbox-bg-checked);
+  border-color: var(--search-checkbox-border-checked);
+}
+
+.search-bar__check-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  color: $bg-white;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-bar__checkbox-input:checked + .search-bar__checkbox-box .search-bar__check-icon {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.search-bar__checkbox-text {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+
+// ----------------------------------------
+// BUTTONS
+// ----------------------------------------
+
+.search-bar__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: var(--search-btn-padding-y) var(--search-btn-padding-x);
+  border: none;
+  border-radius: var(--search-btn-radius);
+  font-family: $font-family-base;
+  font-size: var(--search-btn-font-size);
+  font-weight: var(--search-btn-font-weight);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--search-transition-fast),
+    transform var(--search-transition-fast),
+    box-shadow var(--search-transition-fast);
+}
+
+.search-bar__btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+// Primary Button
+.search-bar__btn--primary {
+  background: var(--search-btn-primary-bg);
+  color: var(--search-btn-primary-color);
+
+  &:hover {
+    background: var(--search-btn-primary-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--search-btn-primary-shadow);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Secondary Button
+.search-bar__btn--secondary {
+  background: var(--search-btn-secondary-bg);
+  border: 1px solid var(--search-btn-secondary-border);
+  color: var(--search-btn-secondary-color);
+
+  &:hover {
+    background: var(--search-btn-secondary-bg-hover);
+    color: var(--search-btn-secondary-color-hover);
+  }
+}

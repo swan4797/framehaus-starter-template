@@ -1,0 +1,180 @@
+{
+  "pageSlug": "homepage",
+  "displayName": "Homepage",
+  "description": "Main landing page content",
+  "icon": "Home",
+  "sections": [
+    {
+      "id": "hero",
+      "name": "Hero Section",
+      "description": "Main banner area",
+      "fields": [
+        {
+          "id": "hero_title",
+          "type": "text",
+          "label": "Title",
+          "placeholder": "Enter hero title",
+          "required": true,
+          "validation": { "maxLength": 100 }
+        },
+        {
+          "id": "hero_subtitle",
+          "type": "text",
+          "label": "Subtitle",
+          "placeholder": "Enter subtitle text"
+        },
+        {
+          "id": "hero_image",
+          "type": "image",
+          "label": "Background Image",
+          "description": "Recommended size: 1920x1080"
+        },
+        {
+          "id": "hero_cta",
+          "type": "button",
+          "label": "Call to Action Button"
+        }
+      ]
+    },
+    {
+      "id": "features",
+      "name": "Features Section",
+      "description": "Highlight key services",
+      "fields": [
+        {
+          "id": "features_title",
+          "type": "text",
+          "label": "Section Title",
+          "default": "Our Services"
+        },
+        {
+          "id": "features_list",
+          "type": "repeater",
+          "label": "Features",
+          "itemSchema": {
+            "fields": [
+              {
+                "id": "title",
+                "type": "text",
+                "label": "Feature Title",
+                "required": true
+              },
+              {
+                "id": "description",
+                "type": "richtext",
+                "label": "Description"
+              },
+              {
+                "id": "icon",
+                "type": "text",
+                "label": "Icon Name",
+                "placeholder": "e.g., home, key, building"
+              },
+              {
+                "id": "link",
+                "type": "link",
+                "label": "Learn More Link"
+              }
+            ]
+          },
+          "validation": { "minItems": 1, "maxItems": 6 }
+        }
+      ]
+    },
+    {
+      "id": "about_preview",
+      "name": "About Preview",
+      "description": "Brief about section on homepage",
+      "fields": [
+        {
+          "id": "about_title",
+          "type": "text",
+          "label": "Title"
+        },
+        {
+          "id": "about_content",
+          "type": "richtext",
+          "label": "Content"
+        },
+        {
+          "id": "about_image",
+          "type": "image",
+          "label": "Image"
+        },
+        {
+          "id": "about_cta",
+          "type": "button",
+          "label": "Read More Button"
+        }
+      ]
+    },
+    {
+      "id": "testimonials",
+      "name": "Testimonials",
+      "description": "Client testimonials",
+      "collapsed": true,
+      "fields": [
+        {
+          "id": "testimonials_title",
+          "type": "text",
+          "label": "Section Title",
+          "default": "What Our Clients Say"
+        },
+        {
+          "id": "testimonials_list",
+          "type": "repeater",
+          "label": "Testimonials",
+          "itemSchema": {
+            "fields": [
+              {
+                "id": "quote",
+                "type": "richtext",
+                "label": "Quote",
+                "required": true
+              },
+              {
+                "id": "author",
+                "type": "text",
+                "label": "Author Name",
+                "required": true
+              },
+              {
+                "id": "role",
+                "type": "text",
+                "label": "Role/Title"
+              },
+              {
+                "id": "avatar",
+                "type": "image",
+                "label": "Avatar"
+              }
+            ]
+          },
+          "validation": { "maxItems": 10 }
+        }
+      ]
+    },
+    {
+      "id": "cta",
+      "name": "Call to Action",
+      "description": "Bottom CTA section",
+      "fields": [
+        {
+          "id": "cta_title",
+          "type": "text",
+          "label": "Title"
+        },
+        {
+          "id": "cta_description",
+          "type": "text",
+          "label": "Description"
+        },
+        {
+          "id": "cta_button",
+          "type": "button",
+          "label": "CTA Button"
+        }
+      ]
+    }
+  ]
+}

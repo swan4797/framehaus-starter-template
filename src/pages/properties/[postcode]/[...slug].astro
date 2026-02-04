@@ -1,0 +1,33 @@
+---
+// ========================================
+// OLD URL REDIRECT HANDLER
+// Redirects old format URLs to new SEO-friendly format
+// Old: /properties/{postcode}/{address-slug}-{uuid}
+// New: /properties/{beds}-bed-{type}-{location}-{short-id}
+// ========================================
+
+export const prerender = false
+
+import { getPropertyDetails } from '../../../lib/api'
+import { getPropertyUrl, extractFullPropertyIdFromUrl } from '../../../lib/utils'
+
+// Extract the full UUID from old URL format
+const propertyId = extractFullPropertyIdFromUrl(Astro.url.pathname)
+
+if (!propertyId) {
+  // Invalid old URL format, redirect to search
+  return Astro.redirect('/search', 301)
+}
+
+// Fetch the property to generate the new URL
+const property = await getPropertyDetails(propertyId)
+
+if (!property) {
+  // Property not found, redirect to search
+  return Astro.redirect('/search', 301)
+}
+
+// Generate new SEO-friendly URL and redirect with 301 (permanent)
+const newUrl = getPropertyUrl(property)
+return Astro.redirect(newUrl, 301)
+---

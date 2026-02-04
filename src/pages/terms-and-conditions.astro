@@ -1,0 +1,297 @@
+---
+// ========================================
+// TERMS AND CONDITIONS PAGE
+// Standard terms of service template
+// ========================================
+
+import Layout from '../layouts/Layout.astro'
+import { fetchBrandSettings, getContactInfo } from '../lib/brand'
+
+// Fetch brand settings for dynamic content
+const brand = await fetchBrandSettings(true)
+const contact = getContactInfo(brand)
+
+const businessName = brand.business_name || '[Business Name]'
+const contactEmail = contact.email || '[email@example.com]'
+const contactPhone = contact.phone || '[phone number]'
+const businessAddress = brand.address || '[Business Address]'
+const websiteUrl = 'https://example.com' // Update with actual URL
+
+// Page meta
+const pageTitle = 'Terms and Conditions'
+const pageDescription = `Terms and Conditions for ${businessName}. Please read these terms carefully before using our website and services.`
+
+// Last updated date - update this when terms change
+const lastUpdated = '1 February 2026'
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <div class="legal-page">
+    <div class="legal-page__container">
+      <!-- Header -->
+      <header class="legal-page__header">
+        <h1 class="legal-page__title">Terms and Conditions</h1>
+        <p class="legal-page__updated">Last updated: {lastUpdated}</p>
+      </header>
+
+      <!-- Content -->
+      <div class="legal-page__content">
+
+        <section class="legal-section">
+          <h2>1. Introduction</h2>
+          <p>
+            These Terms and Conditions ("Terms") govern your use of the {businessName} website and our estate agency services. By accessing our website or using our services, you agree to be bound by these Terms.
+          </p>
+          <p>
+            Please read these Terms carefully. If you do not agree with any part of these Terms, you must not use our website or services.
+          </p>
+          <div class="legal-contact-box">
+            <p><strong>{businessName}</strong></p>
+            <p>Address: {businessAddress}</p>
+            <p>Email: <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+            <p>Phone: <a href={`tel:${contactPhone.replace(/\s/g, '')}`}>{contactPhone}</a></p>
+          </div>
+        </section>
+
+        <section class="legal-section">
+          <h2>2. Definitions</h2>
+          <ul>
+            <li><strong>"We", "Us", "Our"</strong> refers to {businessName}.</li>
+            <li><strong>"You", "Your"</strong> refers to the user of our website or services.</li>
+            <li><strong>"Website"</strong> refers to our website and all its pages.</li>
+            <li><strong>"Services"</strong> refers to estate agency services including property sales, lettings, valuations, and property management.</li>
+            <li><strong>"Property"</strong> refers to any real estate listed or managed through our services.</li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>3. Website Use</h2>
+
+          <h3>3.1 Acceptable Use</h3>
+          <p>You agree to use our website only for lawful purposes and in accordance with these Terms. You must not:</p>
+          <ul>
+            <li>Use the website in any way that breaches applicable laws or regulations</li>
+            <li>Use the website to transmit unsolicited advertising or promotional material</li>
+            <li>Attempt to gain unauthorised access to our systems or data</li>
+            <li>Interfere with or disrupt the website's functionality</li>
+            <li>Copy, reproduce, or redistribute website content without permission</li>
+            <li>Use automated systems to scrape or collect data from the website</li>
+          </ul>
+
+          <h3>3.2 Account Registration</h3>
+          <p>
+            If you create an account on our website, you are responsible for maintaining the confidentiality of your login credentials and for all activities under your account. You must notify us immediately of any unauthorised use.
+          </p>
+
+          <h3>3.3 Accuracy of Information</h3>
+          <p>
+            You agree to provide accurate, current, and complete information when using our services or submitting enquiries. We reserve the right to refuse service if we believe information provided is false or misleading.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>4. Property Information</h2>
+
+          <h3>4.1 Property Listings</h3>
+          <p>
+            We take reasonable care to ensure property listings are accurate. However, property details, photographs, and floor plans are for general guidance only and should not be relied upon as statements of fact. You should verify all information before making any decisions.
+          </p>
+
+          <h3>4.2 Availability</h3>
+          <p>
+            Property availability is subject to change without notice. We cannot guarantee that properties displayed on our website are still available or that terms have not changed.
+          </p>
+
+          <h3>4.3 Third-Party Content</h3>
+          <p>
+            Some property information may be provided by third parties (sellers, landlords, or other agents). We are not responsible for the accuracy of such information.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>5. Estate Agency Services</h2>
+
+          <h3>5.1 Sales Services</h3>
+          <p>Our sales services are governed by separate terms of engagement which will be provided when you instruct us to sell your property. These will include:</p>
+          <ul>
+            <li>Commission rates and payment terms</li>
+            <li>Contract duration and notice periods</li>
+            <li>Marketing and advertising arrangements</li>
+            <li>Our obligations and your responsibilities</li>
+          </ul>
+
+          <h3>5.2 Lettings Services</h3>
+          <p>Our lettings services are governed by separate terms which cover:</p>
+          <ul>
+            <li>Fees for tenant finding and management services</li>
+            <li>Deposit protection requirements</li>
+            <li>Compliance with lettings legislation</li>
+            <li>Property management responsibilities</li>
+          </ul>
+
+          <h3>5.3 Valuations</h3>
+          <p>
+            Property valuations and market appraisals are provided as professional opinions based on our experience and market knowledge. They are not formal valuations for lending purposes and should not be relied upon as such.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>6. Fees and Payments</h2>
+
+          <h3>6.1 Service Fees</h3>
+          <p>
+            Our fees will be clearly communicated before you instruct us. All fees are subject to VAT at the applicable rate unless otherwise stated.
+          </p>
+
+          <h3>6.2 Payment Terms</h3>
+          <p>
+            Payment terms are specified in individual service agreements. Failure to pay fees when due may result in:
+          </p>
+          <ul>
+            <li>Interest charges on overdue amounts</li>
+            <li>Suspension of services</li>
+            <li>Debt recovery action</li>
+          </ul>
+
+          <h3>6.3 Refunds</h3>
+          <p>
+            Refund policies vary by service and are detailed in individual service agreements. Certain fees may be non-refundable once services have been provided.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>7. Intellectual Property</h2>
+
+          <h3>7.1 Our Content</h3>
+          <p>
+            All content on our website, including text, graphics, logos, images, and software, is owned by {businessName} or our licensors and is protected by copyright and other intellectual property laws.
+          </p>
+
+          <h3>7.2 Limited Licence</h3>
+          <p>
+            You may view, download, and print content from our website for personal, non-commercial use only. You must not:
+          </p>
+          <ul>
+            <li>Modify or adapt the content</li>
+            <li>Use the content for commercial purposes</li>
+            <li>Remove any copyright or proprietary notices</li>
+            <li>Transfer the content to another person or organisation</li>
+          </ul>
+
+          <h3>7.3 Trademarks</h3>
+          <p>
+            Our name, logo, and other trademarks are our property and may not be used without our written permission.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>8. Limitation of Liability</h2>
+
+          <h3>8.1 Website Availability</h3>
+          <p>
+            We do not guarantee that our website will be available at all times or free from errors. We may suspend, withdraw, or restrict access to the website without notice.
+          </p>
+
+          <h3>8.2 Exclusion of Liability</h3>
+          <p>To the maximum extent permitted by law, we exclude liability for:</p>
+          <ul>
+            <li>Loss of profits, business, or revenue</li>
+            <li>Loss of anticipated savings</li>
+            <li>Loss of data or information</li>
+            <li>Indirect or consequential losses</li>
+          </ul>
+
+          <h3>8.3 Cap on Liability</h3>
+          <p>
+            Where we are liable to you, our total liability shall not exceed the fees paid by you for the specific service giving rise to the claim.
+          </p>
+
+          <h3>8.4 Nothing Excluded</h3>
+          <p>
+            Nothing in these Terms excludes or limits our liability for death or personal injury caused by our negligence, fraud, or any other liability that cannot be excluded by law.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>9. Indemnity</h2>
+          <p>
+            You agree to indemnify and hold us harmless from any claims, damages, losses, or expenses (including legal fees) arising from:
+          </p>
+          <ul>
+            <li>Your breach of these Terms</li>
+            <li>Your use of our website or services</li>
+            <li>Any false or misleading information you provide</li>
+            <li>Your violation of any third party's rights</li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>10. Third-Party Links</h2>
+          <p>
+            Our website may contain links to third-party websites. These links are provided for convenience only. We have no control over third-party websites and accept no responsibility for their content or your use of them.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>11. Privacy</h2>
+          <p>
+            Your privacy is important to us. Please review our <a href="/privacy-policy">Privacy Policy</a> to understand how we collect, use, and protect your personal information.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>12. Complaints</h2>
+          <p>
+            If you have a complaint about our services, please contact us in writing. We have a formal complaints procedure and aim to resolve complaints promptly and fairly. If we cannot resolve your complaint, you may be able to refer it to:
+          </p>
+          <ul>
+            <li><strong>The Property Ombudsman:</strong> <a href="https://www.tpos.co.uk" target="_blank" rel="noopener noreferrer">tpos.co.uk</a></li>
+            <li><strong>Property Redress Scheme:</strong> <a href="https://www.theprs.co.uk" target="_blank" rel="noopener noreferrer">theprs.co.uk</a></li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>13. Changes to Terms</h2>
+          <p>
+            We may revise these Terms at any time by updating this page. Changes take effect immediately upon posting. Your continued use of our website after changes constitutes acceptance of the revised Terms.
+          </p>
+          <p>
+            We encourage you to check this page periodically for updates.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>14. Severability</h2>
+          <p>
+            If any provision of these Terms is found to be invalid or unenforceable, that provision will be limited or eliminated to the minimum extent necessary, and the remaining provisions will continue in full force and effect.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>15. Governing Law</h2>
+          <p>
+            These Terms are governed by and construed in accordance with the laws of England and Wales. Any disputes arising from these Terms or your use of our website shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>16. Contact Us</h2>
+          <p>
+            If you have any questions about these Terms, please contact us:
+          </p>
+          <div class="legal-contact-box">
+            <p><strong>{businessName}</strong></p>
+            <p>Email: <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+            <p>Phone: <a href={`tel:${contactPhone.replace(/\s/g, '')}`}>{contactPhone}</a></p>
+            <p>Address: {businessAddress}</p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style lang="scss">
+  @use './legal-template.scss';
+</style>
