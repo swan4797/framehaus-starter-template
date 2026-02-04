@@ -1,33 +1,62 @@
 ---
 // ========================================
 // HOMEPAGE
-// UK Estate Agent Homepage - Dynamically Branded
+// UK Estate Agent Homepage - Clean Modern Design
+// Dynamic content from Stratos CRM
 // ========================================
 
 import Layout from '../layouts/Layout.astro'
 import { searchProperties } from '../lib/api'
 import PropertyCard from '../components/properties/PropertyCard.astro'
-import Hero from '../components/Hero.astro'
-import HeroSplitScreen from '../components/HeroSplit.astro'
+import PropertySearch from '../components/PropertySearch.astro'
 import { siteConfig } from '../lib/config'
-import LuxurySearchBar from '../components/search/LuxurySearchBar.astro'
-import UniversalSearchBar from '../components/search/UniversalSearchBar.astro'
 
-// ✅ Import brand utilities
-import { 
-  fetchBrandSettings, 
-  getContactInfo, 
+// Brand utilities
+import {
+  fetchBrandSettings,
+  getContactInfo,
   getSocialLinks,
 } from '../lib/brand'
 
-// ✅ Fetch brand settings
-// const brand = await fetchBrandSettings()
-const brand = await fetchBrandSettings(true) // true = force refresh
+// Page content utilities
+import {
+  getPageContent,
+  getSectionTitle,
+  getSectionContent,
+  getSectionImage,
+  hasSection,
+} from '../lib/pages'
 
+// Fetch brand settings
+const brand = await fetchBrandSettings(true)
 const contact = getContactInfo(brand)
-const social = getSocialLinks(brand)
 
-// Fetch featured and recent properties
+// Fetch homepage content from Stratos CRM
+const pageContent = await getPageContent('homepage')
+
+// ========================================
+// SPECIFIC SECTION BLOCK KEYS
+// These match the block_keys from Stratos CRM
+// ========================================
+
+// Featured Properties section (block_key: featured_properties)
+const featuredTitle = getSectionTitle(pageContent, 'featured_properties', 'Featured Properties')
+const featuredContent = getSectionContent(pageContent, 'featured_properties', '<p>Discover our handpicked selection of premium properties.</p>')
+
+// Why Choose Us section (block_key: why_choose_us)
+const whyChooseTitle = getSectionTitle(pageContent, 'why_choose_us', 'Why Choose Us')
+const whyChooseContent = getSectionContent(pageContent, 'why_choose_us', '')
+
+// Testimonials section (block_key: testimonials)
+const testimonialsTitle = getSectionTitle(pageContent, 'testimonials', 'What Our Clients Say')
+const testimonialsContent = getSectionContent(pageContent, 'testimonials', '')
+
+// Check which sections exist in CRM
+const hasFeaturedSection = hasSection(pageContent, 'featured_properties')
+const hasWhyChooseSection = hasSection(pageContent, 'why_choose_us')
+const hasTestimonialsSection = hasSection(pageContent, 'testimonials')
+
+// Fetch properties
 const [featuredResponse, saleResponse, letResponse] = await Promise.all([
   searchProperties({ listing_type: 'sale', limit: 6, sort_by: 'newest' }),
   searchProperties({ listing_type: 'sale', limit: 3, sort_by: 'newest' }),
@@ -38,99 +67,84 @@ const featuredProperties = featuredResponse?.properties.filter(p => p.is_feature
 const saleProperties = saleResponse?.properties || []
 const letProperties = letResponse?.properties || []
 
-// Get total property counts
-const totalForSale = featuredResponse?.total || 0
-const totalToLet = 0 // Would need separate count query
-
-// Property showcase images
+// Property showcase images for hero
 const propertyImages = [
-  {
-    src: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400',
-    alt: 'Modern prefab home with deck',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400',
-    alt: 'Wooden tiny home on wheels',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400',
-    alt: 'A-frame cabin in the woods',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400',
-    alt: 'Modern container home',
-  },
-];
+  { src: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80', alt: 'Modern home exterior' },
+  { src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80', alt: 'Luxury property' },
+  { src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80', alt: 'Contemporary house' },
+  { src: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&q=80', alt: 'Property interior' },
+]
 ---
 
 <Layout>
-<HeroSplitScreen
-  headline={brand.tagline || "The prefab home of your dreams is here"}
-  description={brand.mission_statement || "Find the best prefab homes, ADUs, cabins, and more."}
-  ctaText="Start exploring"
-  ctaLink="/explore"
-  propertyImages={propertyImages}
-  backgroundColor={brand.background_secondary}
-/>  
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero__container">
+      <!-- Left: Text + CTA -->
+      <div class="hero__content">
+        <h1 class="hero__headline">
+          {brand.tagline || "Find your perfect home with expert local guidance"}
+        </h1>
+        <p class="hero__description">
+          {brand.mission_statement || "Discover exceptional properties with personalized service from our experienced local team."}
+        </p>
+        <a href="/search" class="hero__cta">
+          Start your search
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
 
+      <!-- Right: Image Grid (2x2) -->
+      <div class="hero__images">
+        {propertyImages.map((image, index) => (
+          <div class="hero__image-item" style={`animation-delay: ${0.1 + (index * 0.1)}s`}>
+            <img src={image.src} alt={image.alt} loading={index < 2 ? "eager" : "lazy"} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
 
-
-
-<h1>{brand.business_name}</h1>
-
-
-  <LuxurySearchBar 
-    fields={{
-      listingType: true,
-      location: true,
-      minPrice: true,
-      maxPrice: true,
-    }}
-    theme="dark"
+  <!-- Property Search -->
+  <PropertySearch
+    placeholder="Search by location, postcode or keyword"
+    showListingType={true}
+    showPropertyType={true}
+    showMaxPrice={true}
   />
 
-
-  <!-- Featured Properties -->
+  <!-- Featured Properties (block_key: featured_properties) -->
   {featuredProperties.length > 0 && (
-    <section class="py-16 md:py-20" style={`background-color: ${brand.background_primary};`}>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-10">
-          <div>
-            <h2 class="text-3xl md:text-4xl font-bold mb-2" style={`color: ${brand.text_primary}; font-family: ${brand.heading_font_family}, sans-serif; font-weight: ${brand.heading_font_weight};`}>
-              Featured Properties
-            </h2>
-            <p class="text-lg" style={`color: ${brand.text_secondary};`}>
-              Carefully selected homes that won't last long
-            </p>
+    <section class="property-section">
+      <div class="property-section__container">
+        <div class="property-section__header">
+          <div class="property-section__title-group">
+            <h2 class="property-section__title">{featuredTitle}</h2>
+            {hasFeaturedSection && featuredContent ? (
+              <div class="property-section__subtitle" set:html={featuredContent} />
+            ) : (
+              <p class="property-section__subtitle">Carefully selected homes that won't last long</p>
+            )}
           </div>
-          <a
-            href="/search"
-            class="hidden md:inline-flex items-center font-semibold hover:opacity-80 transition-opacity"
-            style={`color: ${brand.primary_color};`}
-          >
+          <a href="/search" class="property-section__link">
             View all properties
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div class="property-section__grid">
           {featuredProperties.map(property => (
-            <PropertyCard property={property} featured={true} />
+            <PropertyCard property={property} featured={true} source="featured" />
           ))}
         </div>
 
-        <div class="text-center mt-10 md:hidden">
-          <a
-            href="/search"
-            class="inline-flex items-center px-8 py-3 rounded-lg transition-all font-semibold shadow-lg"
-            style={`background-color: ${brand.primary_color}; color: ${brand.text_light}; border-radius: ${brand.border_radius === 'full' ? '9999px' : brand.border_radius === 'large' ? '12px' : brand.border_radius === 'small' ? '4px' : '8px'};`}
-          >
+        <div class="property-section__mobile-cta">
+          <a href="/search" class="hero__cta">
             View All Properties
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
           </a>
         </div>
       </div>
@@ -139,44 +153,32 @@ const propertyImages = [
 
   <!-- Properties For Sale -->
   {saleProperties.length > 0 && (
-    <section class="py-16 md:py-20" style={`background-color: ${brand.background_secondary};`}>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-10">
-          <div>
-            <h2 class="text-3xl md:text-4xl font-bold mb-2" style={`color: ${brand.text_primary}; font-family: ${brand.heading_font_family}, sans-serif; font-weight: ${brand.heading_font_weight};`}>
-              Recently Added For Sale
-            </h2>
-            <p class="text-lg" style={`color: ${brand.text_secondary};`}>
-              The latest properties on the market
-            </p>
+    <section class="property-section property-section--alt">
+      <div class="property-section__container">
+        <div class="property-section__header">
+          <div class="property-section__title-group">
+            <h2 class="property-section__title">Recently Added For Sale</h2>
+            <p class="property-section__subtitle">The latest properties on the market</p>
           </div>
-          <a
-            href="/search?listing_type=sale"
-            class="hidden md:inline-flex items-center font-semibold hover:opacity-80 transition-opacity"
-            style={`color: ${brand.primary_color};`}
-          >
+          <a href="/search?listing_type=sale" class="property-section__link">
             View all for sale
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div class="property-section__grid">
           {saleProperties.map(property => (
-            <PropertyCard property={property} />
+            <PropertyCard property={property} source="homepage_sale" />
           ))}
         </div>
 
-        <div class="text-center mt-10 md:hidden">
-         <a 
-            href="/search?listing_type=sale"
-            class="inline-flex items-center font-semibold hover:opacity-80 transition-opacity"
-            style={`color: ${brand.primary_color};`}
-          >
+        <div class="property-section__mobile-cta">
+          <a href="/search?listing_type=sale" class="property-section__link">
             View all for sale
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
         </div>
@@ -186,44 +188,32 @@ const propertyImages = [
 
   <!-- Properties To Rent -->
   {letProperties.length > 0 && (
-    <section class="py-16 md:py-20" style={`background-color: ${brand.background_primary};`}>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-10">
-          <div>
-            <h2 class="text-3xl md:text-4xl font-bold mb-2" style={`color: ${brand.text_primary}; font-family: ${brand.heading_font_family}, sans-serif; font-weight: ${brand.heading_font_weight};`}>
-              Recently Added To Rent
-            </h2>
-            <p class="text-lg" style={`color: ${brand.text_secondary};`}>
-              Available rental properties
-            </p>
+    <section class="property-section">
+      <div class="property-section__container">
+        <div class="property-section__header">
+          <div class="property-section__title-group">
+            <h2 class="property-section__title">Recently Added To Rent</h2>
+            <p class="property-section__subtitle">Available rental properties</p>
           </div>
-          <a
-            href="/search?listing_type=let"
-            class="hidden md:inline-flex items-center font-semibold hover:opacity-80 transition-opacity"
-            style={`color: ${brand.primary_color};`}
-          >
+          <a href="/search?listing_type=let" class="property-section__link">
             View all to rent
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div class="property-section__grid">
           {letProperties.map(property => (
-            <PropertyCard property={property} />
+            <PropertyCard property={property} source="homepage_rent" />
           ))}
         </div>
 
-        <div class="text-center mt-10 md:hidden">
-         <a 
-            href="/search?listing_type=let"
-            class="inline-flex items-center font-semibold hover:opacity-80 transition-opacity"
-            style={`color: ${brand.primary_color};`}
-          >
+        <div class="property-section__mobile-cta">
+          <a href="/search?listing_type=let" class="property-section__link">
             View all to rent
-            <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
         </div>
@@ -231,343 +221,756 @@ const propertyImages = [
     </section>
   )}
 
-  <!-- Why Choose Us / Services -->
-  <section class="py-16 md:py-20" style={`background: ${brand.background_dark}; color: ${brand.text_light};`}>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4" style={`font-family: ${brand.heading_font_family}, sans-serif; font-weight: ${brand.heading_font_weight};`}>
-          Why Instruct {brand.business_name}?
-        </h2>
-        <p class="text-xl max-w-2xl mx-auto" style="opacity: 0.9;">
-          Expert local knowledge combined with innovative marketing
-        </p>
+  <!-- Why Choose Us (block_key: why_choose_us) -->
+  <section class="why-us">
+    <div class="why-us__container">
+      <div class="why-us__header">
+        <span class="why-us__label">Why us</span>
+        <h2 class="why-us__title">{whyChooseTitle || `Why Choose ${brand.business_name}?`}</h2>
+        {hasWhyChooseSection && whyChooseContent ? (
+          <div class="why-us__subtitle" set:html={whyChooseContent} />
+        ) : (
+          <p class="why-us__subtitle">We combine local expertise with modern technology to deliver exceptional results</p>
+        )}
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <!-- Local Expertise -->
-        <div class="text-center">
-          <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={`background: linear-gradient(135deg, ${brand.primary_color}, ${brand.accent_color});`}>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      <div class="why-us__grid">
+        <div class="why-us__item">
+          <div class="why-us__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2" style={`font-family: ${brand.heading_font_family}, sans-serif;`}>
-            Local Experts
-          </h3>
-          <p style="opacity: 0.8;">
-            In-depth knowledge of the area, schools, transport and amenities
-          </p>
+          <div class="why-us__item-content">
+            <h3 class="why-us__item-title">Local Experts</h3>
+            <p class="why-us__item-desc">In-depth knowledge of the area, schools, transport and amenities</p>
+          </div>
         </div>
 
-        <!-- Performance Data -->
-        <div class="text-center">
-          <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={`background: linear-gradient(135deg, ${brand.primary_color}, ${brand.accent_color});`}>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        <div class="why-us__item">
+          <div class="why-us__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 3v18h18"/>
+              <path d="M18 17V9M13 17V5M8 17v-3"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2" style={`font-family: ${brand.heading_font_family}, sans-serif;`}>
-            Data-Driven Marketing
-          </h3>
-          <p style="opacity: 0.8;">
-            Track your property's performance with detailed analytics
-          </p>
+          <div class="why-us__item-content">
+            <h3 class="why-us__item-title">Data-Driven Marketing</h3>
+            <p class="why-us__item-desc">Track your property's performance with detailed analytics</p>
+          </div>
         </div>
 
-        <!-- Professional Photography -->
-        <div class="text-center">
-          <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={`background: linear-gradient(135deg, ${brand.primary_color}, ${brand.accent_color});`}>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        <div class="why-us__item">
+          <div class="why-us__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+              <circle cx="12" cy="13" r="4"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2" style={`font-family: ${brand.heading_font_family}, sans-serif;`}>
-            Professional Media
-          </h3>
-          <p style="opacity: 0.8;">
-            High-quality photography, floor plans and virtual tours
-          </p>
+          <div class="why-us__item-content">
+            <h3 class="why-us__item-title">Professional Media</h3>
+            <p class="why-us__item-desc">High-quality photography, floor plans and virtual tours</p>
+          </div>
         </div>
 
-        <!-- Dedicated Support -->
-        <div class="text-center">
-          <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={`background: linear-gradient(135deg, ${brand.primary_color}, ${brand.accent_color});`}>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        <div class="why-us__item">
+          <div class="why-us__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="8.5" cy="7" r="4"/>
+              <path d="M20 8v6M23 11h-6"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2" style={`font-family: ${brand.heading_font_family}, sans-serif;`}>
-            Personal Service
-          </h3>
-          <p style="opacity: 0.8;">
-            Dedicated agent guiding you from valuation to completion
-          </p>
+          <div class="why-us__item-content">
+            <h3 class="why-us__item-title">Personal Service</h3>
+            <p class="why-us__item-desc">Dedicated agent guiding you from valuation to completion</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Area Guide / Stats Section -->
+  <!-- About Section -->
   {brand.about_text && (
-    <section class="py-16 md:py-20" style={`background-color: ${brand.background_primary};`}>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <!-- Content -->
-          <div>
-            <h2 class="text-3xl md:text-4xl font-bold mb-6" style={`color: ${brand.text_primary}; font-family: ${brand.heading_font_family}, sans-serif; font-weight: ${brand.heading_font_weight};`}>
-              About {brand.business_name}
-            </h2>
-            <p class="text-lg mb-6" style={`color: ${brand.text_secondary}; font-family: ${brand.body_font_family}, sans-serif;`}>
-              {brand.about_text}
-            </p>
-            <div class="grid grid-cols-2 gap-6 mb-8">
-              <div class="border-l-4 pl-4" style={`border-color: ${brand.primary_color};`}>
-                <div class="text-3xl font-bold mb-1" style={`color: ${brand.text_primary};`}>500+</div>
-                <div class="text-sm" style={`color: ${brand.text_secondary};`}>Properties Sold</div>
+    <section class="about-section">
+      <div class="about-section__container">
+        <div class="about-section__grid">
+          <div class="about-section__content">
+            <h2 class="about-section__title">About {brand.business_name}</h2>
+            <p class="about-section__text">{brand.about_text}</p>
+
+            <div class="about-section__stats">
+              <div class="about-section__stat">
+                <div class="about-section__stat-value">500+</div>
+                <div class="about-section__stat-label">Properties Sold</div>
               </div>
-              <div class="border-l-4 pl-4" style={`border-color: ${brand.primary_color};`}>
-                <div class="text-3xl font-bold mb-1" style={`color: ${brand.text_primary};`}>98%</div>
-                <div class="text-sm" style={`color: ${brand.text_secondary};`}>Customer Satisfaction</div>
+              <div class="about-section__stat">
+                <div class="about-section__stat-value">98%</div>
+                <div class="about-section__stat-label">Customer Satisfaction</div>
               </div>
-              <div class="border-l-4 pl-4" style={`border-color: ${brand.primary_color};`}>
-                <div class="text-3xl font-bold mb-1" style={`color: ${brand.text_primary};`}>£450M+</div>
-                <div class="text-sm" style={`color: ${brand.text_secondary};`}>Properties Transacted</div>
+              <div class="about-section__stat">
+                <div class="about-section__stat-value">£450M+</div>
+                <div class="about-section__stat-label">Properties Transacted</div>
               </div>
-              <div class="border-l-4 pl-4" style={`border-color: ${brand.primary_color};`}>
-                <div class="text-3xl font-bold mb-1" style={`color: ${brand.text_primary};`}>15+</div>
-                <div class="text-sm" style={`color: ${brand.text_secondary};`}>Years Experience</div>
+              <div class="about-section__stat">
+                <div class="about-section__stat-value">15+</div>
+                <div class="about-section__stat-label">Years Experience</div>
               </div>
             </div>
-            <a
-              href="/about"
-              class="inline-flex items-center font-semibold hover:opacity-80 transition-opacity"
-              style={`color: ${brand.primary_color};`}
-            >
+
+            <a href="/about" class="about-section__link">
               Learn more about us
-              <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </a>
           </div>
 
-          <!-- Image/Placeholder -->
-          <div class="relative">
+          <div class="about-section__image-wrapper">
             {brand.about_image_url ? (
-              <div class="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
-                <img src={brand.about_image_url} alt={`About ${brand.business_name}`} class="w-full h-full object-cover" />
-              </div>
+              <img src={brand.about_image_url} alt={`About ${brand.business_name}`} class="about-section__image" />
             ) : (
-              <div class="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl" style={`background: linear-gradient(135deg, ${brand.background_secondary}, ${brand.secondary_color});`}>
-                <div class="w-full h-full flex items-center justify-center" style={`color: ${brand.text_secondary};`}>
-                  <svg class="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                </div>
+              <div class="about-section__image about-section__image--placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  <polyline points="9,22 9,12 15,12 15,22"/>
+                </svg>
               </div>
             )}
-            <!-- Decorative element -->
-            <div class="absolute -bottom-6 -right-6 w-64 h-64 rounded-full blur-3xl -z-10" style={`background-color: ${brand.primary_color}; opacity: 0.1;`}></div>
           </div>
         </div>
       </div>
     </section>
   )}
 
-  <!-- Free Valuation CTA -->
-  <section class="relative py-20 md:py-28 overflow-hidden">
-    <!-- Gradient Background -->
-    <div class="absolute inset-0" style={`background: linear-gradient(135deg, ${brand.primary_color}, ${brand.accent_color || brand.primary_color}, ${brand.background_dark});`}></div>
-    
-    <!-- Pattern Overlay -->
-    <div class="absolute inset-0 opacity-10">
-      <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-    </div>
-
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style={`color: ${brand.text_light};`}>
-      <div class="mb-8">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full backdrop-blur-sm mb-6" style="background-color: rgba(255, 255, 255, 0.1);">
-          <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-        </div>
-        <h2 class="text-3xl md:text-5xl font-bold mb-4" style={`font-family: ${brand.heading_font_family}, sans-serif; font-weight: ${brand.heading_font_weight};`}>
-          Thinking of Selling or Letting?
-        </h2>
-        <p class="text-xl md:text-2xl mb-2" style="opacity: 0.95;">
-          Get an instant online valuation in 60 seconds
-        </p>
-        <p class="text-lg" style="opacity: 0.85;">
-          Or book a free home visit from one of our expert valuers
-        </p>
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <div class="cta-banner__container">
+      <div class="cta-banner__content">
+        <h2 class="cta-banner__title">Thinking of Selling or Letting?</h2>
+        <p class="cta-banner__subtitle">Get an instant online valuation or book a free home visit with our local experts</p>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-        <a
-          href="/valuation"
-          class="inline-flex items-center justify-center px-8 py-4 transition-all font-semibold text-lg shadow-xl group"
-          style={`background-color: ${brand.background_primary}; color: ${brand.primary_color}; border-radius: ${brand.border_radius === 'full' ? '9999px' : brand.border_radius === 'large' ? '12px' : brand.border_radius === 'small' ? '4px' : '8px'};`}
-        >
+      <div class="cta-banner__actions">
+        <a href="/valuation" class="cta-banner__btn-primary">
           Get Free Valuation
-          <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </a>
         {contact.phone && (
-          <a
-            href={`tel:${contact.phone}`}
-            class="inline-flex items-center justify-center px-8 py-4 transition-all font-semibold text-lg border-2 group"
-            style={`background-color: rgba(255, 255, 255, 0.1); color: ${brand.text_light}; border-color: rgba(255, 255, 255, 0.3); border-radius: ${brand.border_radius === 'full' ? '9999px' : brand.border_radius === 'large' ? '12px' : brand.border_radius === 'small' ? '4px' : '8px'};`}
-          >
-            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          <a href={`tel:${contact.phone}`} class="cta-banner__btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
             </svg>
-            {contact.phone}
+            Call Us
           </a>
         )}
-      </div>
-
-      <!-- Trust Indicators -->
-      <div class="flex flex-wrap items-center justify-center gap-6 text-sm" style="opacity: 0.85;">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="opacity: 0.9;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          No obligation
-        </div>
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="opacity: 0.9;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          Instant results
-        </div>
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="opacity: 0.9;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          Expert local valuers
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- Newsletter / Updates Section -->
-  <section class="py-16" style={`background-color: ${brand.background_secondary};`}>
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-2xl md:text-3xl font-bold mb-4" style={`color: ${brand.text_primary}; font-family: ${brand.heading_font_family}, sans-serif; font-weight: ${brand.heading_font_weight};`}>
-        Stay Updated on Local Property
-      </h2>
-      <p class="text-lg mb-8" style={`color: ${brand.text_secondary};`}>
-        Get the latest properties and market insights delivered to your inbox
-      </p>
-      <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-        <input
-          type="email"
-          placeholder="Your email address"
-          class="flex-1 px-4 py-3 border-2 focus:outline-none"
-          style={`border-color: ${brand.secondary_color}; border-radius: ${brand.border_radius === 'full' ? '9999px' : brand.border_radius === 'large' ? '12px' : brand.border_radius === 'small' ? '4px' : '8px'}; font-family: ${brand.body_font_family}, sans-serif;`}
-        />
-        <button
-          type="submit"
-          class="px-8 py-3 transition-colors font-semibold whitespace-nowrap"
-          style={`background-color: ${brand.primary_color}; color: ${brand.text_light}; border-radius: ${brand.border_radius === 'full' ? '9999px' : brand.border_radius === 'large' ? '12px' : brand.border_radius === 'small' ? '4px' : '8px'};`}
-        >
-          Subscribe
-        </button>
+  <!-- Newsletter -->
+  <section class="newsletter">
+    <div class="newsletter__container">
+      <h2 class="newsletter__title">Stay Updated on Local Property</h2>
+      <p class="newsletter__text">Get the latest properties and market insights delivered to your inbox</p>
+
+      <form class="newsletter__form">
+        <input type="email" class="newsletter__input" placeholder="Your email address" required />
+        <button type="submit" class="newsletter__submit">Subscribe</button>
       </form>
-      <p class="text-sm mt-4" style={`color: ${brand.text_secondary};`}>
-        We respect your privacy. Unsubscribe at any time.
-      </p>
+
+      <p class="newsletter__disclaimer">We respect your privacy. Unsubscribe at any time.</p>
     </div>
   </section>
 </Layout>
 
-<script>
-  // Dynamic price range switching between sale and rent
-  document.addEventListener('DOMContentLoaded', () => {
-    const listingTypeInputs = document.querySelectorAll('input[name="listing_type"]')
-    const minPriceSelect = document.getElementById('min_price') as HTMLSelectElement
-    const maxPriceSelect = document.getElementById('max_price') as HTMLSelectElement
+<style lang="scss">
+  @use '../styles/variables' as *;
+  @use '../styles/mixins' as *;
 
-    if (!minPriceSelect || !maxPriceSelect) return
+  // ----------------------------------------
+  // HERO SECTION
+  // ----------------------------------------
+  .hero {
+    background: $bg-white;
+    padding: $spacing-12 0 $spacing-16;
 
-    // Sale price ranges
-    const salePrices = {
-      min: [
-        { value: '', label: 'No min' },
-        { value: '100000', label: '£100,000' },
-        { value: '200000', label: '£200,000' },
-        { value: '300000', label: '£300,000' },
-        { value: '400000', label: '£400,000' },
-        { value: '500000', label: '£500,000' },
-        { value: '750000', label: '£750,000' },
-        { value: '1000000', label: '£1,000,000' },
-      ],
-      max: [
-        { value: '', label: 'No max' },
-        { value: '200000', label: '£200,000' },
-        { value: '300000', label: '£300,000' },
-        { value: '400000', label: '£400,000' },
-        { value: '500000', label: '£500,000' },
-        { value: '750000', label: '£750,000' },
-        { value: '1000000', label: '£1,000,000' },
-        { value: '2000000', label: '£2,000,000' },
-      ],
+    @include md {
+      padding: $spacing-16 0 $spacing-20;
     }
 
-    // Rent price ranges (monthly)
-    const rentPrices = {
-      min: [
-        { value: '', label: 'No min' },
-        { value: '500', label: '£500 pcm' },
-        { value: '750', label: '£750 pcm' },
-        { value: '1000', label: '£1,000 pcm' },
-        { value: '1250', label: '£1,250 pcm' },
-        { value: '1500', label: '£1,500 pcm' },
-        { value: '2000', label: '£2,000 pcm' },
-        { value: '2500', label: '£2,500 pcm' },
-      ],
-      max: [
-        { value: '', label: 'No max' },
-        { value: '750', label: '£750 pcm' },
-        { value: '1000', label: '£1,000 pcm' },
-        { value: '1250', label: '£1,250 pcm' },
-        { value: '1500', label: '£1,500 pcm' },
-        { value: '2000', label: '£2,000 pcm' },
-        { value: '2500', label: '£2,500 pcm' },
-        { value: '3000', label: '£3,000 pcm' },
-      ],
+    &__container {
+      @include container;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $spacing-10;
+      align-items: center;
+
+      @include lg {
+        grid-template-columns: 1fr 1.2fr;
+        gap: $spacing-12;
+      }
     }
 
-    function updatePriceRanges(listingType: 'sale' | 'let') {
-      const prices = listingType === 'sale' ? salePrices : rentPrices
+    &__content {
+      text-align: center;
 
-      // Update min price options
-      minPriceSelect.innerHTML = ''
-      prices.min.forEach(option => {
-        const opt = document.createElement('option')
-        opt.value = option.value
-        opt.textContent = option.label
-        minPriceSelect.appendChild(opt)
-      })
-
-      // Update max price options
-      maxPriceSelect.innerHTML = ''
-      prices.max.forEach(option => {
-        const opt = document.createElement('option')
-        opt.value = option.value
-        opt.textContent = option.label
-        maxPriceSelect.appendChild(opt)
-      })
+      @include lg {
+        text-align: left;
+        padding-right: $spacing-8;
+      }
     }
 
-    // Listen for listing type changes
-    listingTypeInputs.forEach(input => {
-      input.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement
-        updatePriceRanges(target.value as 'sale' | 'let')
-      })
-    })
-  })
-</script>
+    &__headline {
+      @include heading-xl;
+      margin-bottom: $spacing-5;
+    }
+
+    &__description {
+      @include body-lg;
+      margin-bottom: $spacing-8;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+
+      @include lg {
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+
+    &__cta {
+      @include btn-primary;
+      padding: $spacing-4 $spacing-8;
+      font-size: $font-size-lg;
+      border-radius: $radius-md;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    &__images {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-4;
+
+      @include sm {
+        gap: $spacing-5;
+      }
+    }
+
+    &__image-item {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border-radius: $radius-lg;
+      overflow: hidden;
+      background: $bg-light-gray;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease forwards;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform $transition-slow;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // PROPERTY SECTIONS
+  // ----------------------------------------
+  .property-section {
+    @include section-padding;
+    background: $bg-white;
+
+    &--alt {
+      background: $bg-off-white;
+    }
+
+    &__container {
+      @include container;
+    }
+
+    &__header {
+      @include flex-between;
+      margin-bottom: $spacing-10;
+      flex-wrap: wrap;
+      gap: $spacing-4;
+    }
+
+    &__title-group {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &__title {
+      @include heading-lg;
+      margin-bottom: $spacing-2;
+    }
+
+    &__subtitle {
+      @include body-base;
+    }
+
+    &__link {
+      display: none;
+      align-items: center;
+      gap: $spacing-2;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      color: $accent-coral;
+      text-decoration: none;
+      transition: gap $transition-fast;
+
+      @include md {
+        display: inline-flex;
+      }
+
+      &:hover {
+        gap: $spacing-3;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+        transition: transform $transition-fast;
+      }
+
+      &:hover svg {
+        transform: translateX(4px);
+      }
+    }
+
+    &__grid {
+      @include property-grid;
+    }
+
+    &__mobile-cta {
+      display: flex;
+      justify-content: center;
+      margin-top: $spacing-10;
+
+      @include md {
+        display: none;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // WHY CHOOSE US
+  // ----------------------------------------
+  .why-us {
+    @include section-padding;
+    background: $bg-off-white;
+
+    &__container {
+      @include container;
+    }
+
+    &__header {
+      text-align: center;
+      margin-bottom: $spacing-12;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    &__label {
+      display: inline-block;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $accent-coral;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: $spacing-3;
+    }
+
+    &__title {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-semibold;
+      margin-bottom: $spacing-4;
+      color: $text-primary;
+
+      @include md {
+        font-size: $font-size-3xl;
+      }
+    }
+
+    &__subtitle {
+      font-size: $font-size-base;
+      color: $text-secondary;
+      line-height: $line-height-relaxed;
+
+      @include md {
+        font-size: $font-size-lg;
+      }
+    }
+
+    &__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $spacing-6;
+
+      @include sm {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @include lg {
+        grid-template-columns: repeat(4, 1fr);
+        gap: $spacing-8;
+      }
+    }
+
+    &__item {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-4;
+      padding: $spacing-5;
+      background: $bg-white;
+      border-radius: $radius-lg;
+      border: 1px solid $border-light;
+      transition: border-color $transition-fast, box-shadow $transition-fast;
+
+      @include lg {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+        padding: $spacing-6;
+      }
+
+      &:hover {
+        border-color: $border-medium;
+        box-shadow: $shadow-sm;
+      }
+    }
+
+    &__icon {
+      @include flex-center;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: $radius-md;
+      background: rgba(0, 0, 0, 0.03);
+
+      svg {
+        width: 24px;
+        height: 24px;
+        color: $accent-coral;
+      }
+    }
+
+    &__item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &__item-title {
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      margin-bottom: $spacing-1;
+      color: $text-primary;
+    }
+
+    &__item-desc {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      line-height: $line-height-relaxed;
+    }
+  }
+
+  // ----------------------------------------
+  // ABOUT SECTION
+  // ----------------------------------------
+  .about-section {
+    @include section-padding;
+    background: $bg-white;
+
+    &__container {
+      @include container;
+    }
+
+    &__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $spacing-12;
+      align-items: center;
+
+      @include lg {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    &__title {
+      @include heading-lg;
+      margin-bottom: $spacing-6;
+    }
+
+    &__text {
+      @include body-lg;
+      margin-bottom: $spacing-8;
+    }
+
+    &__stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-6;
+      margin-bottom: $spacing-8;
+    }
+
+    &__stat {
+      padding-left: $spacing-4;
+      border-left: 4px solid $accent-coral;
+    }
+
+    &__stat-value {
+      font-size: $font-size-3xl;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+      margin-bottom: $spacing-1;
+    }
+
+    &__stat-label {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+    }
+
+    &__link {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-2;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      color: $accent-coral;
+      text-decoration: none;
+
+      &:hover {
+        gap: $spacing-3;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+        transition: transform $transition-fast;
+      }
+
+      &:hover svg {
+        transform: translateX(4px);
+      }
+    }
+
+    &__image-wrapper {
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -24px;
+        right: -24px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba($accent-coral, 0.1);
+        z-index: -1;
+      }
+    }
+
+    &__image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: $radius-xl;
+      box-shadow: $shadow-lg;
+
+      &--placeholder {
+        @include flex-center;
+        background: linear-gradient(135deg, $bg-light-gray, $border-light);
+
+        svg {
+          width: 80px;
+          height: 80px;
+          color: $text-muted;
+        }
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // CTA BANNER
+  // ----------------------------------------
+  .cta-banner {
+    padding: $spacing-10 0;
+    background: $text-primary;
+
+    @include md {
+      padding: $spacing-12 0;
+    }
+
+    &__container {
+      @include container;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-6;
+      text-align: center;
+
+      @include md {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+        gap: $spacing-8;
+      }
+    }
+
+    &__content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &__title {
+      font-size: $font-size-xl;
+      font-weight: $font-weight-semibold;
+      color: $bg-white;
+      margin-bottom: $spacing-2;
+
+      @include md {
+        font-size: $font-size-2xl;
+      }
+    }
+
+    &__subtitle {
+      font-size: $font-size-base;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 480px;
+
+      @include md {
+        font-size: $font-size-base;
+      }
+    }
+
+    &__actions {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+      flex-shrink: 0;
+      width: 100%;
+
+      @include sm {
+        flex-direction: row;
+        width: auto;
+      }
+    }
+
+    &__btn-primary {
+      @include btn-base;
+      background: $accent-coral;
+      color: $bg-white;
+      padding: $spacing-3 $spacing-6;
+      font-size: $font-size-base;
+      border-radius: $radius-md;
+
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__btn-secondary {
+      @include btn-base;
+      background: transparent;
+      color: $bg-white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: $spacing-3 $spacing-6;
+      font-size: $font-size-base;
+      border-radius: $radius-md;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // NEWSLETTER
+  // ----------------------------------------
+  .newsletter {
+    @include section-padding-sm;
+    background: $bg-off-white;
+
+    &__container {
+      @include container;
+      max-width: 640px;
+      text-align: center;
+    }
+
+    &__title {
+      @include heading-md;
+      margin-bottom: $spacing-4;
+    }
+
+    &__text {
+      @include body-base;
+      margin-bottom: $spacing-8;
+    }
+
+    &__form {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+
+      @include sm {
+        flex-direction: row;
+      }
+    }
+
+    &__input {
+      @include input-base;
+      flex: 1;
+    }
+
+    &__submit {
+      @include btn-primary;
+      padding: $spacing-4 $spacing-8;
+    }
+
+    &__disclaimer {
+      font-size: $font-size-sm;
+      color: $text-muted;
+      margin-top: $spacing-4;
+    }
+  }
+
+  // ----------------------------------------
+  // ANIMATIONS
+  // ----------------------------------------
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

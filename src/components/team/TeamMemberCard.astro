@@ -1,0 +1,235 @@
+---
+// ========================================
+// TEAM MEMBER CARD COMPONENT
+// Clean, minimal team member card
+// ========================================
+
+import type { TeamMember } from '../../types/database'
+
+interface Props {
+  member: TeamMember
+  featured?: boolean
+}
+
+const { member, featured = false } = Astro.props
+
+// Default avatar if no photo
+const avatarUrl = member.profile_photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name)}&size=400&background=F5F5F5&color=6B7280`
+
+// Determine which contact methods are available
+const hasEmail = member.email || member.social_links?.email
+const hasPhone = member.phone
+const hasLinkedIn = member.social_links?.linkedin
+const emailAddress = member.email || member.social_links?.email
+---
+
+<article
+  class:list={[
+    'team-card',
+    { 'team-card--featured': featured }
+  ]}
+>
+  <!-- Image -->
+  <div class="team-card__image-wrap">
+    <img
+      src={avatarUrl}
+      alt={member.full_name}
+      class="team-card__image"
+      loading="lazy"
+    />
+  </div>
+
+  <!-- Info -->
+  <div class="team-card__info">
+    <h3 class="team-card__name">{member.full_name}</h3>
+
+    {member.job_title && (
+      <p class="team-card__role">{member.job_title}</p>
+    )}
+
+    {member.short_bio && (
+      <p class="team-card__bio">{member.short_bio}</p>
+    )}
+
+    <!-- Contact Row -->
+    {(hasEmail || hasPhone || hasLinkedIn) && (
+      <div class="team-card__links">
+        {hasEmail && (
+          <a href={`mailto:${emailAddress}`} class="team-card__link" title="Email">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </a>
+        )}
+        {hasPhone && (
+          <a href={`tel:${member.phone}`} class="team-card__link" title="Call">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </a>
+        )}
+        {hasLinkedIn && (
+          <a href={member.social_links.linkedin} target="_blank" rel="noopener noreferrer" class="team-card__link" title="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </a>
+        )}
+      </div>
+    )}
+  </div>
+</article>
+
+<style lang="scss">
+  // ========================================
+  // DESIGN TOKENS
+  // ========================================
+
+  $accent-coral: #FF5A5F;
+  $text-primary: #1A1A1A;
+  $text-secondary: #6B7280;
+  $text-muted: #9CA3AF;
+  $bg-white: #FFFFFF;
+  $bg-light: #F9FAFB;
+  $border-light: #E5E7EB;
+
+  $radius-lg: 12px;
+
+  $transition-fast: 150ms ease;
+  $transition-base: 200ms ease;
+
+  $font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  // ========================================
+  // CARD
+  // ========================================
+
+  .team-card {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    border: 1px solid $border-light;
+    overflow: hidden;
+    transition: border-color $transition-base, box-shadow $transition-base;
+    font-family: $font-family;
+
+    &:hover {
+      border-color: #D1D5DB;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    &--featured {
+      border-color: rgba($accent-coral, 0.2);
+
+      &:hover {
+        border-color: rgba($accent-coral, 0.35);
+        box-shadow: 0 4px 16px rgba($accent-coral, 0.1);
+      }
+    }
+  }
+
+  // ========================================
+  // IMAGE
+  // ========================================
+
+  .team-card__image-wrap {
+    aspect-ratio: 1 / 1;
+    background: $bg-light;
+    overflow: hidden;
+  }
+
+  .team-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+
+    .team-card:hover & {
+      transform: scale(1.03);
+    }
+  }
+
+  // ========================================
+  // INFO
+  // ========================================
+
+  .team-card__info {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .team-card__name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .team-card__role {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $accent-coral;
+    margin: 4px 0 0 0;
+  }
+
+  .team-card__bio {
+    font-size: 0.8125rem;
+    color: $text-secondary;
+    line-height: 1.5;
+    margin: 10px 0 0 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // ========================================
+  // CONTACT LINKS
+  // ========================================
+
+  .team-card__links {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid $border-light;
+  }
+
+  .team-card__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    color: $text-muted;
+    background: transparent;
+    transition: color $transition-fast, background $transition-fast;
+
+    &:hover {
+      color: $accent-coral;
+      background: rgba($accent-coral, 0.08);
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // ========================================
+  // RESPONSIVE
+  // ========================================
+
+  @media (max-width: 640px) {
+    .team-card__info {
+      padding: 14px;
+    }
+
+    .team-card__name {
+      font-size: 0.9375rem;
+    }
+  }
+</style>
