@@ -1,0 +1,86 @@
+---
+// ========================================
+// SEARCH SORT
+// Sort dropdown component
+// ========================================
+
+import type { SearchSortProps, SortOption } from '../types'
+
+interface Props extends SearchSortProps {
+  class?: string
+}
+
+const {
+  currentSortBy,
+  options,
+  class: className = '',
+} = Astro.props
+---
+
+<div class:list={['search-sort', className]}>
+  <label for="sort_select" class="search-sort__label">Sort:</label>
+  <select id="sort_select" class="search-sort__select">
+    {options.map((option: SortOption) => (
+      <option value={option.value} selected={currentSortBy === option.value}>
+        {option.label}
+      </option>
+    ))}
+  </select>
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .search-sort {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    width: 100%;
+    justify-content: space-between;
+
+    @include sm {
+      width: auto;
+      justify-content: flex-start;
+    }
+  }
+
+  .search-sort__label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-secondary;
+  }
+
+  .search-sort__select {
+    padding: $spacing-2 $spacing-10 $spacing-2 $spacing-4;
+    background: $bg-off-white;
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+    font-family: $font-family-base;
+    font-size: $font-size-sm;
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right $spacing-3 center;
+    transition: border-color $transition-fast, background $transition-fast, box-shadow $transition-fast;
+    flex: 1;
+
+    @include sm {
+      flex: none;
+    }
+
+    &:hover {
+      border-color: $border-medium;
+      background-color: $bg-white;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $accent-coral;
+      box-shadow: 0 0 0 3px rgba($accent-coral, 0.1);
+    }
+  }
+</style>

@@ -7,76 +7,31 @@
 export const prerender = false
 
 import Layout from '../layouts/Layout.astro'
-import UniversalSearchBar from '../components/search/UniversalSearchBar.astro'
-import PropertyCard from '../components/properties/PropertyCard.astro'
 import Pagination from '../components/search/Pagination.astro'
 import { searchProperties } from '../lib/api'
-import type { PropertySearchParams } from '../types/database'
+
+// Search Page Components
+import SearchPageLayout from '../components/search-page/layout/SearchPageLayout.astro'
+import SearchPageGrid from '../components/search-page/layout/SearchPageGrid.astro'
+import SearchHero from '../components/search-page/hero/SearchHero.astro'
+import SearchSidebar from '../components/search-page/sidebar/SearchSidebar.astro'
+import SearchResultsHeader from '../components/search-page/results/SearchResultsHeader.astro'
+import SearchResultsGrid from '../components/search-page/results/SearchResultsGrid.astro'
+import SearchErrorState from '../components/search-page/states/SearchErrorState.astro'
+import SearchEmptyState from '../components/search-page/states/SearchEmptyState.astro'
+
+// Utilities and Config
+import {
+  parseSearchParams,
+  computeSearchValues,
+  defaultSortOptions,
+} from '../components/search-page'
 
 // ----------------------------------------
 // PARSE SEARCH PARAMETERS
 // ----------------------------------------
 
-const getIntParam = (name: string): number | undefined => {
-  const value = Astro.url.searchParams.get(name)
-  return value ? parseInt(value) : undefined
-}
-
-const getBoolParam = (name: string): boolean => {
-  return Astro.url.searchParams.get(name) === 'true'
-}
-
-const searchParams: PropertySearchParams = {
-  // Basic filters
-  listing_type: (Astro.url.searchParams.get('listing_type') as 'sale' | 'let') || 'sale',
-  location: Astro.url.searchParams.get('location') || undefined,
-  postcode: Astro.url.searchParams.get('postcode') || undefined,
-  min_price: getIntParam('min_price'),
-  max_price: getIntParam('max_price'),
-  beds: getIntParam('beds'),
-  property_type: Astro.url.searchParams.get('property_type') as any || undefined,
-
-  // Room filters
-  min_baths: getIntParam('min_baths'),
-  min_receptions: getIntParam('min_receptions'),
-
-  // EPC filters
-  epc_rating: Astro.url.searchParams.get('epc_rating') as any || undefined,
-  min_epc_score: getIntParam('min_epc_score'),
-
-  // Council Tax filters
-  council_tax_band: Astro.url.searchParams.get('council_tax_band') as any || undefined,
-  max_council_tax_amount: getIntParam('max_council_tax_amount'),
-
-  // Parking filters
-  parking: Astro.url.searchParams.get('parking') as any || undefined,
-  min_parking_spaces: getIntParam('min_parking_spaces'),
-
-  // Tenure filters
-  tenure: Astro.url.searchParams.get('tenure') as any || undefined,
-  min_lease_years: getIntParam('min_lease_years'),
-  max_service_charge: getIntParam('max_service_charge'),
-  max_ground_rent: getIntParam('max_ground_rent'),
-
-  // Area filters
-  min_area: getIntParam('min_area'),
-  max_area: getIntParam('max_area'),
-
-  // Feature filters
-  garden: getBoolParam('garden'),
-  new_build: getBoolParam('new_build'),
-  recently_reduced: getBoolParam('recently_reduced'),
-  shared_ownership: getBoolParam('shared_ownership'),
-  retirement_home: getBoolParam('retirement_home'),
-
-  // Rental filters
-  furnishing: Astro.url.searchParams.get('furnishing') as any || undefined,
-
-  // Pagination & sorting
-  page: getIntParam('page') || 1,
-  limit: 20,
-  sort_by: (Astro.url.searchParams.get('sort_by') as any) || 'newest',
-}
+const searchParams = parseSearchParams(Astro.url)
 
 // ----------------------------------------
 // FETCH PROPERTIES
@@ -84,334 +39,80 @@ const searchParams: PropertySearchParams = {
 
 const searchResponse = await searchProperties(searchParams)
 
-const hasError = !searchResponse
-const properties = searchResponse?.properties || []
-const total = searchResponse?.total || 0
-const totalPages = Math.ceil(total / (searchParams.limit || 20))
-
 // ----------------------------------------
 // COMPUTED VALUES
 // ----------------------------------------
 
-const activeFiltersCount = Object.entries(searchParams).filter(([key, value]) => {
-  const excludedKeys = ['listing_type', 'page', 'limit', 'sort_by']
-  if (excludedKeys.includes(key)) return false
-  return value !== undefined && value !== '' && value !== false
-}).length
-
-const listingTypeText = searchParams.listing_type === 'sale' ? 'For Sale' : 'To Rent'
-const locationText = searchParams.location ? ` in ${searchParams.location}` : ''
-const pageTitle = `Properties ${listingTypeText}${locationText}`
-const metaDescription = `Find properties ${listingTypeText.toLowerCase()}${locationText}. ${total} properties available.`
-
-// Sort options configuration
-const sortOptions = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'beds_desc', label: 'Most Bedrooms' },
-  { value: 'area_desc', label: 'Largest First' },
-  { value: 'epc_best', label: 'Best EPC' },
-]
+const {
+  hasError,
+  properties,
+  total,
+  totalPages,
+  activeFiltersCount,
+  pageTitle,
+  metaDescription,
+} = computeSearchValues(searchParams, searchResponse)
 ---
 
 <Layout title={pageTitle} description={metaDescription}>
-  <div class="search-page">
-    <!-- Hero Header -->
-    <div class="search-page__hero">
-      <div class="search-page__hero-background"></div>
-      <div class="search-page__hero-content">
-        <div class="search-page__container">
-          <h1 class="search-page__hero-title">Find Your Dream Property</h1>
-          <p class="search-page__hero-subtitle">
-            Search thousands of properties with advanced filters
-          </p>
-        </div>
-      </div>
-    </div>
+  <SearchPageLayout>
+    <SearchHero />
 
-    <!-- Main Content -->
-    <div class="search-page__container search-page__main">
-      <div class="search-page__grid">
-        <!-- Sidebar: Universal Search Bar -->
-        <aside class="search-page__sidebar">
-          <div class="search-page__sidebar-sticky">
-            <UniversalSearchBar
-              variant="sidebar"
-              currentParams={searchParams}
+    <SearchPageGrid>
+      <SearchSidebar
+        slot="sidebar"
+        currentParams={searchParams}
+      />
 
-              showListingTypeToggle={true}
-              showLocation={true}
-              showMinPrice={true}
-              showMaxPrice={true}
-              showBedrooms={true}
-              showPropertyType={true}
-
-              showAdvancedToggle={true}
-              advancedDefaultOpen={false}
-
-              showBathrooms={true}
-              showReceptions={true}
-              showMinArea={true}
-              showMaxArea={true}
-              showEPCRating={true}
-              showCouncilTaxBand={true}
-              showParking={true}
-              showTenure={true}
-              showMinLeaseYears={true}
-              showMaxServiceCharge={true}
-              showGarden={true}
-              showNewBuild={true}
-              showRecentlyReduced={true}
-              showFurnishing={true}
-
-              submitButtonText="Apply Filters"
-              showResetButton={true}
+      <main slot="results" class="search-results">
+        {hasError ? (
+          <SearchErrorState />
+        ) : (
+          <>
+            <SearchResultsHeader
+              total={total}
+              location={searchParams.location}
+              activeFiltersCount={activeFiltersCount}
+              currentSortBy={searchParams.sort_by || 'newest'}
+              sortOptions={defaultSortOptions}
             />
-          </div>
-        </aside>
 
-        <!-- Main: Search Results -->
-        <main class="search-page__results">
-          {hasError ? (
-            <!-- Error State -->
-            <div class="search-page__state">
-              <svg class="search-page__state-icon search-page__state-icon--error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h2 class="search-page__state-title">Unable to Load Properties</h2>
-              <p class="search-page__state-message">Please try again later or contact support.</p>
-              <a href="/search" class="search-page__state-button">Reset Search</a>
-            </div>
-          ) : (
-            <>
-              <!-- Results Header -->
-              <div class="search-page__results-header">
-                <div class="search-page__results-meta">
-                  <h2 class="search-page__results-count" data-results-count={total}>
-                    {total === 0 ? (
-                      'No properties found'
-                    ) : (
-                      <>
-                        <span class="search-page__count-number">{total.toLocaleString()}</span>
-                        <span class="search-page__count-text">{total === 1 ? 'property' : 'properties'}</span>
-                      </>
-                    )}
-                  </h2>
-                  {searchParams.location && (
-                    <p class="search-page__results-location">
-                      <svg class="search-page__location-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                      </svg>
-                      <span>{searchParams.location}</span>
-                    </p>
-                  )}
+            {properties.length === 0 ? (
+              <SearchEmptyState />
+            ) : (
+              <>
+                <SearchResultsGrid properties={properties} />
+
+                <div class="search-pagination">
+                  <Pagination
+                    currentPage={searchParams.page || 1}
+                    totalPages={totalPages}
+                    totalResults={total}
+                    searchParams={searchParams}
+                  />
                 </div>
-
-                <div class="search-page__controls">
-                  {activeFiltersCount > 0 && (
-                    <div class="search-page__filters-badge">
-                      <svg class="search-page__badge-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                      </svg>
-                      <span>{activeFiltersCount} active</span>
-                    </div>
-                  )}
-
-                  <div class="search-page__sort">
-                    <label for="sort_select" class="search-page__sort-label">Sort:</label>
-                    <select id="sort_select" class="search-page__sort-select">
-                      {sortOptions.map(option => (
-                        <option value={option.value} selected={searchParams.sort_by === option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <a href="/search-map" class="search-page__map-link">
-                    <svg class="search-page__map-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
-                      <line x1="9" y1="3" x2="9" y2="18"></line>
-                      <line x1="15" y1="6" x2="15" y2="21"></line>
-                    </svg>
-                    <span>Map View</span>
-                  </a>
-                </div>
-              </div>
-
-              {properties.length === 0 ? (
-                <!-- Empty State -->
-                <div class="search-page__state">
-                  <svg class="search-page__state-icon search-page__state-icon--empty" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  <h3 class="search-page__state-title">No properties match your search</h3>
-                  <p class="search-page__state-message">
-                    Try adjusting your filters or broaden your search area.
-                  </p>
-                  <div class="search-page__suggestions">
-                    <p class="search-page__suggestions-title">Suggestions:</p>
-                    <ul class="search-page__suggestions-list">
-                      <li>Remove some filters</li>
-                      <li>Expand your price range</li>
-                      <li>Search in nearby areas</li>
-                      <li>Reduce minimum bedrooms</li>
-                    </ul>
-                  </div>
-                  <a href="/search" class="search-page__state-button">Reset All Filters</a>
-                </div>
-              ) : (
-                <>
-                  <!-- Property Grid -->
-                  <div class="search-page__property-grid">
-                    {properties.map(property => (
-                      <PropertyCard
-                        property={property}
-                        featured={property.is_featured}
-                        source="search_results"
-                      />
-                    ))}
-                  </div>
-
-                  <!-- Pagination -->
-                  <div class="search-page__pagination">
-                    <Pagination
-                      currentPage={searchParams.page || 1}
-                      totalPages={totalPages}
-                      totalResults={total}
-                      searchParams={searchParams}
-                    />
-                  </div>
-                </>
-              )}
-            </>
-          )}
-        </main>
-      </div>
-    </div>
-  </div>
+              </>
+            )}
+          </>
+        )}
+      </main>
+    </SearchPageGrid>
+  </SearchPageLayout>
 </Layout>
 
 <style lang="scss">
-  @use '../styles/components/search-page';
+  @use '../styles/variables' as *;
+
+  .search-results {
+    min-height: 500px;
+    z-index: 1;
+  }
+
+  .search-pagination {
+    margin-top: $spacing-12;
+  }
 </style>
 
 <script>
-  import { sendPendingSearchEvent, extractSearchParamsFromUrl, storeSearchForTracking } from '../lib/search-tracker'
-
-  // ========================================
-  // SEARCH PAGE INTERACTIONS
-  // ========================================
-
-  const initSearchPage = async () => {
-    // ========================================
-    // SEARCH TRACKING - Store and Forward Pattern
-    // ========================================
-
-    // First, try to send any pending search event (from form submission)
-    const sentPending = await sendPendingSearchEvent()
-
-    // If no pending event, track direct URL access
-    if (!sentPending && window.location.search) {
-      const directSearchParams = extractSearchParamsFromUrl()
-      if (directSearchParams && directSearchParams.filters_count && directSearchParams.filters_count > 0) {
-        console.log('[SearchPage] Tracking direct URL search:', directSearchParams)
-
-        // For direct URL access, we can track immediately since we're already on the page
-        if (window.StratosTracker) {
-          const resultsCount = document.querySelector('[data-results-count]')?.getAttribute('data-results-count') || '0'
-
-          window.StratosTracker.trackEvent('search', {
-            // Location data
-            location: directSearchParams.location || '',
-            postcode: directSearchParams.postcode || '',
-
-            // Price data
-            min_price: directSearchParams.min_price || null,
-            max_price: directSearchParams.max_price || null,
-
-            // Property criteria
-            bedrooms: directSearchParams.bedrooms || null,
-            bathrooms: directSearchParams.bathrooms || null,
-            property_type: directSearchParams.property_type || null,
-            listing_type: directSearchParams.listing_type || 'sale',
-
-            // All filters
-            filters: directSearchParams.filters,
-            filters_count: directSearchParams.filters_count,
-
-            // Results
-            results_count: parseInt(resultsCount),
-
-            // Source
-            source_page: directSearchParams.source_page || 'direct',
-            source_component: 'url_direct',
-          })
-
-          console.log('[SearchPage] Direct search event tracked')
-        }
-      }
-    }
-
-    // ========================================
-    // SORT SELECT HANDLER
-    // ========================================
-
-    const sortSelect = document.getElementById('sort_select') as HTMLSelectElement | null
-
-    if (sortSelect) {
-      sortSelect.addEventListener('change', () => {
-        const urlParams = new URLSearchParams(window.location.search)
-        urlParams.set('sort_by', sortSelect.value)
-        urlParams.delete('page')
-
-        // Track filter change
-        if (window.StratosTracker) {
-          window.StratosTracker.trackEvent('filter_change', {
-            filter_name: 'sort_by',
-            filter_value: sortSelect.value,
-            component: 'search_page'
-          })
-        }
-
-        // Store current search params for re-tracking after navigation
-        const searchData = extractSearchParamsFromUrl()
-        if (searchData) {
-          storeSearchForTracking({
-            ...searchData,
-            source_component: 'sort_change',
-          })
-        }
-
-        window.location.href = `/search?${urlParams.toString()}`
-      })
-    }
-
-    // ========================================
-    // PAGE VIEW TRACKING
-    // ========================================
-
-    if (window.StratosTracker) {
-      const urlParams = new URLSearchParams(window.location.search)
-      const resultsCount = document.querySelector('[data-results-count]')?.getAttribute('data-results-count') || '0'
-
-      window.StratosTracker.trackEvent('page_view', {
-        page_type: 'search_results',
-        listing_type: urlParams.get('listing_type') || 'sale',
-        location: urlParams.get('location') || '',
-        results_count: parseInt(resultsCount),
-        filters_count: Array.from(urlParams.keys()).length
-      })
-    }
-
-    console.log('[SearchPage] Initialized with search tracking')
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSearchPage)
-  } else {
-    initSearchPage()
-  }
+  import '../components/search-page/scripts/search-page-client'
 </script>

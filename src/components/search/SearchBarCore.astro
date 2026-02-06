@@ -211,6 +211,25 @@ const props = {
 <script>
   import { storeSearchForTracking } from '../../lib/search-tracker'
 
+  // Default values to exclude from URL
+  const SEARCH_DEFAULTS: Record<string, string> = {
+    listing_type: 'sale',
+    page: '1',
+    limit: '20',
+    sort_by: 'newest',
+  }
+
+  // Check if a param should be excluded from the URL
+  function shouldExcludeParam(key: string, value: string): boolean {
+    // Exclude empty values
+    if (!value || value === 'false') return true
+
+    // Exclude default values
+    if (key in SEARCH_DEFAULTS && SEARCH_DEFAULTS[key] === value) return true
+
+    return false
+  }
+
   // Core search logic - works with any UI
   document.addEventListener('DOMContentLoaded', () => {
     const searchForms = document.querySelectorAll('[data-search-form]')
@@ -228,18 +247,20 @@ const props = {
         const urlParams = new URLSearchParams()
         const searchParams: Record<string, any> = {}
 
-        // Clean URL - only include non-empty params
+        // Clean URL - only include non-default, non-empty params
         formData.forEach((value, key) => {
           const stringValue = value.toString().trim()
-          if (stringValue && stringValue !== 'false') {
+          searchParams[key] = stringValue
+
+          if (!shouldExcludeParam(key, stringValue)) {
             urlParams.append(key, stringValue)
-            searchParams[key] = stringValue
           }
         })
 
         // Build navigation URL
         const redirectUrl = config.redirectUrl || '/search'
-        const targetUrl = `${redirectUrl}?${urlParams.toString()}`
+        const queryString = urlParams.toString()
+        const targetUrl = queryString ? `${redirectUrl}?${queryString}` : redirectUrl
 
         // Store search data for tracking (will be sent on search results page load)
         // This is 100% reliable - no race conditions with navigation
@@ -253,7 +274,7 @@ const props = {
           bathrooms: searchParams.min_baths || searchParams.bathrooms,
           property_type: searchParams.property_type,
           filters: searchParams,
-          filters_count: Object.keys(searchParams).length,
+          filters_count: Object.keys(searchParams).filter(k => !shouldExcludeParam(k, searchParams[k])).length,
           source_page: window.location.pathname,
           source_component: 'search_bar_core',
         })

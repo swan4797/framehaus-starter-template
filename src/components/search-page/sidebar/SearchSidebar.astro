@@ -1,0 +1,81 @@
+---
+// ========================================
+// SEARCH SIDEBAR
+// Sticky sidebar wrapper for search filters
+// ========================================
+
+import type { PropertySearchParams } from '../../../types/database'
+import type { SearchSidebarConfig } from '../types'
+import { defaultSidebarConfig } from '../config'
+import UniversalSearchBar from '../../search/UniversalSearchBar.astro'
+
+interface Props {
+  currentParams: PropertySearchParams
+  config?: Partial<SearchSidebarConfig>
+  class?: string
+}
+
+const {
+  currentParams,
+  config = {},
+  class: className = '',
+} = Astro.props
+
+const mergedConfig = { ...defaultSidebarConfig, ...config }
+---
+
+<aside class:list={['search-sidebar', className]}>
+  <div class="search-sidebar__sticky">
+    <UniversalSearchBar
+      variant="sidebar"
+      currentParams={currentParams}
+
+      showListingTypeToggle={mergedConfig.showListingTypeToggle}
+      showLocation={mergedConfig.showLocation}
+      showMinPrice={mergedConfig.showMinPrice}
+      showMaxPrice={mergedConfig.showMaxPrice}
+      showBedrooms={mergedConfig.showBedrooms}
+      showPropertyType={mergedConfig.showPropertyType}
+
+      showAdvancedToggle={mergedConfig.showAdvancedToggle}
+      advancedDefaultOpen={mergedConfig.advancedDefaultOpen}
+
+      showBathrooms={mergedConfig.showBathrooms}
+      showReceptions={mergedConfig.showReceptions}
+      showMinArea={mergedConfig.showMinArea}
+      showMaxArea={mergedConfig.showMaxArea}
+      showEPCRating={mergedConfig.showEPCRating}
+      showCouncilTaxBand={mergedConfig.showCouncilTaxBand}
+      showParking={mergedConfig.showParking}
+      showTenure={mergedConfig.showTenure}
+      showMinLeaseYears={mergedConfig.showMinLeaseYears}
+      showMaxServiceCharge={mergedConfig.showMaxServiceCharge}
+      showGarden={mergedConfig.showGarden}
+      showNewBuild={mergedConfig.showNewBuild}
+      showRecentlyReduced={mergedConfig.showRecentlyReduced}
+      showFurnishing={mergedConfig.showFurnishing}
+
+      submitButtonText={mergedConfig.submitButtonText}
+      showResetButton={mergedConfig.showResetButton}
+    />
+  </div>
+</aside>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .search-sidebar {
+    position: sticky;
+    top: 10px;
+  }
+
+  .search-sidebar__sticky {
+    position: static;
+
+    @include lg {
+      position: sticky;
+      top: $spacing-8;
+    }
+  }
+</style>

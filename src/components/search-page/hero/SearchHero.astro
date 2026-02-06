@@ -1,0 +1,87 @@
+---
+// ========================================
+// SEARCH HERO
+// Hero section with title and subtitle
+// ========================================
+
+import type { SearchHeroProps } from '../types'
+import { defaultHeroConfig } from '../config'
+
+interface Props extends SearchHeroProps {
+  class?: string
+}
+
+const {
+  title = defaultHeroConfig.title,
+  subtitle = defaultHeroConfig.subtitle,
+  class: className = '',
+} = Astro.props
+---
+
+<div class:list={['search-hero', className]}>
+  <div class="search-hero__background"></div>
+  <div class="search-hero__content">
+    <div class="search-hero__container">
+      <h1 class="search-hero__title">{title}</h1>
+      {subtitle && (
+        <p class="search-hero__subtitle">{subtitle}</p>
+      )}
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  $hero-gradient-start: $accent-coral;
+  $hero-gradient-end: #FF7B7F;
+  $hero-padding-mobile: $spacing-8;
+  $hero-padding-desktop: $spacing-12;
+
+  .search-hero {
+    position: relative;
+    background: linear-gradient(135deg, $hero-gradient-start 0%, $hero-gradient-end 100%);
+    padding: $hero-padding-mobile 0;
+    overflow: hidden;
+
+    @include md {
+      padding: $hero-padding-desktop 0;
+    }
+  }
+
+  .search-hero__background {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    opacity: 0.6;
+  }
+
+  .search-hero__content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .search-hero__container {
+    @include container;
+  }
+
+  .search-hero__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: $font-weight-bold;
+    color: $bg-white;
+    margin: 0 0 $spacing-3 0;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-hero__subtitle {
+    font-size: clamp(0.9375rem, 2vw, 1.125rem);
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    margin: 0;
+  }
+</style>

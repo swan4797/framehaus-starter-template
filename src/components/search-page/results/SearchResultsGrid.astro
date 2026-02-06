@@ -1,0 +1,50 @@
+---
+// ========================================
+// SEARCH RESULTS GRID
+// Property cards grid layout
+// ========================================
+
+import type { Property } from '../../../types/database'
+import PropertyCard from '../../properties/PropertyCard.astro'
+
+interface Props {
+  properties: Property[]
+  source?: string
+  class?: string
+}
+
+const {
+  properties,
+  source = 'search_results',
+  class: className = '',
+} = Astro.props
+---
+
+<div class:list={['search-results-grid', className]}>
+  {properties.map(property => (
+    <PropertyCard
+      property={property}
+      featured={property.is_featured}
+      source={source}
+    />
+  ))}
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .search-results-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-6;
+
+    @include sm {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    @include xl {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+  }
+</style>

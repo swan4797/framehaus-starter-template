@@ -1,7 +1,7 @@
 ---
 // ========================================
 // PAGINATION COMPONENT
-// Page navigation for search results
+// Production-ready page navigation for search results
 // ========================================
 
 import { buildSearchUrl } from '../../lib/utils'
@@ -12,21 +12,36 @@ interface Props {
   totalPages: number
   totalResults: number
   searchParams: PropertySearchParams
+  class?: string
 }
 
-const { currentPage, totalPages, totalResults, searchParams } = Astro.props
+const {
+  currentPage,
+  totalPages,
+  totalResults,
+  searchParams,
+  class: className = '',
+} = Astro.props
 
-// Generate page URLs
+// ----------------------------------------
+// URL GENERATION
+// ----------------------------------------
+
 function getPageUrl(page: number): string {
   return buildSearchUrl({ ...searchParams, page })
 }
 
-// Calculate page range to show
-const maxPagesToShow = 7
-let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2))
+// ----------------------------------------
+// PAGE RANGE CALCULATION
+// ----------------------------------------
+
+const maxPagesToShow = 5
+const halfRange = Math.floor(maxPagesToShow / 2)
+
+let startPage = Math.max(1, currentPage - halfRange)
 let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1)
 
-// Adjust if we're near the end
+// Adjust start if we're near the end
 if (endPage - startPage < maxPagesToShow - 1) {
   startPage = Math.max(1, endPage - maxPagesToShow + 1)
 }
@@ -36,151 +51,350 @@ const pages = Array.from(
   (_, i) => startPage + i
 )
 
+// ----------------------------------------
+// NAVIGATION STATE
+// ----------------------------------------
+
 const hasNext = currentPage < totalPages
 const hasPrev = currentPage > 1
+const showFirstPage = startPage > 1
+const showLastPage = endPage < totalPages
+const showFirstEllipsis = startPage > 2
+const showLastEllipsis = endPage < totalPages - 1
+
+// ----------------------------------------
+// RESULTS RANGE
+// ----------------------------------------
+
+const limit = searchParams.limit || 20
+const startResult = (currentPage - 1) * limit + 1
+const endResult = Math.min(currentPage * limit, totalResults)
 ---
 
 {totalPages > 1 && (
-  <nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
-    <!-- Mobile View -->
-    <div class="flex w-0 flex-1 -mt-px md:hidden">
-      {hasPrev && (
-        <a
-          href={getPageUrl(currentPage - 1)}
-          class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-        >
-          <svg class="mr-3 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
-          </svg>
-          Previous
-        </a>
-      )}
+  <nav
+    class:list={['pagination', className]}
+    aria-label="Search results pagination"
+    role="navigation"
+  >
+    <!-- Results Summary -->
+    <div class="pagination__info">
+      <span class="pagination__info-text">
+        Showing <strong>{startResult.toLocaleString()}</strong> - <strong>{endResult.toLocaleString()}</strong> of <strong>{totalResults.toLocaleString()}</strong>
+      </span>
     </div>
 
-    <!-- Desktop View -->
-    <div class="hidden md:flex md:flex-1 md:items-center md:justify-between mt-4">
-      <!-- Results Info -->
-      <div>
-        <p class="text-sm text-gray-700">
-          Showing
-          <span class="font-medium">{(currentPage - 1) * (searchParams.limit || 20) + 1}</span>
-          to
-          <span class="font-medium">
-            {Math.min(currentPage * (searchParams.limit || 20), totalResults)}
-          </span>
-          of
-          <span class="font-medium">{totalResults}</span>
-          results
-        </p>
-      </div>
+    <!-- Navigation Controls -->
+    <div class="pagination__controls">
+      <!-- Previous Button -->
+      {hasPrev ? (
+        <a
+          href={getPageUrl(currentPage - 1)}
+          class="pagination__btn pagination__btn--prev"
+          aria-label="Go to previous page"
+        >
+          <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span class="pagination__btn-text">Previous</span>
+        </a>
+      ) : (
+        <span class="pagination__btn pagination__btn--prev pagination__btn--disabled" aria-disabled="true">
+          <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span class="pagination__btn-text">Previous</span>
+        </span>
+      )}
 
       <!-- Page Numbers -->
-      <div class="flex gap-1">
-        <!-- Previous -->
-        {hasPrev ? (
-          <a
-            href={getPageUrl(currentPage - 1)}
-            class="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20"
-          >
-            <span class="sr-only">Previous</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
-            </svg>
-          </a>
-        ) : (
-          <span class="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
-            </svg>
-          </span>
-        )}
-
-        <!-- First page if not in range -->
-        {startPage > 1 && (
+      <div class="pagination__pages">
+        <!-- First Page -->
+        {showFirstPage && (
           <>
             <a
               href={getPageUrl(1)}
-              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              class="pagination__page"
+              aria-label="Go to page 1"
             >
               1
             </a>
-            {startPage > 2 && (
-              <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">
-                ...
-              </span>
+            {showFirstEllipsis && (
+              <span class="pagination__ellipsis" aria-hidden="true">...</span>
             )}
           </>
         )}
 
-        <!-- Page numbers -->
+        <!-- Page Range -->
         {pages.map(page => (
           page === currentPage ? (
             <span
-              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 ring-1 ring-inset ring-blue-600"
+              class="pagination__page pagination__page--current"
+              aria-label={`Page ${page}, current page`}
+              aria-current="page"
             >
               {page}
             </span>
           ) : (
             <a
               href={getPageUrl(page)}
-              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              class="pagination__page"
+              aria-label={`Go to page ${page}`}
             >
               {page}
             </a>
           )
         ))}
 
-        <!-- Last page if not in range -->
-        {endPage < totalPages && (
+        <!-- Last Page -->
+        {showLastPage && (
           <>
-            {endPage < totalPages - 1 && (
-              <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">
-                ...
-              </span>
+            {showLastEllipsis && (
+              <span class="pagination__ellipsis" aria-hidden="true">...</span>
             )}
             <a
               href={getPageUrl(totalPages)}
-              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              class="pagination__page"
+              aria-label={`Go to page ${totalPages}`}
             >
               {totalPages}
             </a>
           </>
         )}
-
-        <!-- Next -->
-        {hasNext ? (
-          <a
-            href={getPageUrl(currentPage + 1)}
-            class="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-          >
-            <span class="sr-only">Next</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-            </svg>
-          </a>
-        ) : (
-          <span class="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-            </svg>
-          </span>
-        )}
       </div>
-    </div>
 
-    <!-- Mobile View - Next -->
-    <div class="flex w-0 flex-1 justify-end -mt-px md:hidden">
-      {hasNext && (
+      <!-- Next Button -->
+      {hasNext ? (
         <a
           href={getPageUrl(currentPage + 1)}
-          class="inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          class="pagination__btn pagination__btn--next"
+          aria-label="Go to next page"
         >
-          Next
-          <svg class="ml-3 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+          <span class="pagination__btn-text">Next</span>
+          <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </a>
+      ) : (
+        <span class="pagination__btn pagination__btn--next pagination__btn--disabled" aria-disabled="true">
+          <span class="pagination__btn-text">Next</span>
+          <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </span>
       )}
+    </div>
+
+    <!-- Mobile Page Indicator -->
+    <div class="pagination__mobile-info">
+      Page {currentPage} of {totalPages}
     </div>
   </nav>
 )}
+
+<style lang="scss">
+  @use '../../styles/variables' as *;
+  @use '../../styles/mixins' as *;
+
+  // ----------------------------------------
+  // CONTAINER
+  // ----------------------------------------
+
+  .pagination {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-6;
+    background: $bg-white;
+    border-radius: $radius-xl;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid $border-light;
+
+    @include md {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: $spacing-6;
+    }
+  }
+
+  // ----------------------------------------
+  // RESULTS INFO
+  // ----------------------------------------
+
+  .pagination__info {
+    display: none;
+
+    @include md {
+      display: block;
+      flex-shrink: 0;
+    }
+  }
+
+  .pagination__info-text {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+
+    strong {
+      color: $text-primary;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  // ----------------------------------------
+  // CONTROLS CONTAINER
+  // ----------------------------------------
+
+  .pagination__controls {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    @include md {
+      gap: $spacing-3;
+    }
+  }
+
+  // ----------------------------------------
+  // PREV/NEXT BUTTONS
+  // ----------------------------------------
+
+  .pagination__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    background: $bg-white;
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all $transition-fast;
+    white-space: nowrap;
+
+    &:hover:not(.pagination__btn--disabled) {
+      border-color: $accent-coral;
+      color: $accent-coral;
+      background: rgba($accent-coral, 0.04);
+    }
+
+    &:focus:not(.pagination__btn--disabled) {
+      outline: none;
+      border-color: $accent-coral;
+      box-shadow: 0 0 0 3px rgba($accent-coral, 0.15);
+    }
+
+    &:active:not(.pagination__btn--disabled) {
+      transform: translateY(1px);
+    }
+  }
+
+  .pagination__btn--disabled {
+    color: $text-muted;
+    background: $bg-off-white;
+    border-color: $border-light;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .pagination__btn-text {
+    display: none;
+
+    @include sm {
+      display: inline;
+    }
+  }
+
+  .pagination__icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  // ----------------------------------------
+  // PAGE NUMBERS
+  // ----------------------------------------
+
+  .pagination__pages {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+  }
+
+  .pagination__page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 $spacing-3;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    background: $bg-white;
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+    text-decoration: none;
+    transition: all $transition-fast;
+
+    &:hover:not(.pagination__page--current) {
+      border-color: $accent-coral;
+      color: $accent-coral;
+      background: rgba($accent-coral, 0.04);
+    }
+
+    &:focus:not(.pagination__page--current) {
+      outline: none;
+      border-color: $accent-coral;
+      box-shadow: 0 0 0 3px rgba($accent-coral, 0.15);
+    }
+
+    // Hide some pages on mobile
+    @media (max-width: 480px) {
+      &:not(.pagination__page--current):not(:first-child):not(:last-child) {
+        display: none;
+      }
+    }
+  }
+
+  .pagination__page--current {
+    color: $bg-white;
+    background: $accent-coral;
+    border-color: $accent-coral;
+    cursor: default;
+    font-weight: $font-weight-bold;
+  }
+
+  .pagination__ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 40px;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    letter-spacing: 2px;
+
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  // ----------------------------------------
+  // MOBILE INFO
+  // ----------------------------------------
+
+  .pagination__mobile-info {
+    display: block;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
+
+    @include md {
+      display: none;
+    }
+  }
+</style>

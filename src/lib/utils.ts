@@ -181,17 +181,48 @@ export function extractFullPropertyIdFromUrl(pathname: string): string | null {
 }
 
 /**
- * Build search URL with filters
+ * Default search parameter values - excluded from URL when unchanged
+ */
+export const SEARCH_DEFAULTS: Record<string, any> = {
+  listing_type: 'sale',
+  page: 1,
+  limit: 20,
+  sort_by: 'newest',
+  garden: false,
+  new_build: false,
+  recently_reduced: false,
+  shared_ownership: false,
+  retirement_home: false,
+}
+
+/**
+ * Check if a value should be excluded from the search URL
+ */
+function shouldExcludeParam(key: string, value: any): boolean {
+  // Exclude undefined, null, empty strings
+  if (value === undefined || value === null || value === '') return true
+
+  // Exclude false boolean values
+  if (value === false) return true
+
+  // Exclude default values
+  if (key in SEARCH_DEFAULTS && SEARCH_DEFAULTS[key] === value) return true
+
+  return false
+}
+
+/**
+ * Build search URL with filters (excludes defaults and empty values)
  */
 export function buildSearchUrl(params: Record<string, any>): string {
   const searchParams = new URLSearchParams()
-  
+
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
+    if (!shouldExcludeParam(key, value)) {
       searchParams.append(key, String(value))
     }
   })
-  
+
   const queryString = searchParams.toString()
   return queryString ? `/search?${queryString}` : '/search'
 }

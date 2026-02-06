@@ -1,0 +1,53 @@
+---
+// ========================================
+// SEARCH PAGE GRID
+// Two-column layout for sidebar and results
+// ========================================
+
+interface Props {
+  class?: string
+}
+
+const { class: className = '' } = Astro.props
+---
+
+<div class:list={['search-page__container', 'search-page__main', className]}>
+  <div class="search-page__grid">
+    <slot name="sidebar" />
+    <slot name="results" />
+  </div>
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .search-page__container {
+    @include container;
+  }
+
+  .search-page__main {
+    margin-top: -$spacing-6;
+    padding-bottom: $spacing-16;
+
+    @include mobile-only {
+      padding-bottom: $spacing-12;
+    }
+  }
+
+  .search-page__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-6;
+    align-items: start;
+
+    @include lg {
+      grid-template-columns: 320px 1fr;
+    }
+
+    @include xl {
+      grid-template-columns: 380px 1fr;
+      gap: $spacing-8;
+    }
+  }
+</style>

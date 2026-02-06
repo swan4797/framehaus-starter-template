@@ -1,0 +1,146 @@
+---
+// ========================================
+// SEARCH EMPTY STATE
+// Displayed when no properties match the search
+// ========================================
+
+import type { SearchEmptyStateProps } from '../types'
+import { defaultStatesConfig } from '../config'
+
+interface Props extends SearchEmptyStateProps {
+  class?: string
+}
+
+const {
+  title = defaultStatesConfig.empty.title,
+  message = defaultStatesConfig.empty.message,
+  suggestions = defaultStatesConfig.empty.suggestions,
+  resetHref = '/search',
+  resetText = defaultStatesConfig.empty.resetText,
+  class: className = '',
+} = Astro.props
+---
+
+<div class:list={['search-state', 'search-state--empty', className]}>
+  <svg class="search-state__icon search-state__icon--empty" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+  </svg>
+  <h3 class="search-state__title">{title}</h3>
+  <p class="search-state__message">{message}</p>
+
+  {suggestions && suggestions.length > 0 && (
+    <div class="search-state__suggestions">
+      <p class="search-state__suggestions-title">Suggestions:</p>
+      <ul class="search-state__suggestions-list">
+        {suggestions.map(suggestion => (
+          <li>{suggestion}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <a href={resetHref} class="search-state__button">{resetText}</a>
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .search-state {
+    background: $bg-white;
+    border-radius: $radius-xl;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid $border-light;
+    padding: $spacing-16 $spacing-8;
+    text-align: center;
+
+    @include mobile-only {
+      padding: $spacing-12 $spacing-6;
+    }
+  }
+
+  .search-state__icon {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto $spacing-6;
+
+    @include mobile-only {
+      width: 4rem;
+      height: 4rem;
+    }
+  }
+
+  .search-state__icon--empty {
+    color: $text-muted;
+  }
+
+  .search-state__title {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0 0 $spacing-3 0;
+  }
+
+  .search-state__message {
+    font-size: $font-size-base;
+    color: $text-secondary;
+    margin: 0 0 $spacing-8 0;
+    line-height: $line-height-relaxed;
+  }
+
+  .search-state__suggestions {
+    max-width: 400px;
+    margin: 0 auto $spacing-8;
+    padding: $spacing-6;
+    background: $bg-off-white;
+    border-radius: $radius-md;
+    text-align: left;
+  }
+
+  .search-state__suggestions-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0 0 $spacing-3 0;
+  }
+
+  .search-state__suggestions-list {
+    margin: 0;
+    padding-left: $spacing-6;
+    list-style: disc;
+
+    li {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      margin-bottom: $spacing-2;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .search-state__button {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-4 $spacing-6;
+    background: $accent-coral;
+    color: $bg-white;
+    text-decoration: none;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
+
+    &:hover {
+      background: $accent-coral-dark;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba($accent-coral, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+</style>

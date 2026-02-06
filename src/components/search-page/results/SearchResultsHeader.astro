@@ -1,0 +1,118 @@
+---
+// ========================================
+// SEARCH RESULTS HEADER
+// Displays result count, location, and controls
+// ========================================
+
+import type { SearchResultsHeaderProps } from '../types'
+import SearchControls from './SearchControls.astro'
+
+interface Props extends SearchResultsHeaderProps {
+  class?: string
+}
+
+const {
+  total,
+  location,
+  activeFiltersCount,
+  currentSortBy,
+  sortOptions,
+  showMapLink = true,
+  mapLinkHref = '/search-map',
+  class: className = '',
+} = Astro.props
+---
+
+<div class:list={['search-results-header', className]}>
+  <div class="search-results-header__meta">
+    <h2 class="search-results-header__count" data-results-count={total}>
+      {total === 0 ? (
+        'No properties found'
+      ) : (
+        <>
+          <span class="search-results-header__count-number">{total.toLocaleString()}</span>
+          <span class="search-results-header__count-text">{total === 1 ? 'property' : 'properties'}</span>
+        </>
+      )}
+    </h2>
+    {location && (
+      <p class="search-results-header__location">
+        <svg class="search-results-header__location-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <span>{location}</span>
+      </p>
+    )}
+  </div>
+
+  <SearchControls
+    activeFiltersCount={activeFiltersCount}
+    currentSortBy={currentSortBy}
+    sortOptions={sortOptions}
+    showMapLink={showMapLink}
+    mapLinkHref={mapLinkHref}
+  />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .search-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+    padding: $spacing-6 $spacing-8;
+    background: $bg-white;
+    border-radius: $radius-xl;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid $border-light;
+    margin-bottom: $spacing-8;
+
+    @include mobile-only {
+      padding: $spacing-5 $spacing-6;
+    }
+  }
+
+  .search-results-header__meta {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .search-results-header__count {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0 0 $spacing-2 0;
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-2;
+  }
+
+  .search-results-header__count-number {
+    color: $accent-coral;
+  }
+
+  .search-results-header__count-text {
+    font-size: $font-size-lg;
+    color: $text-secondary;
+    font-weight: $font-weight-semibold;
+  }
+
+  .search-results-header__location {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+
+  .search-results-header__location-icon {
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+</style>
