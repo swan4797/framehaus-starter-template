@@ -1,0 +1,471 @@
+// ========================================
+// IMAGE GALLERY STYLES
+// Lightbox gallery for property images
+// ========================================
+
+// Import design system
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ========================================
+// LOCAL TOKENS
+// ========================================
+
+$gallery-thumb-size: 72px;
+$gallery-thumb-gap: 8px;
+$gallery-bg-dark: rgba(0, 0, 0, 0.7);
+$gallery-bg-light: #f5f5f5;
+
+// ========================================
+// GALLERY CONTAINER
+// ========================================
+
+.property-gallery {
+  --thumb-size: #{$gallery-thumb-size};
+  --thumb-gap: #{$gallery-thumb-gap};
+}
+
+// ========================================
+// MAIN IMAGE CONTAINER
+// ========================================
+
+.main-image-container {
+  position: relative;
+  margin-bottom: $spacing-4;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $gallery-bg-light;
+}
+
+.main-image {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity $transition-base;
+
+  &.fade-out {
+    opacity: 0;
+  }
+
+  @include mobile-only {
+    height: 300px;
+  }
+}
+
+// ========================================
+// IMAGE COUNTER
+// ========================================
+
+.image-counter {
+  position: absolute;
+  bottom: $spacing-4;
+  right: $spacing-4;
+  background: $gallery-bg-dark;
+  color: white;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  backdrop-filter: blur(4px);
+}
+
+// ========================================
+// MAIN NAVIGATION BUTTONS
+// ========================================
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gallery-bg-dark;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all $transition-fast;
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.85);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.98);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  &--prev {
+    left: $spacing-4;
+  }
+
+  &--next {
+    right: $spacing-4;
+  }
+
+  @include mobile-only {
+    width: 40px;
+    height: 40px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &--prev {
+      left: $spacing-3;
+    }
+
+    &--next {
+      right: $spacing-3;
+    }
+  }
+}
+
+// ========================================
+// THUMBNAIL CAROUSEL
+// ========================================
+
+.thumbnail-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: 0;
+
+  &[data-show-nav="false"] {
+    .thumbnail-nav {
+      display: none;
+    }
+
+    .thumbnail-track {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    gap: $spacing-2;
+  }
+}
+
+.thumbnail-track {
+  // Fixed width: 8 thumbnails (72px each + 8px margin) = 640px, minus last margin
+  max-width: calc((var(--thumb-size) + var(--thumb-gap)) * 8 - var(--thumb-gap));
+  overflow: hidden;
+  border-radius: $radius-md;
+
+  @include mobile-only {
+    // 6 thumbnails on tablet
+    max-width: calc((var(--thumb-size) + var(--thumb-gap)) * 6 - var(--thumb-gap));
+  }
+
+  @media (max-width: 640px) {
+    // 4 thumbnails on mobile
+    max-width: calc((var(--thumb-size) + var(--thumb-gap)) * 4 - var(--thumb-gap));
+  }
+
+  @media (max-width: 400px) {
+    // 3 thumbnails on small mobile
+    max-width: calc((var(--thumb-size) + var(--thumb-gap)) * 3 - var(--thumb-gap));
+  }
+}
+
+.thumbnail-slider {
+  display: flex;
+  padding: $spacing-1 0;
+  transition: transform $transition-smooth;
+}
+
+// ========================================
+// THUMBNAIL NAVIGATION
+// ========================================
+
+.thumbnail-nav {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $bg-white;
+  color: $text-primary;
+  border: 1px solid $border-light;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all $transition-fast;
+  box-shadow: $shadow-sm;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover:not(:disabled) {
+    background: $accent-primary;
+    color: white;
+    border-color: $accent-primary;
+    transform: scale(1.05);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 640px) {
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// ========================================
+// THUMBNAILS
+// ========================================
+
+.thumbnail {
+  flex-shrink: 0;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  overflow: hidden;
+  border-radius: $radius-md;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  margin-right: var(--thumb-gap);
+  background: $gallery-bg-light;
+  transition: all $transition-fast;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    border-color: $text-muted;
+  }
+
+  &--active {
+    border-color: $accent-primary;
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb, 224, 122, 95), 0.2);
+
+    &:hover {
+      border-color: $accent-primary;
+    }
+
+    &:hover img {
+      transform: none;
+    }
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-base;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+}
+
+// Responsive thumbnail sizes
+@include mobile-only {
+  .property-gallery {
+    --thumb-size: 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .property-gallery {
+    --thumb-size: 56px;
+    --thumb-gap: 6px;
+  }
+}
+
+// ========================================
+// LIGHTBOX
+// ========================================
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: $z-modal;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+  opacity: 0;
+  backdrop-filter: blur(8px);
+  transition: opacity $transition-smooth;
+
+  &--open {
+    display: flex;
+  }
+
+  &--visible {
+    opacity: 1;
+  }
+}
+
+.lightbox__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: opacity $transition-base, transform $transition-smooth;
+
+  &.fade-out {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.lightbox__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all $transition-fast;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  @include mobile-only {
+    top: $spacing-3;
+    right: $spacing-3;
+  }
+}
+
+.lightbox__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all $transition-fast;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  &--prev {
+    left: 20px;
+  }
+
+  &--next {
+    right: 20px;
+  }
+
+  @include mobile-only {
+    width: 44px;
+    height: 44px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    &--prev {
+      left: $spacing-3;
+    }
+
+    &--next {
+      right: $spacing-3;
+    }
+  }
+}
+
+.lightbox__counter {
+  position: absolute;
+  bottom: $spacing-6;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  background: rgba(0, 0, 0, 0.5);
+  padding: $spacing-2 $spacing-4;
+  border-radius: $radius-full;
+}
+
+// ========================================
+// NO IMAGES STATE
+// ========================================
+
+.no-images {
+  width: 100%;
+  height: 500px;
+  background: $gallery-bg-light;
+  border-radius: $radius-lg;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+
+  svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: $spacing-3;
+  }
+
+  p {
+    font-size: $font-size-base;
+    margin: 0;
+  }
+
+  @include mobile-only {
+    height: 300px;
+  }
+}

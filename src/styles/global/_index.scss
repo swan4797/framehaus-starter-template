@@ -1,0 +1,11 @@
+// ========================================
+// GLOBAL STYLES INDEX
+// Single import point for all global SCSS
+// Usage: @use 'global' as *;
+// ========================================
+
+// Forward all modules
+// Consumers can @use 'global' as * to access all variables and mixins
+@forward 'variables';
+@forward 'mixins';
+@forward 'animations';

@@ -28,26 +28,41 @@ $accent-coral: var(--color-primary);
 $accent-coral-dark: var(--color-primary-dark);
 $accent-coral-light: var(--color-primary-light);
 
+// Modern naming aliases (preferred)
+$accent-primary: var(--color-primary);
+$accent-primary-dark: var(--color-primary-dark);
+$accent-primary-light: var(--color-primary-light);
+
 // Text Colors
 $text-primary: var(--color-text-primary);
 $text-secondary: var(--color-text-secondary);
 $text-muted: var(--color-text-muted);
 $text-light: var(--color-text-light);
+$text-inverse: #ffffff;
 
 // Backgrounds
 $bg-white: var(--color-bg-primary);
 $bg-off-white: var(--color-bg-secondary);
 $bg-light-gray: var(--color-bg-tertiary);
 
+// Modern naming aliases (preferred)
+$bg-secondary: var(--color-bg-secondary);
+$bg-tertiary: var(--color-bg-tertiary);
+
 // Borders
 $border-light: var(--color-border-light);
 $border-medium: var(--color-border-medium);
+
+// Status Colors
+$color-sale: #3B82F6;
+$color-let: #8B5CF6;
 
 // Shadows (now dynamic via tokens)
 $shadow-xs: var(--shadow-xs);
 $shadow-sm: var(--shadow-sm);
 $shadow-md: var(--shadow-md);
 $shadow-lg: var(--shadow-lg);
+$shadow-xl: var(--shadow-xl);
 $shadow-card: var(--shadow-card);
 $shadow-card-hover: var(--shadow-card-hover);
 
@@ -77,9 +92,11 @@ $font-weight-regular: 400;
 $font-weight-medium: 500;
 $font-weight-semibold: 600;
 $font-weight-bold: 700;
+$font-weight-extrabold: 800;
 
 // Line Heights
 $line-height-tight: var(--line-height-tight);
+$line-height-snug: var(--line-height-snug);
 $line-height-base: var(--line-height-base);
 $line-height-relaxed: var(--line-height-relaxed);
 
@@ -124,6 +141,10 @@ $container-padding-mobile: layout.$container-padding-mobile;
 // Grid
 $grid-gap: layout.$grid-gap;
 $grid-gap-lg: layout.$grid-gap-lg;
+
+// Header
+$header-height: layout.$header-height;
+$header-height-mobile: layout.$header-height-mobile;
 
 // ----------------------------------------
 // TRANSITIONS (Legacy aliases)

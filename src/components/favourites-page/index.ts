@@ -23,5 +23,5 @@ export { defaultHeroConfig, defaultStatesConfig } from './config'
 // - grid/FavouritesGrid.astro
 // - states/FavouritesLoadingState.astro
 // - states/FavouritesEmptyState.astro
-// - card/FavouriteCard.scss (global styles)
+// - Styles: src/styles/components/_favourite-card.scss
 // - scripts/favourites-page-client.ts (client-side logic)

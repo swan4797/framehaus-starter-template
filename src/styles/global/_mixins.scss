@@ -1,12 +1,20 @@
 // ========================================
-// REUSABLE MIXINS
+// GLOBAL MIXINS
+// Reusable styling patterns
 // ========================================
 
 @use 'variables' as *;
 
-// ----------------------------------------
+// ========================================
 // RESPONSIVE BREAKPOINTS
-// ----------------------------------------
+// Mobile-first approach
+// ========================================
+
+@mixin xs {
+  @media (min-width: $breakpoint-xs) {
+    @content;
+  }
+}
 
 @mixin sm {
   @media (min-width: $breakpoint-sm) {
@@ -32,15 +40,28 @@
   }
 }
 
+@mixin xxl {
+  @media (min-width: $breakpoint-2xl) {
+    @content;
+  }
+}
+
+// Max-width (mobile-only) queries
 @mixin mobile-only {
   @media (max-width: #{$breakpoint-md - 1px}) {
     @content;
   }
 }
 
-// ----------------------------------------
+@mixin tablet-only {
+  @media (min-width: $breakpoint-md) and (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
+}
+
+// ========================================
 // CONTAINER
-// ----------------------------------------
+// ========================================
 
 @mixin container {
   width: 100%;
@@ -56,9 +77,37 @@
   }
 }
 
-// ----------------------------------------
+@mixin container-narrow {
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $container-padding-mobile;
+  padding-right: $container-padding-mobile;
+
+  @include md {
+    padding-left: $container-padding;
+    padding-right: $container-padding;
+  }
+}
+
+@mixin container-wide {
+  width: 100%;
+  max-width: 1536px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $container-padding-mobile;
+  padding-right: $container-padding-mobile;
+
+  @include md {
+    padding-left: $container-padding;
+    padding-right: $container-padding;
+  }
+}
+
+// ========================================
 // TYPOGRAPHY
-// ----------------------------------------
+// ========================================
 
 @mixin heading-xl {
   font-family: $font-family-heading;
@@ -127,9 +176,16 @@
   color: $text-muted;
 }
 
-// ----------------------------------------
+@mixin body-xs {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-base;
+  color: $text-muted;
+}
+
+// ========================================
 // BUTTONS
-// ----------------------------------------
+// ========================================
 
 @mixin btn-base {
   display: inline-flex;
@@ -148,9 +204,9 @@
   transition: all $transition-base;
   white-space: nowrap;
 
-  &:focus {
+  &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba($accent-coral, 0.3);
+    box-shadow: $focus-ring;
   }
 
   &:disabled {
@@ -161,11 +217,11 @@
 
 @mixin btn-primary {
   @include btn-base;
-  background-color: $accent-coral;
-  color: $bg-white;
+  background-color: $accent-primary;
+  color: $text-inverse;
 
   &:hover:not(:disabled) {
-    background-color: $accent-coral-dark;
+    background-color: $accent-primary-dark;
     transform: translateY(-1px);
   }
 
@@ -177,10 +233,10 @@
 @mixin btn-secondary {
   @include btn-base;
   background-color: $text-primary;
-  color: $bg-white;
+  color: $text-inverse;
 
   &:hover:not(:disabled) {
-    background-color: lighten($text-primary, 10%);
+    opacity: 0.9;
     transform: translateY(-1px);
   }
 }
@@ -192,14 +248,35 @@
   border: 1px solid $border-medium;
 
   &:hover:not(:disabled) {
-    border-color: $accent-coral;
-    color: $accent-coral;
+    border-color: $accent-primary;
+    color: $accent-primary;
   }
 }
 
-// ----------------------------------------
+@mixin btn-ghost {
+  @include btn-base;
+  background-color: transparent;
+  color: $text-secondary;
+
+  &:hover:not(:disabled) {
+    background-color: $bg-secondary;
+  }
+}
+
+// Button Sizes
+@mixin btn-sm {
+  padding: $spacing-2 $spacing-4;
+  font-size: $font-size-sm;
+}
+
+@mixin btn-lg {
+  padding: $spacing-4 $spacing-8;
+  font-size: $font-size-lg;
+}
+
+// ========================================
 // CARDS
-// ----------------------------------------
+// ========================================
 
 @mixin card {
   background: $bg-white;
@@ -215,7 +292,7 @@
   }
 }
 
-@mixin card-no-hover {
+@mixin card-static {
   background: $bg-white;
   border-radius: $radius-lg;
   border: 1px solid $border-light;
@@ -223,9 +300,16 @@
   overflow: hidden;
 }
 
-// ----------------------------------------
+@mixin card-flat {
+  background: $bg-white;
+  border-radius: $radius-lg;
+  border: 1px solid $border-light;
+  overflow: hidden;
+}
+
+// ========================================
 // FORM INPUTS
-// ----------------------------------------
+// ========================================
 
 @mixin input-base {
   width: 100%;
@@ -242,10 +326,46 @@
     color: $text-muted;
   }
 
+  &:hover {
+    border-color: $border-medium;
+  }
+
   &:focus {
     outline: none;
-    border-color: $accent-coral;
-    box-shadow: 0 0 0 3px rgba($accent-coral, 0.1);
+    border-color: $accent-primary;
+    box-shadow: $focus-ring;
+  }
+
+  &:disabled {
+    background: $bg-secondary;
+    cursor: not-allowed;
+  }
+}
+
+@mixin input-filled {
+  width: 100%;
+  height: 50px;
+  padding: 0 $spacing-4;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  color: $text-primary;
+  background: $bg-secondary;
+  border: none;
+  border-radius: $radius-lg;
+  transition: background $transition-fast, box-shadow $transition-fast;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:hover {
+    background: $bg-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    background: $bg-white;
+    box-shadow: 0 0 0 2px $accent-primary;
   }
 }
 
@@ -256,9 +376,9 @@
   padding-right: $spacing-5;
 }
 
-// ----------------------------------------
+// ========================================
 // SECTION LAYOUTS
-// ----------------------------------------
+// ========================================
 
 @mixin section-padding {
   padding-top: $spacing-16;
@@ -280,9 +400,19 @@
   }
 }
 
-// ----------------------------------------
+@mixin section-padding-lg {
+  padding-top: $spacing-20;
+  padding-bottom: $spacing-20;
+
+  @include md {
+    padding-top: $spacing-24;
+    padding-bottom: $spacing-24;
+  }
+}
+
+// ========================================
 // GRID LAYOUTS
-// ----------------------------------------
+// ========================================
 
 @mixin property-grid {
   display: grid;
@@ -299,9 +429,47 @@
   }
 }
 
-// ----------------------------------------
+@mixin grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $grid-gap;
+
+  @include md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@mixin grid-3-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $grid-gap;
+
+  @include sm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include lg {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@mixin grid-4-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $grid-gap;
+
+  @include sm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include lg {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// ========================================
 // UTILITY MIXINS
-// ----------------------------------------
+// ========================================
 
 @mixin visually-hidden {
   position: absolute;
@@ -338,4 +506,69 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin aspect-ratio($width, $height) {
+  aspect-ratio: #{$width} / #{$height};
+
+  @supports not (aspect-ratio: 1) {
+    &::before {
+      content: '';
+      display: block;
+      padding-top: calc(#{$height} / #{$width} * 100%);
+    }
+  }
+}
+
+// ========================================
+// ANIMATION UTILITIES
+// ========================================
+
+@mixin animation-delay($delay) {
+  animation-delay: $delay;
+}
+
+@mixin stagger-children($base-delay: 0.1s, $count: 10) {
+  @for $i from 1 through $count {
+    &:nth-child(#{$i}) {
+      animation-delay: calc(#{$base-delay} * #{$i});
+    }
+  }
+}
+
+// ========================================
+// FOCUS STYLES
+// ========================================
+
+@mixin focus-ring {
+  outline: none;
+  box-shadow: $focus-ring;
+}
+
+@mixin focus-visible {
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+// ========================================
+// OVERLAY & BACKDROP
+// ========================================
+
+@mixin overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: $z-overlay;
+}
+
+@mixin backdrop-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }

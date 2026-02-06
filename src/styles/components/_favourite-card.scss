@@ -3,20 +3,21 @@
 // Styles for dynamically rendered favourite cards
 // ========================================
 
-@use '../../../styles/variables' as *;
-@use '../../../styles/mixins' as *;
+// Import design system
+@use '../variables' as *;
+@use '../mixins' as *;
 
 .favourite-card {
   background: $bg-white;
   border-radius: $radius-xl;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: $shadow-sm;
   border: 1px solid $border-light;
   transition: all $transition-base;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: $shadow-lg;
   }
 
   &--removing {
@@ -28,7 +29,7 @@
 .favourite-card__image {
   position: relative;
   height: 200px;
-  background: $bg-light-gray;
+  background: $bg-tertiary;
   overflow: hidden;
 
   img {
@@ -62,22 +63,22 @@
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.95);
-  border: 2px solid $accent-coral;
+  border: 2px solid $accent-primary;
   border-radius: 50%;
-  color: $accent-coral;
+  color: $accent-primary;
   cursor: pointer;
   transition: all $transition-fast;
   z-index: 2;
 
   &:hover {
-    background: $accent-coral;
-    color: $bg-white;
+    background: $accent-primary;
+    color: $text-inverse;
     transform: scale(1.1);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba($accent-coral, 0.3);
+    box-shadow: $focus-ring;
   }
 }
 
@@ -86,20 +87,20 @@
   bottom: $spacing-3;
   left: $spacing-3;
   padding: $spacing-1 $spacing-3;
-  border-radius: 999px;
+  border-radius: $radius-full;
   font-size: $font-size-xs;
   font-weight: $font-weight-bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 
   &--sale {
-    background: #3B82F6;
-    color: $bg-white;
+    background: $color-sale;
+    color: $text-inverse;
   }
 
   &--let {
-    background: #8B5CF6;
-    color: $bg-white;
+    background: $color-let;
+    color: $text-inverse;
   }
 }
 
@@ -111,7 +112,7 @@
   transition: background $transition-fast;
 
   &:hover {
-    background: $bg-off-white;
+    background: $bg-secondary;
   }
 }
 
@@ -121,14 +122,11 @@
   color: $text-primary;
   margin: 0 0 $spacing-3 0;
   line-height: $line-height-tight;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @include line-clamp(2);
   transition: color $transition-fast;
 
   .favourite-card:hover & {
-    color: $accent-coral;
+    color: $accent-primary;
   }
 }
 
@@ -161,7 +159,7 @@
 .favourite-card__price {
   font-size: $font-size-xl;
   font-weight: $font-weight-bold;
-  color: $accent-coral;
+  color: $accent-primary;
   margin: 0;
 }
 
