@@ -338,3 +338,219 @@ export function extendSearchConfig(
     advancedFields: overrides.advancedFields || base.advancedFields,
   }
 }
+
+// ========================================
+// SEARCH PAGE CONFIGURATION
+// Configuration for search results page components
+// ========================================
+
+// ----------------------------------------
+// SEARCH PAGE TYPES
+// ----------------------------------------
+
+export interface SortOption {
+  value: string
+  label: string
+}
+
+export interface SearchPageHeroConfig {
+  title: string
+  subtitle: string
+  showHero: boolean
+}
+
+export interface SearchPageSidebarConfig {
+  showListingTypeToggle?: boolean
+  showLocation?: boolean
+  showMinPrice?: boolean
+  showMaxPrice?: boolean
+  showBedrooms?: boolean
+  showPropertyType?: boolean
+  showAdvancedToggle?: boolean
+  advancedDefaultOpen?: boolean
+  showBathrooms?: boolean
+  showReceptions?: boolean
+  showMinArea?: boolean
+  showMaxArea?: boolean
+  showEPCRating?: boolean
+  showCouncilTaxBand?: boolean
+  showParking?: boolean
+  showTenure?: boolean
+  showMinLeaseYears?: boolean
+  showMaxServiceCharge?: boolean
+  showGarden?: boolean
+  showNewBuild?: boolean
+  showRecentlyReduced?: boolean
+  showFurnishing?: boolean
+  submitButtonText?: string
+  showResetButton?: boolean
+}
+
+export interface SearchPageResultsConfig {
+  gridColumns: {
+    mobile: number
+    tablet: number
+    desktop: number
+  }
+  showMapLink: boolean
+  mapLinkHref: string
+  resultsPerPage: number
+}
+
+export interface SearchPageStatesConfig {
+  error: {
+    title: string
+    message: string
+    resetText: string
+  }
+  empty: {
+    title: string
+    message: string
+    suggestions: string[]
+    resetText: string
+  }
+}
+
+export interface SearchPageConfig {
+  hero: SearchPageHeroConfig
+  sidebar: SearchPageSidebarConfig
+  results: SearchPageResultsConfig
+  states: SearchPageStatesConfig
+}
+
+// ----------------------------------------
+// SORT OPTIONS
+// ----------------------------------------
+
+export const defaultSortOptions: SortOption[] = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'beds_desc', label: 'Most Bedrooms' },
+  { value: 'area_desc', label: 'Largest First' },
+  { value: 'epc_best', label: 'Best EPC' },
+]
+
+// ----------------------------------------
+// PAGE HERO CONFIGURATION
+// ----------------------------------------
+
+export const defaultPageHeroConfig: SearchPageHeroConfig = {
+  title: 'Find Your Dream Property',
+  subtitle: 'Search thousands of properties with advanced filters',
+  showHero: true,
+}
+
+// ----------------------------------------
+// PAGE SIDEBAR CONFIGURATION
+// ----------------------------------------
+
+export const defaultPageSidebarConfig: SearchPageSidebarConfig = {
+  showListingTypeToggle: true,
+  showLocation: true,
+  showMinPrice: true,
+  showMaxPrice: true,
+  showBedrooms: true,
+  showPropertyType: true,
+  showAdvancedToggle: true,
+  advancedDefaultOpen: false,
+  showBathrooms: true,
+  showReceptions: true,
+  showMinArea: true,
+  showMaxArea: true,
+  showEPCRating: true,
+  showCouncilTaxBand: true,
+  showParking: true,
+  showTenure: true,
+  showMinLeaseYears: true,
+  showMaxServiceCharge: true,
+  showGarden: true,
+  showNewBuild: true,
+  showRecentlyReduced: true,
+  showFurnishing: true,
+  submitButtonText: 'Search',
+  showResetButton: true,
+}
+
+// ----------------------------------------
+// PAGE RESULTS CONFIGURATION
+// ----------------------------------------
+
+export const defaultPageResultsConfig: SearchPageResultsConfig = {
+  gridColumns: {
+    mobile: 1,
+    tablet: 2,
+    desktop: 3,
+  },
+  showMapLink: true,
+  mapLinkHref: '/search-map',
+  resultsPerPage: 20,
+}
+
+// ----------------------------------------
+// PAGE STATES CONFIGURATION
+// ----------------------------------------
+
+export const defaultPageStatesConfig: SearchPageStatesConfig = {
+  error: {
+    title: 'Unable to Load Properties',
+    message: 'Please try again later or contact support.',
+    resetText: 'Reset Search',
+  },
+  empty: {
+    title: 'No properties match your search',
+    message: 'Try adjusting your filters or broaden your search area.',
+    suggestions: [
+      'Remove some filters',
+      'Expand your price range',
+      'Search in nearby areas',
+      'Reduce minimum bedrooms',
+    ],
+    resetText: 'Reset All Filters',
+  },
+}
+
+// ----------------------------------------
+// FULL PAGE CONFIGURATION
+// ----------------------------------------
+
+export const defaultSearchPageConfig: SearchPageConfig = {
+  hero: defaultPageHeroConfig,
+  sidebar: defaultPageSidebarConfig,
+  results: defaultPageResultsConfig,
+  states: defaultPageStatesConfig,
+}
+
+// ----------------------------------------
+// PAGE CONFIGURATION HELPERS
+// ----------------------------------------
+
+export function createSearchPageConfig(
+  overrides: Partial<SearchPageConfig> = {}
+): SearchPageConfig {
+  return {
+    hero: { ...defaultPageHeroConfig, ...overrides.hero },
+    sidebar: { ...defaultPageSidebarConfig, ...overrides.sidebar },
+    results: { ...defaultPageResultsConfig, ...overrides.results },
+    states: {
+      error: { ...defaultPageStatesConfig.error, ...overrides.states?.error },
+      empty: { ...defaultPageStatesConfig.empty, ...overrides.states?.empty },
+    },
+  }
+}
+
+export function extendPageSidebarConfig(
+  overrides: Partial<SearchPageSidebarConfig>
+): SearchPageSidebarConfig {
+  return { ...defaultPageSidebarConfig, ...overrides }
+}
+
+export function extendPageHeroConfig(
+  overrides: Partial<SearchPageHeroConfig>
+): SearchPageHeroConfig {
+  return { ...defaultPageHeroConfig, ...overrides }
+}
+
+export function getSortOptions(customOptions?: SortOption[]): SortOption[] {
+  return customOptions || defaultSortOptions
+}
