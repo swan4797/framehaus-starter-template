@@ -1,0 +1,70 @@
+---
+// ========================================
+// FAVOURITES LOADING STATE
+// Displayed while favourites are loading
+// ========================================
+
+import type { FavouritesLoadingStateProps } from '../types'
+import { defaultStatesConfig } from '../config'
+
+interface Props extends FavouritesLoadingStateProps {
+  class?: string
+}
+
+const {
+  message = defaultStatesConfig.loading.message,
+  class: className = '',
+} = Astro.props
+---
+
+<div class:list={['favourites-state', className]} id="loading-state">
+  <div class="favourites-state__spinner">
+    <svg class="favourites-state__spinner-icon" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="32" stroke-dashoffset="32">
+        <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+  <p class="favourites-state__text">{message}</p>
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .favourites-state {
+    background: $bg-white;
+    border-radius: $radius-xl;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid $border-light;
+    padding: $spacing-16 $spacing-8;
+    text-align: center;
+
+    @include mobile-only {
+      padding: $spacing-12 $spacing-6;
+    }
+  }
+
+  .favourites-state__spinner {
+    margin-bottom: $spacing-6;
+  }
+
+  .favourites-state__spinner-icon {
+    width: 48px;
+    height: 48px;
+    color: $accent-coral;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .favourites-state__text {
+    font-size: $font-size-base;
+    color: $text-secondary;
+    margin: 0;
+    line-height: $line-height-relaxed;
+  }
+</style>

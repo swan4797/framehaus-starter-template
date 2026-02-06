@@ -1,0 +1,137 @@
+---
+// ========================================
+// TESTIMONIAL SECTION
+// Customer testimonial with avatars
+// ========================================
+
+import type { TestimonialProps } from '../types'
+
+interface Props extends TestimonialProps {
+  class?: string
+}
+
+const {
+  quote = '',
+  author = { name: '', role: '' },
+  avatars = [],
+  class: className = '',
+} = Astro.props
+---
+
+<section class:list={['testimonial', className]}>
+  <div class="testimonial__container">
+    {avatars.length > 0 && (
+      <div class="testimonial__left">
+        <div class="testimonial__avatars">
+          {avatars.map((avatar, index) => (
+            <img
+              src={avatar}
+              alt={`Customer ${index + 1}`}
+              class="testimonial__avatar"
+              loading="lazy"
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div class="testimonial__right">
+      {quote && <blockquote class="testimonial__quote">"{quote}"</blockquote>}
+
+      {author.name && (
+        <div class="testimonial__author">
+          <span class="testimonial__author-name">{author.name}</span>
+          {author.role && <span class="testimonial__author-role">{author.role}</span>}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .testimonial {
+    padding: 100px 40px;
+    background: $bg-off-white;
+
+    @include mobile-only {
+      padding: 64px 20px;
+    }
+  }
+
+  .testimonial__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    align-items: center;
+
+    @media (min-width: 768px) {
+      grid-template-columns: auto 1fr;
+      gap: 64px;
+    }
+  }
+
+  .testimonial__left {
+    @media (max-width: 767px) {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  .testimonial__avatars {
+    display: flex;
+  }
+
+  .testimonial__avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px solid $bg-off-white;
+    object-fit: cover;
+    margin-left: -20px;
+    position: relative;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    @include mobile-only {
+      width: 56px;
+      height: 56px;
+      margin-left: -16px;
+    }
+  }
+
+  .testimonial__quote {
+    font-size: 1.25rem;
+    color: $text-primary;
+    line-height: 1.7;
+    margin: 0 0 24px 0;
+    font-style: normal;
+
+    @include mobile-only {
+      font-size: 1.0625rem;
+    }
+  }
+
+  .testimonial__author {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .testimonial__author-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  .testimonial__author-role {
+    font-size: 0.875rem;
+    color: $text-muted;
+  }
+</style>

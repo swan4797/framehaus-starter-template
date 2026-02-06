@@ -1,0 +1,228 @@
+---
+// ========================================
+// FAQ SECTION
+// Accordion-style FAQ with accessible markup
+// ========================================
+
+import type { FaqSectionProps } from '../types'
+
+interface Props extends FaqSectionProps {}
+
+const {
+  title = 'Frequently Asked Questions',
+  subtitle = '',
+  items = [],
+  class: className = '',
+} = Astro.props
+
+// Generate unique ID prefix for this instance
+const instanceId = Math.random().toString(36).substring(2, 9)
+---
+
+<section class:list={['faq-section', className]}>
+  <div class="faq-section__header">
+    <h2 class="faq-section__title">{title}</h2>
+    {subtitle && <p class="faq-section__subtitle">{subtitle}</p>}
+  </div>
+
+  <div class="faq-accordion">
+    {items.map((item, index) => (
+      <div class="faq-item" data-faq-item>
+        <button
+          class="faq-item__trigger"
+          type="button"
+          aria-expanded="false"
+          aria-controls={`faq-content-${instanceId}-${index}`}
+        >
+          <span class="faq-item__question">{item.question}</span>
+          <svg class="faq-item__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div
+          class="faq-item__content"
+          id={`faq-content-${instanceId}-${index}`}
+          aria-hidden="true"
+        >
+          <p class="faq-item__answer">{item.answer}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  // Local design tokens
+  $shadow-faq: 0 2px 12px rgba(0, 0, 0, 0.04);
+  $transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  $transition-base: 200ms ease;
+
+  .faq-section {
+    padding: 0 24px;
+    max-width: 760px;
+    margin: 0 auto;
+
+    @include mobile-only {
+      padding: 0 20px;
+    }
+  }
+
+  .faq-section__header {
+    text-align: center;
+    margin-bottom: 40px;
+
+    @include mobile-only {
+      margin-bottom: 32px;
+    }
+  }
+
+  .faq-section__title {
+    font-size: 1.75rem;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.01em;
+
+    @include mobile-only {
+      font-size: 1.5rem;
+    }
+  }
+
+  .faq-section__subtitle {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  // ========================================
+  // FAQ ACCORDION
+  // ========================================
+
+  .faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .faq-item {
+    background: $bg-white;
+    border-radius: 12px;
+    box-shadow: $shadow-faq;
+    overflow: hidden;
+    transition: box-shadow $transition-base;
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    &.is-open {
+      .faq-item__icon {
+        transform: rotate(180deg);
+      }
+
+      .faq-item__content {
+        grid-template-rows: 1fr;
+        opacity: 1;
+      }
+    }
+  }
+
+  .faq-item__trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 48px 48px 48px 54px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+
+    @include mobile-only {
+      padding: 16px 20px;
+    }
+  }
+
+  .faq-item__question {
+    font-family: $font-family-base;
+    font-size: 22px;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    line-height: 1.364em;
+  }
+
+  .faq-item__icon {
+    flex-shrink: 0;
+    color: $text-muted;
+    transition: transform $transition-smooth;
+  }
+
+  .faq-item__content {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows $transition-smooth, opacity $transition-smooth;
+  }
+
+  .faq-item__answer {
+    overflow: hidden;
+    padding: 0;
+    font-size: 20px;
+    color: $text-secondary;
+    line-height: 1.7;
+    margin: 0;
+
+    .faq-item.is-open & {
+      padding: 0 48px 48px 54px;
+    }
+
+    @include mobile-only {
+      .faq-item.is-open & {
+        padding: 0 20px 16px 20px;
+      }
+    }
+  }
+</style>
+
+<script>
+  // ========================================
+  // FAQ ACCORDION BEHAVIOR
+  // ========================================
+
+  const faqItems = document.querySelectorAll('[data-faq-item]');
+
+  faqItems.forEach(item => {
+    const trigger = item.querySelector('.faq-item__trigger') as HTMLButtonElement;
+
+    trigger?.addEventListener('click', () => {
+      const isOpen = item.classList.contains('is-open');
+      const content = item.querySelector('.faq-item__content');
+
+      // Close all other items
+      faqItems.forEach(otherItem => {
+        if (otherItem !== item) {
+          otherItem.classList.remove('is-open');
+          const otherTrigger = otherItem.querySelector('.faq-item__trigger');
+          const otherContent = otherItem.querySelector('.faq-item__content');
+          otherTrigger?.setAttribute('aria-expanded', 'false');
+          otherContent?.setAttribute('aria-hidden', 'true');
+        }
+      });
+
+      // Toggle current item
+      if (isOpen) {
+        item.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+        content?.setAttribute('aria-hidden', 'true');
+      } else {
+        item.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+        content?.setAttribute('aria-hidden', 'false');
+      }
+    });
+  });
+</script>

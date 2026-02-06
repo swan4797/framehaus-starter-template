@@ -1,0 +1,153 @@
+---
+// ========================================
+// CTA SECTION
+// Call-to-action section with dark background
+// ========================================
+
+import type { CtaSectionProps, ContentAction } from '../types'
+import { defaultCtaConfig } from '../config'
+
+interface Props extends CtaSectionProps {
+  class?: string
+}
+
+const {
+  title = defaultCtaConfig.title,
+  description = defaultCtaConfig.description,
+  actions = defaultCtaConfig.actions,
+  class: className = '',
+} = Astro.props
+---
+
+<section class:list={['cta', className]}>
+  <div class="cta__container">
+    <h2 class="cta__title">{title}</h2>
+    {description && <p class="cta__text">{description}</p>}
+
+    {actions && actions.length > 0 && (
+      <div class="cta__actions">
+        {actions.map((action: ContentAction) => (
+          <a
+            href={action.url}
+            class:list={[
+              'cta__btn',
+              action.variant === 'secondary' ? 'cta__btn--secondary' : 'cta__btn--primary'
+            ]}
+          >
+            {action.label}
+            {action.icon && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            )}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .cta {
+    padding: 100px 40px;
+    background: $text-primary;
+
+    @include mobile-only {
+      padding: 64px 20px;
+    }
+  }
+
+  .cta__container {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .cta__title {
+    font-size: 2.25rem;
+    font-weight: $font-weight-bold;
+    color: $bg-white;
+    margin: 0 0 16px 0;
+    letter-spacing: -0.02em;
+
+    @include mobile-only {
+      font-size: 1.75rem;
+    }
+  }
+
+  .cta__text {
+    font-size: 1.125rem;
+    color: rgba($bg-white, 0.7);
+    margin: 0 0 40px 0;
+    line-height: 1.6;
+
+    @include mobile-only {
+      font-size: 1rem;
+      margin-bottom: 32px;
+    }
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+
+    @media (min-width: 480px) {
+      flex-direction: row;
+      justify-content: center;
+      gap: 16px;
+    }
+  }
+
+  .cta__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 56px;
+    padding: 0 32px;
+    font-family: $font-family-base;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 9999px;
+    transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    @media (max-width: 479px) {
+      width: 100%;
+    }
+  }
+
+  .cta__btn--primary {
+    background: $accent-coral;
+    color: $bg-white;
+
+    &:hover {
+      background: $accent-coral-dark;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba($accent-coral, 0.4);
+    }
+  }
+
+  .cta__btn--secondary {
+    background: transparent;
+    color: $bg-white;
+    border: 1.5px solid rgba($bg-white, 0.3);
+
+    &:hover {
+      background: rgba($bg-white, 0.1);
+      border-color: rgba($bg-white, 0.5);
+      transform: translateY(-2px);
+    }
+  }
+</style>

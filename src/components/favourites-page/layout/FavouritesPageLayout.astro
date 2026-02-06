@@ -1,0 +1,25 @@
+---
+// ========================================
+// FAVOURITES PAGE LAYOUT
+// Main wrapper for the favourites page
+// ========================================
+
+interface Props {
+  class?: string
+}
+
+const { class: className = '' } = Astro.props
+---
+
+<div class:list={['favourites-page', className]}>
+  <slot />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .favourites-page {
+    min-height: 100vh;
+    background: $bg-off-white;
+  }
+</style>

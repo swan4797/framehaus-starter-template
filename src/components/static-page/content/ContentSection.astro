@@ -1,0 +1,40 @@
+---
+// ========================================
+// CONTENT SECTION
+// Container for content rows
+// ========================================
+
+import type { ContentSectionProps } from '../types'
+
+interface Props extends ContentSectionProps {}
+
+const { class: className = '' } = Astro.props
+---
+
+<section class:list={['content', className]}>
+  <div class="content__container">
+    <slot />
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .content {
+    padding: 100px 40px;
+    background: $bg-white;
+
+    @include mobile-only {
+      padding: 64px 20px;
+    }
+  }
+
+  .content__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+</style>

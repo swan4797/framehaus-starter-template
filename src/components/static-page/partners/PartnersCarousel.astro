@@ -1,0 +1,134 @@
+---
+// ========================================
+// PARTNERS CAROUSEL
+// Infinite scrolling partner logos
+// ========================================
+
+import type { PartnersCarouselProps } from '../types'
+import { defaultPartnersConfig } from '../config'
+
+interface Props extends PartnersCarouselProps {
+  class?: string
+}
+
+const {
+  label = defaultPartnersConfig.label,
+  partners = defaultPartnersConfig.partners,
+  class: className = '',
+} = Astro.props
+
+// Duplicate partners 4x for seamless infinite scroll
+const allPartners = [...partners, ...partners, ...partners, ...partners]
+---
+
+<section class:list={['partners', className]}>
+  <div class="partners__container">
+    {label && <p class="partners__label">{label}</p>}
+
+    <div class="partners__carousel">
+      <div class="partners__track">
+        {allPartners.map((partner) => (
+          <span class="partners__logo-text">{partner}</span>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .partners {
+    padding: 48px 0;
+    background: $bg-off-white;
+    border-top: 1px solid $border-light;
+    border-bottom: 1px solid $border-light;
+    overflow: hidden;
+
+    @include mobile-only {
+      padding: 32px 0;
+    }
+  }
+
+  .partners__label {
+    font-size: 0.875rem;
+    color: $text-muted;
+    text-align: center;
+    margin: 0 0 32px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    padding: 0 40px;
+
+    @include mobile-only {
+      margin-bottom: 24px;
+      padding: 0 20px;
+    }
+  }
+
+  .partners__carousel {
+    position: relative;
+    width: 100%;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+  }
+
+  .partners__track {
+    display: flex;
+    align-items: center;
+    gap: 64px;
+    width: max-content;
+    animation: partners-scroll 30s linear infinite;
+
+    &:hover {
+      animation-play-state: paused;
+    }
+
+    @include mobile-only {
+      gap: 48px;
+      animation-duration: 25s;
+    }
+  }
+
+  @keyframes partners-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-25%);
+    }
+  }
+
+  .partners__logo-text {
+    font-size: 1.25rem;
+    font-weight: $font-weight-bold;
+    color: $text-muted;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition: color $transition-base, transform $transition-base;
+    cursor: default;
+    user-select: none;
+
+    &:hover {
+      color: $text-primary;
+      transform: scale(1.02);
+    }
+
+    @include mobile-only {
+      font-size: 1.0625rem;
+    }
+  }
+</style>

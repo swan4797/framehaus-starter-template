@@ -1,0 +1,218 @@
+---
+// ========================================
+// SHOWCASE CARD
+// Feature card for showcase section
+// ========================================
+
+import type { ShowcaseCardProps, ShowcaseFeature } from '../types'
+
+interface Props extends ShowcaseCardProps {
+  class?: string
+}
+
+const {
+  variant = 'primary',
+  title = '',
+  subtitle = '',
+  description = '',
+  features = [],
+  image = '',
+  imageAlt = '',
+  tallImage = false,
+  class: className = '',
+} = Astro.props
+
+const variantClass = `showcase__card--${variant}`
+---
+
+<div class:list={['showcase__card', variantClass, className]}>
+  <div class="showcase__card-content">
+    <!-- Icon slot -->
+    <slot name="icon">
+      {title && (
+        <div class="showcase__card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
+      )}
+    </slot>
+
+    {title && <h2 class="showcase__card-title">{title}</h2>}
+    {subtitle && <h3 class="showcase__card-subtitle">{subtitle}</h3>}
+    {description && <p class="showcase__card-text">{description}</p>}
+
+    {features.length > 0 && (
+      <div class="showcase__features">
+        {features.map((feature: ShowcaseFeature) => (
+          <div class="showcase__feature">
+            <span class="showcase__feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+            {feature.text}
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- Additional content slot -->
+    <slot />
+  </div>
+
+  {image && (
+    <img
+      src={image}
+      alt={imageAlt || ''}
+      class:list={['showcase__card-image', { 'showcase__card-image--tall': tallImage }]}
+      loading="lazy"
+    />
+  )}
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .showcase__card {
+    border-radius: $radius-xl;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+
+    @include mobile-only {
+      padding: 32px 24px;
+      min-height: 320px;
+    }
+  }
+
+  .showcase__card--primary {
+    background: #E8F5E9;
+  }
+
+  .showcase__card--secondary {
+    background: #F3E5F5;
+  }
+
+  .showcase__card--blue {
+    background: #E3F2FD;
+  }
+
+  .showcase__card--amber {
+    background: #FFF8E1;
+  }
+
+  .showcase__card-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+  }
+
+  .showcase__card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $bg-white;
+    border-radius: $radius-md;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+
+    svg {
+      width: 24px;
+      height: 24px;
+      color: $text-primary;
+    }
+  }
+
+  .showcase__card-title {
+    font-size: 1.5rem;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.01em;
+
+    @include mobile-only {
+      font-size: 1.25rem;
+    }
+  }
+
+  .showcase__card-subtitle {
+    font-size: 1.25rem;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0 0 12px 0;
+  }
+
+  .showcase__card-text {
+    font-size: 1rem;
+    color: $text-secondary;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+    max-width: 400px;
+  }
+
+  .showcase__features {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .showcase__feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: $text-primary;
+  }
+
+  .showcase__feature-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $bg-white;
+    border-radius: 50%;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      color: $accent-coral;
+    }
+  }
+
+  .showcase__card-image {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50%;
+    height: auto;
+    object-fit: cover;
+    border-radius: $radius-lg 0 $radius-xl 0;
+    opacity: 0.4;
+
+    @include mobile-only {
+      width: 60%;
+      opacity: 0.3;
+    }
+  }
+
+  .showcase__card-image--tall {
+    width: 70%;
+    bottom: 20px;
+    right: 20px;
+    border-radius: $radius-lg;
+
+    @include mobile-only {
+      width: 80%;
+    }
+  }
+</style>

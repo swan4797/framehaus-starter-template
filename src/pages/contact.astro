@@ -2,7 +2,7 @@
 // ========================================
 // CONTACT PAGE
 // Clean, minimal contact form with FAQ
-// Design: White bg, 720-760px width, luxury whitespace
+// Uses modular form-page components
 // Dynamic contact info from Stratos CRM
 // ========================================
 
@@ -10,13 +10,17 @@ import Layout from '../layouts/Layout.astro'
 import { fetchBrandSettings, getContactInfo, getSocialLinks } from '../lib/brand'
 import type { BrandSettings } from '../types/brand'
 
+// Form Page Components
+import FormPageLayout from '../components/form-page/layout/FormPageLayout.astro'
+import FormHero from '../components/form-page/hero/FormHero.astro'
+import ContactInfoGrid from '../components/form-page/contact-info/ContactInfoGrid.astro'
+import FaqSection from '../components/form-page/faq/FaqSection.astro'
+
 // Page content utilities
-import {
-  getPageContent,
-  getSectionTitle,
-  getSectionContent,
-  hasSection,
-} from '../lib/pages'
+import { getPageContent } from '../lib/pages'
+
+// Configuration
+import { contactPageConfig, contactSubjectOptions } from '../components/form-page/config'
 
 // Fetch brand settings from Stratos CRM
 let brand: BrandSettings
@@ -30,190 +34,29 @@ try {
 // Extract contact info and social links
 const contactInfo = getContactInfo(brand)
 const socialLinks = getSocialLinks(brand)
-const hasSocialLinks = Object.values(socialLinks).some(link => link)
 
 // Fetch contact page content from Stratos CRM
 const pageContent = await getPageContent('contact')
 
-// ========================================
-// SPECIFIC SECTION BLOCK KEYS
-// These match the block_keys from Stratos CRM
-// ========================================
-
-// Contact Details section (block_key: contact_details)
-const contactDetailsTitle = getSectionTitle(pageContent, 'contact_details', 'Get In Touch')
-const contactDetailsContent = getSectionContent(pageContent, 'contact_details', '')
-
-// Book Valuation section (block_key: book_valuation)
-const bookValuationTitle = getSectionTitle(pageContent, 'book_valuation', 'Book a Free Valuation')
-const bookValuationContent = getSectionContent(pageContent, 'book_valuation', '<p>Thinking of selling? Get an accurate, no-obligation valuation from our local experts.</p>')
-
-// Check which sections exist in CRM
-const hasContactDetails = hasSection(pageContent, 'contact_details')
-const hasBookValuation = hasSection(pageContent, 'book_valuation')
-
 const pageTitle = 'Contact Us'
 const pageDescription = `Get in touch with ${brand.business_name || 'our team'}. We're here to help with all your property needs.`
-
-// FAQ Data
-const faqs = [
-  {
-    question: 'What are your office hours?',
-    answer: 'Our offices are open Monday to Friday from 9:00 AM to 6:00 PM, and Saturdays from 9:00 AM to 4:00 PM. We\'re closed on Sundays, but you can contact us anytime via our online form.'
-  },
-  {
-    question: 'How quickly will you respond to my enquiry?',
-    answer: 'We aim to respond to all enquiries within 24 hours during business days. Urgent viewing requests and high-priority enquiries are typically handled the same day.'
-  },
-  {
-    question: 'Can I book a property viewing online?',
-    answer: 'Yes! You can request a viewing through our website by visiting any property page and using the "Request a Viewing" form. We\'ll confirm your appointment within hours.'
-  },
-  {
-    question: 'Do you offer free property valuations?',
-    answer: 'Absolutely! We provide complimentary property valuations with no obligation. Simply fill out our valuation request form, and one of our experts will be in touch within 24 hours.'
-  },
-  {
-    question: 'Which areas do you cover?',
-    answer: 'We have offices across London covering North, South, and Central areas. Our experienced team handles properties throughout Greater London and surrounding areas.'
-  },
-  {
-    question: 'How can I speak to someone directly?',
-    answer: 'You can call any of our offices directly, or use the contact form above and we\'ll call you back at your preferred time.'
-  }
-]
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
-  <div class="contact-page">
-    <!-- Page Header (block_key: contact_details) -->
-    <section class="contact-header">
-      <div class="contact-header__content">
-        <h1 class="contact-header__title">{contactDetailsTitle}</h1>
-        {hasContactDetails && contactDetailsContent ? (
-          <div class="contact-header__subtitle" set:html={contactDetailsContent} />
-        ) : (
-          <p class="contact-header__subtitle">
-            We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-          </p>
-        )}
-      </div>
-    </section>
+  <FormPageLayout>
+    <!-- Page Hero (block_key: contact_details) -->
+    <FormHero
+      title={contactPageConfig.hero.title}
+      subtitle={contactPageConfig.hero.subtitle}
+      blockKey={contactPageConfig.hero.blockKey}
+      pageContent={pageContent}
+    />
 
     <!-- Contact Info Cards -->
-    <section class="contact-info-section">
-      <div class="contact-info-grid">
-        <!-- Email Card -->
-        {contactInfo.email && (
-          <a href={`mailto:${contactInfo.email}`} class="contact-info-card">
-            <div class="contact-info-card__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="16" x="2" y="4" rx="2"/>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-              </svg>
-            </div>
-            <div class="contact-info-card__content">
-              <span class="contact-info-card__label">Email</span>
-              <span class="contact-info-card__value">{contactInfo.email}</span>
-            </div>
-          </a>
-        )}
-
-        <!-- Phone Card -->
-        {contactInfo.phone && (
-          <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} class="contact-info-card">
-            <div class="contact-info-card__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-            </div>
-            <div class="contact-info-card__content">
-              <span class="contact-info-card__label">Phone</span>
-              <span class="contact-info-card__value">{contactInfo.phone}</span>
-            </div>
-          </a>
-        )}
-
-        <!-- Address Card -->
-        {contactInfo.address && (
-          <div class="contact-info-card">
-            <div class="contact-info-card__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
-            </div>
-            <div class="contact-info-card__content">
-              <span class="contact-info-card__label">Address</span>
-              <span class="contact-info-card__value">{contactInfo.address}</span>
-            </div>
-          </div>
-        )}
-
-        <!-- Social Links Card -->
-        {hasSocialLinks && (
-          <div class="contact-info-card contact-info-card--social">
-            <div class="contact-info-card__icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-              </svg>
-            </div>
-            <div class="contact-info-card__content">
-              <span class="contact-info-card__label">Follow Us</span>
-              <div class="contact-social-links">
-                {socialLinks.facebook && (
-                  <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" class="contact-social-link" aria-label="Facebook">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-                    </svg>
-                  </a>
-                )}
-                {socialLinks.instagram && (
-                  <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" class="contact-social-link" aria-label="Instagram">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-                    </svg>
-                  </a>
-                )}
-                {socialLinks.linkedin && (
-                  <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" class="contact-social-link" aria-label="LinkedIn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                      <rect width="4" height="12" x="2" y="9"/>
-                      <circle cx="4" cy="4" r="2"/>
-                    </svg>
-                  </a>
-                )}
-                {socialLinks.twitter && (
-                  <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" class="contact-social-link" aria-label="Twitter">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
-                    </svg>
-                  </a>
-                )}
-                {socialLinks.youtube && (
-                  <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" class="contact-social-link" aria-label="YouTube">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/>
-                      <path d="m10 15 5-3-5-3z"/>
-                    </svg>
-                  </a>
-                )}
-                {socialLinks.tiktok && (
-                  <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" class="contact-social-link" aria-label="TikTok">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
-                    </svg>
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
+    <ContactInfoGrid
+      contactInfo={contactInfo}
+      socialLinks={socialLinks}
+    />
 
     <!-- Form Section -->
     <section class="contact-form-section">
@@ -273,15 +116,9 @@ const faqs = [
               required
               class="contact-form__input contact-form__select"
             >
-              <option value="">Please select...</option>
-              <option value="general_enquiry">General Question</option>
-              <option value="property_enquiry">Property Enquiry</option>
-              <option value="viewing_request">Request a Viewing</option>
-              <option value="valuation_request">Property Valuation</option>
-              <option value="selling_enquiry">Selling a Property</option>
-              <option value="buying_enquiry">Buying a Property</option>
-              <option value="lettings_enquiry">Lettings Enquiry</option>
-              <option value="other">Other</option>
+              {contactSubjectOptions.map(option => (
+                <option value={option.value}>{option.label}</option>
+              ))}
             </select>
           </div>
 
@@ -359,246 +196,29 @@ const faqs = [
     </section>
 
     <!-- FAQ Section -->
-    <section class="faq-section">
-      <div class="faq-section__header">
-        <h2 class="faq-section__title">Frequently Asked Questions</h2>
-        <p class="faq-section__subtitle">Quick answers to common questions</p>
-      </div>
-
-      <div class="faq-accordion">
-        {faqs.map((faq, index) => (
-          <div class="faq-item" data-faq-item>
-            <button
-              class="faq-item__trigger"
-              type="button"
-              aria-expanded="false"
-              aria-controls={`faq-content-${index}`}
-            >
-              <span class="faq-item__question">{faq.question}</span>
-              <svg class="faq-item__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            <div
-              class="faq-item__content"
-              id={`faq-content-${index}`}
-              aria-hidden="true"
-            >
-              <p class="faq-item__answer">{faq.answer}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  </div>
+    <FaqSection
+      title={contactPageConfig.faq.title}
+      subtitle={contactPageConfig.faq.subtitle}
+      items={contactPageConfig.faq.items}
+    />
+  </FormPageLayout>
 </Layout>
 
 <style lang="scss">
-  // ========================================
-  // DESIGN TOKENS
-  // ========================================
+  @use '../styles/variables' as *;
+  @use '../styles/mixins' as *;
 
-  // Colors
-  $accent-coral: #FF5A5F;
-  $accent-coral-hover: #E74E52;
-  $text-primary: #1A1A1A;
-  $text-secondary: #6B7280;
-  $text-muted: #9CA3AF;
-  $bg-white: #FFFFFF;
-  $bg-input: #F5F5F5;
-  $bg-input-hover: #EFEFEF;
-  $border-light: #E5E7EB;
-
-  // Spacing
-  $page-max-width: 760px;
-  $section-spacing: 80px;
-  $section-spacing-mobile: 48px;
-
-  // Borders
+  // Local design tokens
   $radius-sm: 10px;
   $radius-md: 12px;
   $radius-lg: 16px;
-
-  // Shadows
   $shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
-  $shadow-faq: 0 2px 12px rgba(0, 0, 0, 0.04);
-
-  // Transitions
   $transition-fast: 150ms ease;
   $transition-base: 200ms ease;
-  $transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Typography
-  $font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-  // ========================================
-  // PAGE LAYOUT
-  // ========================================
-
-  .contact-page {
-    background: $bg-white;
-    font-family: $font-family;
-    padding-bottom: $section-spacing;
-
-    @media (max-width: 768px) {
-      padding-bottom: $section-spacing-mobile;
-    }
-  }
-
-  // ========================================
-  // PAGE HEADER
-  // ========================================
-
-  .contact-header {
-    padding: 64px 24px 48px;
-    text-align: center;
-
-    @media (max-width: 768px) {
-      padding: 40px 20px 32px;
-    }
-  }
-
-  .contact-header__content {
-    max-width: $page-max-width;
-    margin: 0 auto;
-  }
-
-  .contact-header__title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: $text-primary;
-    margin: 0 0 16px 0;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-
-    @media (max-width: 768px) {
-      font-size: 2rem;
-    }
-  }
-
-  .contact-header__subtitle {
-    font-size: 1.125rem;
-    color: $text-secondary;
-    margin: 0;
-    line-height: 1.6;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-
-    @media (max-width: 768px) {
-      font-size: 1rem;
-    }
-  }
-
-  // ========================================
-  // CONTACT INFO SECTION
-  // ========================================
-
-  .contact-info-section {
-    padding: 0 24px;
-    margin-bottom: 48px;
-
-    @media (max-width: 768px) {
-      padding: 0 20px;
-      margin-bottom: 32px;
-    }
-  }
-
-  .contact-info-grid {
-    max-width: $page-max-width;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .contact-info-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 24px;
-    background: $bg-white;
-    border-radius: $radius-md;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    text-decoration: none;
-    transition: box-shadow $transition-base, transform $transition-base;
-
-    &:hover {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-  }
-
-  // Clickable cards (email, phone) - anchor variant
-  a.contact-info-card {
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-2px);
-    }
-  }
-
-  .contact-info-card__icon {
-    flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba($accent-coral, 0.1);
-    border-radius: $radius-sm;
-    color: $accent-coral;
-  }
-
-  .contact-info-card__content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-  }
-
-  .contact-info-card__label {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: $text-muted;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .contact-info-card__value {
-    font-size: 1rem;
-    font-weight: 500;
-    color: $text-primary;
-    line-height: 1.5;
-    word-break: break-word;
-  }
-
-  // Social links inside card
-  .contact-social-links {
-    display: flex;
-    gap: 12px;
-    margin-top: 4px;
-  }
-
-  .contact-social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: $bg-input;
-    border-radius: $radius-sm;
-    color: $text-secondary;
-    transition: background $transition-fast, color $transition-fast;
-
-    &:hover {
-      background: $accent-coral;
-      color: $bg-white;
-    }
-  }
+  // Local colors for form inputs (can't use darken() with CSS vars)
+  $bg-input: #F5F5F5;
+  $bg-input-hover: #EFEFEF;
 
   // ========================================
   // FORM SECTION
@@ -606,11 +226,11 @@ const faqs = [
 
   .contact-form-section {
     padding: 0 24px;
-    margin-bottom: $section-spacing;
+    margin-bottom: 80px;
 
-    @media (max-width: 768px) {
+    @include mobile-only {
       padding: 0 20px;
-      margin-bottom: $section-spacing-mobile;
+      margin-bottom: 48px;
     }
   }
 
@@ -622,7 +242,7 @@ const faqs = [
     box-shadow: $shadow-card;
     padding: 48px;
 
-    @media (max-width: 768px) {
+    @include mobile-only {
       padding: 32px 24px;
     }
 
@@ -680,7 +300,7 @@ const faqs = [
     width: 100%;
     height: 65px;
     padding: 0 16px;
-    font-family: $font-family;
+    font-family: $font-family-base;
     font-size: 1rem;
     color: $text-primary;
     background: $bg-input;
@@ -720,7 +340,7 @@ const faqs = [
     line-height: 1.6;
   }
 
-  @media (max-width: 768px) {
+  @include mobile-only {
     .contact-form__input,
     .contact-form__select {
       height: 50px;
@@ -770,7 +390,7 @@ const faqs = [
     padding: 0 32px;
     background: $accent-coral;
     color: $bg-white;
-    font-family: $font-family;
+    font-family: $font-family-base;
     font-size: 1rem;
     font-weight: 600;
     border: none;
@@ -779,7 +399,7 @@ const faqs = [
     transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
 
     &:hover {
-      background: $accent-coral-hover;
+      background: $accent-coral-dark;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba($accent-coral, 0.3);
     }
@@ -867,137 +487,6 @@ const faqs = [
       color: inherit;
       font-weight: 600;
       text-decoration: underline;
-    }
-  }
-
-  // ========================================
-  // FAQ SECTION
-  // ========================================
-
-  .faq-section {
-    padding: 0 24px;
-    max-width: $page-max-width;
-    margin: 0 auto;
-
-    @media (max-width: 768px) {
-      padding: 0 20px;
-    }
-  }
-
-  .faq-section__header {
-    text-align: center;
-    margin-bottom: 40px;
-
-    @media (max-width: 768px) {
-      margin-bottom: 32px;
-    }
-  }
-
-  .faq-section__title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: $text-primary;
-    margin: 0 0 12px 0;
-    letter-spacing: -0.01em;
-
-    @media (max-width: 768px) {
-      font-size: 1.5rem;
-    }
-  }
-
-  .faq-section__subtitle {
-    font-size: 1rem;
-    color: $text-secondary;
-    margin: 0;
-  }
-
-  // ========================================
-  // FAQ ACCORDION
-  // ========================================
-
-  .faq-accordion {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .faq-item {
-    background: $bg-white;
-    border-radius: $radius-md;
-    box-shadow: $shadow-faq;
-    overflow: hidden;
-    transition: box-shadow $transition-base;
-
-    &:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    }
-
-    &.is-open {
-      .faq-item__icon {
-        transform: rotate(180deg);
-      }
-
-      .faq-item__content {
-        grid-template-rows: 1fr;
-        opacity: 1;
-      }
-    }
-  }
-
-  .faq-item__trigger {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 48px 48px 48px 54px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    text-align: left;
-
-    @media (max-width: 768px) {
-      padding: 16px 20px;
-    }
-  }
-
-  .faq-item__question {
-    font-family: $font-family;
-    font-size: 22px;
-    font-weight: 700;
-    color: $text-primary;
-    line-height: 1.364em;
-  }
-
-  .faq-item__icon {
-    flex-shrink: 0;
-    color: $text-muted;
-    transition: transform $transition-smooth;
-  }
-
-  .faq-item__content {
-    display: grid;
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transition: grid-template-rows $transition-smooth, opacity $transition-smooth;
-  }
-
-  .faq-item__answer {
-    overflow: hidden;
-    padding: 0;
-    font-size: 20px;
-    color: $text-secondary;
-    line-height: 1.7;
-    margin: 0;
-
-    .faq-item.is-open & {
-      padding: 0 48px 48px 54px;
-    }
-
-    @media (max-width: 768px) {
-      .faq-item.is-open & {
-        padding: 0 20px 16px 20px;
-      }
     }
   }
 </style>
@@ -1166,42 +655,5 @@ const faqs = [
       submitButton.disabled = false;
       submitButton.innerHTML = originalContent;
     }
-  });
-
-  // ========================================
-  // FAQ ACCORDION
-  // ========================================
-
-  const faqItems = document.querySelectorAll('[data-faq-item]');
-
-  faqItems.forEach(item => {
-    const trigger = item.querySelector('.faq-item__trigger') as HTMLButtonElement;
-
-    trigger?.addEventListener('click', () => {
-      const isOpen = item.classList.contains('is-open');
-      const content = item.querySelector('.faq-item__content');
-
-      // Close all other items
-      faqItems.forEach(otherItem => {
-        if (otherItem !== item) {
-          otherItem.classList.remove('is-open');
-          const otherTrigger = otherItem.querySelector('.faq-item__trigger');
-          const otherContent = otherItem.querySelector('.faq-item__content');
-          otherTrigger?.setAttribute('aria-expanded', 'false');
-          otherContent?.setAttribute('aria-hidden', 'true');
-        }
-      });
-
-      // Toggle current item
-      if (isOpen) {
-        item.classList.remove('is-open');
-        trigger.setAttribute('aria-expanded', 'false');
-        content?.setAttribute('aria-hidden', 'true');
-      } else {
-        item.classList.add('is-open');
-        trigger.setAttribute('aria-expanded', 'true');
-        content?.setAttribute('aria-hidden', 'false');
-      }
-    });
   });
 </script>

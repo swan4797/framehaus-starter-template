@@ -1,0 +1,94 @@
+---
+// ========================================
+// FORM HERO
+// Centered hero section for form pages
+// Supports CMS content injection via blockKey
+// ========================================
+
+import type { FormHeroProps } from '../types'
+import { getSectionTitle, getSectionContent, hasSection } from '../../../lib/pages'
+
+interface Props extends FormHeroProps {
+  class?: string
+}
+
+const {
+  title,
+  subtitle,
+  blockKey,
+  pageContent,
+  class: className = '',
+} = Astro.props
+
+// Get CMS content if blockKey and pageContent are provided
+const cmsTitle = blockKey && pageContent ? getSectionTitle(pageContent, blockKey, title) : title
+const cmsContent = blockKey && pageContent ? getSectionContent(pageContent, blockKey, '') : null
+const hasCmsContent = blockKey && pageContent ? hasSection(pageContent, blockKey) : false
+
+// Use CMS content or fallback to subtitle prop
+const displaySubtitle = hasCmsContent && cmsContent ? cmsContent : subtitle
+---
+
+<section class:list={['form-hero', className]}>
+  <div class="form-hero__content">
+    <h1 class="form-hero__title">{cmsTitle}</h1>
+    {displaySubtitle && (
+      hasCmsContent && cmsContent ? (
+        <div class="form-hero__subtitle" set:html={displaySubtitle} />
+      ) : (
+        <p class="form-hero__subtitle">{displaySubtitle}</p>
+      )
+    )}
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .form-hero {
+    padding: 64px 24px 48px;
+    text-align: center;
+
+    @include mobile-only {
+      padding: 40px 20px 32px;
+    }
+  }
+
+  .form-hero__content {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .form-hero__title {
+    font-size: 2.5rem;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+
+    @include mobile-only {
+      font-size: 2rem;
+    }
+  }
+
+  .form-hero__subtitle {
+    font-size: 1.125rem;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.6;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+
+    @include mobile-only {
+      font-size: 1rem;
+    }
+
+    // Style for CMS content
+    :global(p) {
+      margin: 0;
+    }
+  }
+</style>

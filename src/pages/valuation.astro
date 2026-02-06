@@ -2,13 +2,26 @@
 // ========================================
 // VALUATION PAGE
 // Clean, minimal valuation request form with FAQ
-// Design: White bg, 720-760px width, luxury whitespace
+// Uses modular form-page components
 // Dynamic contact info from Stratos CRM
 // ========================================
 
 import Layout from '../layouts/Layout.astro'
 import { fetchBrandSettings, getContactInfo } from '../lib/brand'
 import type { BrandSettings } from '../types/brand'
+
+// Form Page Components
+import FormPageLayout from '../components/form-page/layout/FormPageLayout.astro'
+import FormHero from '../components/form-page/hero/FormHero.astro'
+import FaqSection from '../components/form-page/faq/FaqSection.astro'
+
+// Configuration
+import {
+  valuationPageConfig,
+  propertyTypeOptions,
+  bedroomOptions,
+  valuationReasonOptions
+} from '../components/form-page/config'
 
 // Fetch brand settings from Stratos CRM
 let brand: BrandSettings
@@ -24,47 +37,15 @@ const contactInfo = getContactInfo(brand)
 
 const pageTitle = 'Free Property Valuation'
 const pageDescription = `Get a free, no-obligation property valuation from ${brand.business_name || 'expert local agents'}. Discover what your home is worth in today's market.`
-
-// FAQ Data
-const faqs = [
-  {
-    question: 'Is the valuation really free?',
-    answer: 'Yes, absolutely. We provide free, no-obligation property valuations with no hidden costs. Whether you\'re thinking of selling now or in the future, there\'s no charge and no pressure to proceed.'
-  },
-  {
-    question: 'How accurate are your valuations?',
-    answer: 'Our valuations are based on real, up-to-date market data including recent sales, current listings, and local demand. We combine this with our agents\' local expertise to provide realistic figures you can trust.'
-  },
-  {
-    question: 'Do I have to sell with you?',
-    answer: 'Not at all. This is a completely free service with no obligation. Many people request valuations for financial planning, curiosity, or to understand their options. If and when you do decide to sell, we\'d love to help—but there\'s no pressure.'
-  },
-  {
-    question: 'How long does it take?',
-    answer: 'The form takes about 2 minutes to complete. You\'ll receive your detailed valuation report within 24 hours. If you\'d prefer a more in-depth assessment with a home visit, we can arrange that too.'
-  },
-  {
-    question: 'What information do you need?',
-    answer: 'Just basic details: your property address, type, number of bedrooms, and an optional estimate of what you think it\'s worth. This helps us prepare an accurate valuation tailored to your property.'
-  },
-  {
-    question: 'Will you contact me afterwards?',
-    answer: 'We\'ll send your valuation report and may follow up once to see if you have questions. We won\'t bombard you with calls or emails. You can opt out of marketing communications anytime.'
-  }
-]
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
-  <div class="valuation-page">
-    <!-- Page Header -->
-    <section class="valuation-header">
-      <div class="valuation-header__content">
-        <h1 class="valuation-header__title">Free Property Valuation</h1>
-        <p class="valuation-header__subtitle">
-          Discover what your property is worth with a free, no-obligation market valuation from our local experts.
-        </p>
-      </div>
-    </section>
+  <FormPageLayout>
+    <!-- Page Hero -->
+    <FormHero
+      title={valuationPageConfig.hero.title}
+      subtitle={valuationPageConfig.hero.subtitle}
+    />
 
     <!-- Form Section -->
     <section class="valuation-form-section">
@@ -156,14 +137,9 @@ const faqs = [
                   required
                   class="valuation-form__input valuation-form__select"
                 >
-                  <option value="">Select type...</option>
-                  <option value="house">House</option>
-                  <option value="flat">Flat/Apartment</option>
-                  <option value="bungalow">Bungalow</option>
-                  <option value="terraced">Terraced House</option>
-                  <option value="semi-detached">Semi-Detached</option>
-                  <option value="detached">Detached House</option>
-                  <option value="other">Other</option>
+                  {propertyTypeOptions.map(option => (
+                    <option value={option.value}>{option.label}</option>
+                  ))}
                 </select>
               </div>
 
@@ -175,13 +151,9 @@ const faqs = [
                   required
                   class="valuation-form__input valuation-form__select"
                 >
-                  <option value="">Select...</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6+">6+</option>
+                  {bedroomOptions.map(option => (
+                    <option value={option.value}>{option.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -211,12 +183,9 @@ const faqs = [
                 required
                 class="valuation-form__input valuation-form__select"
               >
-                <option value="">Select reason...</option>
-                <option value="selling">Planning to sell</option>
-                <option value="curious">Just curious</option>
-                <option value="remortgage">Remortgage</option>
-                <option value="inheritance">Inheritance/Tax</option>
-                <option value="other">Other</option>
+                {valuationReasonOptions.map(option => (
+                  <option value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
 
@@ -312,136 +281,29 @@ const faqs = [
     </section>
 
     <!-- FAQ Section -->
-    <section class="faq-section">
-      <div class="faq-section__header">
-        <h2 class="faq-section__title">Frequently Asked Questions</h2>
-        <p class="faq-section__subtitle">Everything you need to know about our valuation service</p>
-      </div>
-
-      <div class="faq-accordion">
-        {faqs.map((faq, index) => (
-          <div class="faq-item" data-faq-item>
-            <button
-              class="faq-item__trigger"
-              type="button"
-              aria-expanded="false"
-              aria-controls={`faq-content-${index}`}
-            >
-              <span class="faq-item__question">{faq.question}</span>
-              <svg class="faq-item__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            <div
-              class="faq-item__content"
-              id={`faq-content-${index}`}
-              aria-hidden="true"
-            >
-              <p class="faq-item__answer">{faq.answer}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  </div>
+    <FaqSection
+      title={valuationPageConfig.faq.title}
+      subtitle={valuationPageConfig.faq.subtitle}
+      items={valuationPageConfig.faq.items}
+    />
+  </FormPageLayout>
 </Layout>
 
 <style lang="scss">
-  // ========================================
-  // DESIGN TOKENS
-  // ========================================
+  @use '../styles/variables' as *;
+  @use '../styles/mixins' as *;
 
-  // Colors
-  $accent-coral: #FF5A5F;
-  $accent-coral-hover: #E74E52;
-  $text-primary: #1A1A1A;
-  $text-secondary: #6B7280;
-  $text-muted: #9CA3AF;
-  $bg-white: #FFFFFF;
-  $bg-input: #F5F5F5;
-  $bg-input-hover: #EFEFEF;
-  $border-light: #E5E7EB;
-
-  // Spacing
-  $page-max-width: 760px;
-  $section-spacing: 80px;
-  $section-spacing-mobile: 48px;
-
-  // Borders
+  // Local design tokens
   $radius-sm: 10px;
   $radius-md: 12px;
   $radius-lg: 16px;
-
-  // Shadows
   $shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
-  $shadow-faq: 0 2px 12px rgba(0, 0, 0, 0.04);
-
-  // Transitions
   $transition-fast: 150ms ease;
   $transition-base: 200ms ease;
-  $transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Typography
-  $font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-  // ========================================
-  // PAGE LAYOUT
-  // ========================================
-
-  .valuation-page {
-    background: $bg-white;
-    font-family: $font-family;
-    padding-bottom: $section-spacing;
-
-    @media (max-width: 768px) {
-      padding-bottom: $section-spacing-mobile;
-    }
-  }
-
-  // ========================================
-  // PAGE HEADER
-  // ========================================
-
-  .valuation-header {
-    padding: 64px 24px 48px;
-    text-align: center;
-
-    @media (max-width: 768px) {
-      padding: 40px 20px 32px;
-    }
-  }
-
-  .valuation-header__content {
-    max-width: $page-max-width;
-    margin: 0 auto;
-  }
-
-  .valuation-header__title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: $text-primary;
-    margin: 0 0 16px 0;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-
-    @media (max-width: 768px) {
-      font-size: 2rem;
-    }
-  }
-
-  .valuation-header__subtitle {
-    font-size: 1.125rem;
-    color: $text-secondary;
-    margin: 0;
-    line-height: 1.6;
-    max-width: 520px;
-    margin-left: auto;
-    margin-right: auto;
-
-    @media (max-width: 768px) {
-      font-size: 1rem;
-    }
-  }
+  // Local colors for form inputs (can't use darken() with CSS vars)
+  $bg-input: #F5F5F5;
+  $bg-input-hover: #EFEFEF;
 
   // ========================================
   // FORM SECTION
@@ -449,11 +311,11 @@ const faqs = [
 
   .valuation-form-section {
     padding: 0 24px;
-    margin-bottom: $section-spacing;
+    margin-bottom: 80px;
 
-    @media (max-width: 768px) {
+    @include mobile-only {
       padding: 0 20px;
-      margin-bottom: $section-spacing-mobile;
+      margin-bottom: 48px;
     }
   }
 
@@ -465,7 +327,7 @@ const faqs = [
     box-shadow: $shadow-card;
     padding: 48px;
 
-    @media (max-width: 768px) {
+    @include mobile-only {
       padding: 32px 24px;
     }
 
@@ -547,7 +409,7 @@ const faqs = [
     width: 100%;
     height: 65px;
     padding: 0 16px;
-    font-family: $font-family;
+    font-family: $font-family-base;
     font-size: 1rem;
     color: $text-primary;
     background: $bg-input;
@@ -587,7 +449,7 @@ const faqs = [
     line-height: 1.6;
   }
 
-  @media (max-width: 768px) {
+  @include mobile-only {
     .valuation-form__input,
     .valuation-form__select {
       height: 50px;
@@ -657,7 +519,7 @@ const faqs = [
     padding: 0 32px;
     background: $accent-coral;
     color: $bg-white;
-    font-family: $font-family;
+    font-family: $font-family-base;
     font-size: 1rem;
     font-weight: 600;
     border: none;
@@ -666,7 +528,7 @@ const faqs = [
     transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
 
     &:hover {
-      background: $accent-coral-hover;
+      background: $accent-coral-dark;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba($accent-coral, 0.3);
     }
@@ -764,7 +626,7 @@ const faqs = [
   .valuation-contact-alt {
     margin-top: 32px;
     padding: 20px 24px;
-    background: $bg-input;
+    background: $bg-off-white;
     border-radius: $radius-md;
     text-align: center;
   }
@@ -782,139 +644,8 @@ const faqs = [
       transition: color $transition-fast;
 
       &:hover {
-        color: $accent-coral-hover;
+        color: $accent-coral-dark;
         text-decoration: underline;
-      }
-    }
-  }
-
-  // ========================================
-  // FAQ SECTION
-  // ========================================
-
-  .faq-section {
-    padding: 0 24px;
-    max-width: $page-max-width;
-    margin: 0 auto;
-
-    @media (max-width: 768px) {
-      padding: 0 20px;
-    }
-  }
-
-  .faq-section__header {
-    text-align: center;
-    margin-bottom: 40px;
-
-    @media (max-width: 768px) {
-      margin-bottom: 32px;
-    }
-  }
-
-  .faq-section__title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: $text-primary;
-    margin: 0 0 12px 0;
-    letter-spacing: -0.01em;
-
-    @media (max-width: 768px) {
-      font-size: 1.5rem;
-    }
-  }
-
-  .faq-section__subtitle {
-    font-size: 1rem;
-    color: $text-secondary;
-    margin: 0;
-  }
-
-  // ========================================
-  // FAQ ACCORDION
-  // ========================================
-
-  .faq-accordion {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .faq-item {
-    background: $bg-white;
-    border-radius: $radius-md;
-    box-shadow: $shadow-faq;
-    overflow: hidden;
-    transition: box-shadow $transition-base;
-
-    &:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    }
-
-    &.is-open {
-      .faq-item__icon {
-        transform: rotate(180deg);
-      }
-
-      .faq-item__content {
-        grid-template-rows: 1fr;
-        opacity: 1;
-      }
-    }
-  }
-
-  .faq-item__trigger {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 48px 48px 48px 54px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    text-align: left;
-
-    @media (max-width: 768px) {
-      padding: 16px 20px;
-    }
-  }
-
-  .faq-item__question {
-    font-family: $font-family;
-    font-size: 22px;
-    font-weight: 700;
-    color: $text-primary;
-    line-height: 1.364em;
-  }
-
-  .faq-item__icon {
-    flex-shrink: 0;
-    color: $text-muted;
-    transition: transform $transition-smooth;
-  }
-
-  .faq-item__content {
-    display: grid;
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transition: grid-template-rows $transition-smooth, opacity $transition-smooth;
-  }
-
-  .faq-item__answer {
-    overflow: hidden;
-    padding: 0;
-    font-size: 20px;
-    color: $text-secondary;
-    line-height: 1.7;
-    margin: 0;
-
-    .faq-item.is-open & {
-      padding: 0 48px 48px 54px;
-    }
-
-    @media (max-width: 768px) {
-      .faq-item.is-open & {
-        padding: 0 20px 16px 20px;
       }
     }
   }
@@ -1093,42 +824,5 @@ const faqs = [
       submitButton.disabled = false;
       submitButton.innerHTML = originalContent;
     }
-  });
-
-  // ========================================
-  // FAQ ACCORDION
-  // ========================================
-
-  const faqItems = document.querySelectorAll('[data-faq-item]');
-
-  faqItems.forEach(item => {
-    const trigger = item.querySelector('.faq-item__trigger') as HTMLButtonElement;
-
-    trigger?.addEventListener('click', () => {
-      const isOpen = item.classList.contains('is-open');
-      const content = item.querySelector('.faq-item__content');
-
-      // Close all other items
-      faqItems.forEach(otherItem => {
-        if (otherItem !== item) {
-          otherItem.classList.remove('is-open');
-          const otherTrigger = otherItem.querySelector('.faq-item__trigger');
-          const otherContent = otherItem.querySelector('.faq-item__content');
-          otherTrigger?.setAttribute('aria-expanded', 'false');
-          otherContent?.setAttribute('aria-hidden', 'true');
-        }
-      });
-
-      // Toggle current item
-      if (isOpen) {
-        item.classList.remove('is-open');
-        trigger.setAttribute('aria-expanded', 'false');
-        content?.setAttribute('aria-hidden', 'true');
-      } else {
-        item.classList.add('is-open');
-        trigger.setAttribute('aria-expanded', 'true');
-        content?.setAttribute('aria-hidden', 'false');
-      }
-    });
   });
 </script>

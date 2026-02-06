@@ -6,46 +6,26 @@
 // ========================================
 
 import Layout from '../layouts/Layout.astro'
-import { fetchBrandSettings, getContactInfo } from '../lib/brand'
+
+// Static Page Components
+import StaticPageLayout from '../components/static-page/layout/StaticPageLayout.astro'
+import StaticHero from '../components/static-page/hero/StaticHero.astro'
+import ShowcaseGrid from '../components/static-page/showcase/ShowcaseGrid.astro'
+import ShowcaseCard from '../components/static-page/showcase/ShowcaseCard.astro'
+import ContentSection from '../components/static-page/content/ContentSection.astro'
+import ContentRow from '../components/static-page/content/ContentRow.astro'
 
 // Page content utilities
-import {
-  getPageContent,
-  getSectionTitle,
-  getSectionContent,
-  getSectionImage,
-  hasSection,
-} from '../lib/pages'
+import { getPageContent, hasSection } from '../lib/pages'
+
+// Page configuration
+import { landlordsPageConfig } from '../components/static-page/config'
 
 const pageTitle = 'Landlord Services'
 const pageDescription = 'Professional letting and property management services for landlords. Maximise your rental income with expert support.'
 
-// Fetch brand settings
-const brand = await fetchBrandSettings(true)
-const contact = getContactInfo(brand)
-
 // Fetch landlords page content from Stratos CRM
 const pageContent = await getPageContent('landlords')
-
-// ========================================
-// SPECIFIC SECTION BLOCK KEYS
-// These match the block_keys from Stratos CRM
-// ========================================
-
-// Services section (block_key: services)
-const servicesTitle = getSectionTitle(pageContent, 'services', 'Our Landlord Services')
-const servicesContent = getSectionContent(pageContent, 'services', '<p>From let-only to full management, we offer flexible services tailored to your needs.</p>')
-const servicesImage = getSectionImage(pageContent, 'services')
-
-// Why Let With Us section (block_key: why_let_with_us)
-const whyLetTitle = getSectionTitle(pageContent, 'why_let_with_us', 'Why Let With Us')
-const whyLetContent = getSectionContent(pageContent, 'why_let_with_us', '')
-const whyLetImage = getSectionImage(pageContent, 'why_let_with_us')
-
-// Compliance section (block_key: compliance)
-const complianceTitle = getSectionTitle(pageContent, 'compliance', 'Compliance & Safety')
-const complianceContent = getSectionContent(pageContent, 'compliance', '<p>We ensure your property meets all legal requirements.</p>')
-const complianceImage = getSectionImage(pageContent, 'compliance')
 
 // Check which sections exist in CRM
 const hasServices = hasSection(pageContent, 'services')
@@ -54,224 +34,143 @@ const hasCompliance = hasSection(pageContent, 'compliance')
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
-  <div class="static-page">
-
+  <StaticPageLayout>
     <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero__container">
-        <div class="hero__left">
-          <span class="hero__label">For Landlords</span>
-          <h1 class="hero__title">
-            <span class="hero__title-line">Hassle-free</span>
-            <span class="hero__title-line"><span class="hero__title-accent">letting</span> services</span>
-          </h1>
-        </div>
-        <div class="hero__right">
-          <p class="hero__tagline">
-            From finding quality tenants to full property management, we take the stress out of being a landlord.
-          </p>
-          <a href="/contact" class="hero__btn">
-            Get a Rental Valuation
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" x2="19" y1="12" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </section>
+    <StaticHero
+      label={landlordsPageConfig.hero.label}
+      titleLines={landlordsPageConfig.hero.titleLines}
+      tagline="From finding quality tenants to full property management, we take the stress out of being a landlord."
+      ctaLabel={landlordsPageConfig.hero.ctaLabel}
+      ctaUrl={landlordsPageConfig.hero.ctaUrl}
+    />
 
     <!-- Showcase Section -->
-    <section class="showcase">
-      <div class="showcase__container">
-        <div class="showcase__card showcase__card--primary">
-          <div class="showcase__card-content">
-            <div class="showcase__card-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                <line x1="16" x2="16" y1="2" y2="6"/>
-                <line x1="8" x2="8" y1="2" y2="6"/>
-                <line x1="3" x2="21" y1="10" y2="10"/>
-              </svg>
-            </div>
-            <h2 class="showcase__card-title">Reliable Rental Income</h2>
-            <p class="showcase__card-text">Quality tenants, minimal voids, and professional management to protect your investment.</p>
-            <div class="showcase__features">
-              <div class="showcase__feature">
-                <span class="showcase__feature-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </span>
-                Thorough Tenant Vetting
-              </div>
-              <div class="showcase__feature">
-                <span class="showcase__feature-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </span>
-                Rent Collection
-              </div>
-              <div class="showcase__feature">
-                <span class="showcase__feature-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </span>
-                Legal Compliance
-              </div>
-            </div>
+    <ShowcaseGrid>
+      <ShowcaseCard
+        variant="primary"
+        title="Reliable Rental Income"
+        description="Quality tenants, minimal voids, and professional management to protect your investment."
+        features={[
+          { text: 'Thorough Tenant Vetting' },
+          { text: 'Rent Collection' },
+          { text: 'Legal Compliance' },
+        ]}
+        image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop"
+        imageAlt="Rental property"
+      >
+        <Fragment slot="icon">
+          <div class="showcase__card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+              <line x1="16" x2="16" y1="2" y2="6"></line>
+              <line x1="8" x2="8" y1="2" y2="6"></line>
+              <line x1="3" x2="21" y1="10" y2="10"></line>
+            </svg>
           </div>
-          <img
-            src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop"
-            alt="Rental property"
-            class="showcase__card-image"
-          />
-        </div>
+        </Fragment>
+      </ShowcaseCard>
 
-        <div class="showcase__card showcase__card--secondary">
-          <div class="showcase__card-content">
-            <h3 class="showcase__card-subtitle">Full Management</h3>
-            <p class="showcase__card-text">Let us handle everything while you enjoy the returns. Maintenance, inspections, and tenant relations — all covered.</p>
-          </div>
-          <img
-            src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&h=500&fit=crop"
-            alt="Property management"
-            class="showcase__card-image showcase__card-image--tall"
-          />
-        </div>
-      </div>
-    </section>
+      <ShowcaseCard
+        variant="secondary"
+        subtitle="Full Management"
+        description="Let us handle everything while you enjoy the returns. Maintenance, inspections, and tenant relations — all covered."
+        image="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&h=500&fit=crop"
+        imageAlt="Property management"
+        tallImage
+      />
+    </ShowcaseGrid>
 
     <!-- Content Section -->
-    <section class="content">
-      <div class="content__container">
-
-        <!-- Row 1: Services (block_key: services) -->
-        <div class="content__row">
-          <div class="content__left">
-            <span class="content__label">Our Services</span>
-            <h2 class="content__title">{servicesTitle}</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
-            {hasServices && servicesContent ? (
-              <div class="content__text" set:html={servicesContent} />
-            ) : (
-              <>
-                <p class="content__text">
-                  Whether you own one property or a portfolio, we understand that your rental income matters. Our letting services are designed to minimise void periods, find reliable tenants, and ensure your property is well-maintained.
-                </p>
-                <p class="content__text">
-                  We stay up-to-date with all the latest legislation and compliance requirements, so you can have peace of mind that everything is being handled correctly.
-                </p>
-              </>
-            )}
-            {servicesImage?.url && (
-              <img src={servicesImage.url} alt={servicesImage.alt || 'Landlord Services'} class="content__image" loading="lazy" />
-            )}
-          </div>
-        </div>
-
-        <!-- Row 2: Why Let With Us (block_key: why_let_with_us) -->
-        <div class="content__row">
-          <div class="content__left">
-            <span class="content__label">Why Let With Us</span>
-            <h2 class="content__title">{whyLetTitle}</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
-            {hasWhyLet && whyLetContent ? (
-              <div class="content__text" set:html={whyLetContent} />
-            ) : (
-              <>
-                <p class="content__text">
-                  We offer a range of services so you can choose the level of support that works best for you, from tenant-find only to fully managed.
-                </p>
-                <ul class="content__list">
-                  <li>Tenant find service</li>
-                  <li>Rent collection</li>
-                  <li>Full property management</li>
-                  <li>Inventory and check-in/out</li>
-                  <li>Maintenance coordination</li>
-                  <li>Legal compliance management</li>
-                </ul>
-              </>
-            )}
-            {whyLetImage?.url && (
-              <img src={whyLetImage.url} alt={whyLetImage.alt || 'Why Let With Us'} class="content__image" loading="lazy" />
-            )}
-          </div>
-        </div>
-
-        <!-- Row 3: Compliance (block_key: compliance) -->
-        <div class="content__row">
-          <div class="content__left">
-            <span class="content__label">Compliance</span>
-            <h2 class="content__title">{complianceTitle}</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
-            {hasCompliance && complianceContent ? (
-              <div class="content__text" set:html={complianceContent} />
-            ) : (
-              <p class="content__text">
-                Our landlords stay with us because we deliver results. We pride ourselves on thorough tenant referencing, competitive fees, and responsive communication that keeps you informed without overwhelming you.
-              </p>
-            )}
-            {complianceImage?.url && (
-              <img src={complianceImage.url} alt={complianceImage.alt || 'Compliance'} class="content__image" loading="lazy" />
-            )}
-            <div class="content__highlights">
-              <div class="content__highlight">
-                <span class="content__highlight-value">14 days</span>
-                <span class="content__highlight-label">Average time to let</span>
-              </div>
-              <div class="content__highlight">
-                <span class="content__highlight-value">99%</span>
-                <span class="content__highlight-label">Rent collection rate</span>
-              </div>
-              <div class="content__highlight">
-                <span class="content__highlight-value">200+</span>
-                <span class="content__highlight-label">Properties managed</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 4: CTA -->
-        <div class="content__row content__row--cta">
-          <div class="content__left">
-            <span class="content__label">Get Started</span>
-            <h2 class="content__title">Ready to let your property?</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
+    <ContentSection>
+      <!-- Row 1: Services (block_key: services) -->
+      <ContentRow
+        label="Our Services"
+        blockKey="services"
+        pageContent={pageContent}
+        title="Our Landlord Services"
+      >
+        {!hasServices && (
+          <Fragment>
             <p class="content__text">
-              Get a free rental valuation and find out how we can help you maximise your rental income while minimising the hassle.
+              Whether you own one property or a portfolio, we understand that your rental income matters. Our letting services are designed to minimise void periods, find reliable tenants, and ensure your property is well-maintained.
             </p>
-            <div class="content__actions">
-              <a href="/contact" class="content__btn content__btn--primary">
-                Request Valuation
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="5" x2="19" y1="12" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </a>
-              <a href="/contact" class="content__btn content__btn--secondary">
-                Contact Us
-              </a>
-            </div>
-          </div>
-        </div>
+            <p class="content__text">
+              We stay up-to-date with all the latest legislation and compliance requirements, so you can have peace of mind that everything is being handled correctly.
+            </p>
+          </Fragment>
+        )}
+      </ContentRow>
 
-      </div>
-    </section>
+      <!-- Row 2: Why Let With Us (block_key: why_let_with_us) -->
+      <ContentRow
+        label="Why Let With Us"
+        blockKey="why_let_with_us"
+        pageContent={pageContent}
+        title="Why Let With Us"
+        listItems={!hasWhyLet ? [
+          'Tenant find service',
+          'Rent collection',
+          'Full property management',
+          'Inventory and check-in/out',
+          'Maintenance coordination',
+          'Legal compliance management',
+        ] : []}
+      >
+        {!hasWhyLet && (
+          <p class="content__text">
+            We offer a range of services so you can choose the level of support that works best for you, from tenant-find only to fully managed.
+          </p>
+        )}
+      </ContentRow>
 
-  </div>
+      <!-- Row 3: Compliance (block_key: compliance) -->
+      <ContentRow
+        label="Compliance"
+        blockKey="compliance"
+        pageContent={pageContent}
+        title="Compliance & Safety"
+        highlights={[
+          { value: '14 days', label: 'Average time to let' },
+          { value: '99%', label: 'Rent collection rate' },
+          { value: '200+', label: 'Properties managed' },
+        ]}
+      >
+        {!hasCompliance && (
+          <p class="content__text">
+            Our landlords stay with us because we deliver results. We pride ourselves on thorough tenant referencing, competitive fees, and responsive communication that keeps you informed without overwhelming you.
+          </p>
+        )}
+      </ContentRow>
+
+      <!-- Row 4: CTA -->
+      <ContentRow
+        label="Get Started"
+        title="Ready to let your property?"
+        isCta
+        actions={[
+          { label: 'Request Valuation', url: '/contact', variant: 'primary', icon: true },
+          { label: 'Contact Us', url: '/contact', variant: 'secondary' },
+        ]}
+      >
+        <p class="content__text">
+          Get a free rental valuation and find out how we can help you maximise your rental income while minimising the hassle.
+        </p>
+      </ContentRow>
+    </ContentSection>
+  </StaticPageLayout>
 </Layout>
 
 <style lang="scss">
-  @use './static-template.scss';
+  @use '../styles/variables' as *;
+
+  .content__text {
+    font-size: 1.0625rem;
+    color: $text-secondary;
+    line-height: 1.75;
+    margin: 0 0 20px 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 </style>

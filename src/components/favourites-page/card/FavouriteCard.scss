@@ -1,0 +1,172 @@
+// ========================================
+// FAVOURITE CARD STYLES
+// Styles for dynamically rendered favourite cards
+// ========================================
+
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.favourite-card {
+  background: $bg-white;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid $border-light;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  &--removing {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.favourite-card__image {
+  position: relative;
+  height: 200px;
+  background: $bg-light-gray;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-slow;
+  }
+
+  .favourite-card:hover & img {
+    transform: scale(1.05);
+  }
+}
+
+.favourite-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: $text-muted;
+}
+
+.favourite-card__remove {
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid $accent-coral;
+  border-radius: 50%;
+  color: $accent-coral;
+  cursor: pointer;
+  transition: all $transition-fast;
+  z-index: 2;
+
+  &:hover {
+    background: $accent-coral;
+    color: $bg-white;
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($accent-coral, 0.3);
+  }
+}
+
+.favourite-card__badge {
+  position: absolute;
+  bottom: $spacing-3;
+  left: $spacing-3;
+  padding: $spacing-1 $spacing-3;
+  border-radius: 999px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &--sale {
+    background: #3B82F6;
+    color: $bg-white;
+  }
+
+  &--let {
+    background: #8B5CF6;
+    color: $bg-white;
+  }
+}
+
+.favourite-card__content {
+  display: block;
+  padding: $spacing-5;
+  text-decoration: none;
+  color: inherit;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: $bg-off-white;
+  }
+}
+
+.favourite-card__address {
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin: 0 0 $spacing-3 0;
+  line-height: $line-height-tight;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color $transition-fast;
+
+  .favourite-card:hover & {
+    color: $accent-coral;
+  }
+}
+
+.favourite-card__specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+}
+
+.favourite-card__spec {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+
+  svg {
+    color: $text-muted;
+  }
+}
+
+.favourite-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: $spacing-3;
+}
+
+.favourite-card__price {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $accent-coral;
+  margin: 0;
+}
+
+.favourite-card__saved {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin: 0;
+}

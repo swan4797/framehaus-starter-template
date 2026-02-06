@@ -6,46 +6,26 @@
 // ========================================
 
 import Layout from '../layouts/Layout.astro'
-import { fetchBrandSettings, getContactInfo } from '../lib/brand'
+
+// Static Page Components
+import StaticPageLayout from '../components/static-page/layout/StaticPageLayout.astro'
+import StaticHero from '../components/static-page/hero/StaticHero.astro'
+import ShowcaseGrid from '../components/static-page/showcase/ShowcaseGrid.astro'
+import ShowcaseCard from '../components/static-page/showcase/ShowcaseCard.astro'
+import ContentSection from '../components/static-page/content/ContentSection.astro'
+import ContentRow from '../components/static-page/content/ContentRow.astro'
 
 // Page content utilities
-import {
-  getPageContent,
-  getSectionTitle,
-  getSectionContent,
-  getSectionImage,
-  hasSection,
-} from '../lib/pages'
+import { getPageContent, hasSection } from '../lib/pages'
+
+// Page configuration
+import { sellersPageConfig } from '../components/static-page/config'
 
 const pageTitle = 'Selling Your Property'
 const pageDescription = 'Expert guidance and support for selling your property. Get the best price with our experienced team.'
 
-// Fetch brand settings
-const brand = await fetchBrandSettings(true)
-const contact = getContactInfo(brand)
-
 // Fetch sellers page content from Stratos CRM
 const pageContent = await getPageContent('sellers')
-
-// ========================================
-// SPECIFIC SECTION BLOCK KEYS
-// These match the block_keys from Stratos CRM
-// ========================================
-
-// Our Approach section (block_key: our_approach)
-const ourApproachTitle = getSectionTitle(pageContent, 'our_approach', 'Our Approach to Selling')
-const ourApproachContent = getSectionContent(pageContent, 'our_approach', '<p>We combine traditional estate agency values with modern marketing techniques to achieve the best possible price for your property.</p>')
-const ourApproachImage = getSectionImage(pageContent, 'our_approach')
-
-// Selling Process section (block_key: selling_process)
-const sellingProcessTitle = getSectionTitle(pageContent, 'selling_process', 'The Selling Process')
-const sellingProcessContent = getSectionContent(pageContent, 'selling_process', '')
-const sellingProcessImage = getSectionImage(pageContent, 'selling_process')
-
-// Fees section (block_key: fees)
-const feesTitle = getSectionTitle(pageContent, 'fees', 'Our Fees')
-const feesContent = getSectionContent(pageContent, 'fees', '<p>We offer competitive, transparent fees with no hidden costs.</p>')
-const feesImage = getSectionImage(pageContent, 'fees')
 
 // Check which sections exist in CRM
 const hasOurApproach = hasSection(pageContent, 'our_approach')
@@ -54,221 +34,140 @@ const hasFees = hasSection(pageContent, 'fees')
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
-  <div class="static-page">
-
+  <StaticPageLayout>
     <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero__container">
-        <div class="hero__left">
-          <span class="hero__label">For Sellers</span>
-          <h1 class="hero__title">
-            <span class="hero__title-line">Sell your property</span>
-            <span class="hero__title-line">for the best <span class="hero__title-accent">price</span></span>
-          </h1>
-        </div>
-        <div class="hero__right">
-          <p class="hero__tagline">
-            With expert local knowledge and a proven track record, we'll help you achieve the best possible price for your property.
-          </p>
-          <a href="/valuation" class="hero__btn">
-            Get a Free Valuation
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" x2="19" y1="12" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </section>
+    <StaticHero
+      label={sellersPageConfig.hero.label}
+      titleLines={sellersPageConfig.hero.titleLines}
+      tagline="With expert local knowledge and a proven track record, we'll help you achieve the best possible price for your property."
+      ctaLabel={sellersPageConfig.hero.ctaLabel}
+      ctaUrl={sellersPageConfig.hero.ctaUrl}
+    />
 
     <!-- Showcase Section -->
-    <section class="showcase">
-      <div class="showcase__container">
-        <div class="showcase__card showcase__card--primary">
-          <div class="showcase__card-content">
-            <div class="showcase__card-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-            </div>
-            <h2 class="showcase__card-title">Maximise Your Sale Price</h2>
-            <p class="showcase__card-text">Our marketing expertise and local knowledge ensure your property reaches the right buyers at the right price.</p>
-            <div class="showcase__features">
-              <div class="showcase__feature">
-                <span class="showcase__feature-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </span>
-                Professional Photography
-              </div>
-              <div class="showcase__feature">
-                <span class="showcase__feature-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </span>
-                Premium Portal Listings
-              </div>
-              <div class="showcase__feature">
-                <span class="showcase__feature-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </span>
-                Expert Negotiation
-              </div>
-            </div>
+    <ShowcaseGrid>
+      <ShowcaseCard
+        variant="primary"
+        title="Maximise Your Sale Price"
+        description="Our marketing expertise and local knowledge ensure your property reaches the right buyers at the right price."
+        features={[
+          { text: 'Professional Photography' },
+          { text: 'Premium Portal Listings' },
+          { text: 'Expert Negotiation' },
+        ]}
+        image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop"
+        imageAlt="Property for sale"
+      >
+        <Fragment slot="icon">
+          <div class="showcase__card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
           </div>
-          <img
-            src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop"
-            alt="Property for sale"
-            class="showcase__card-image"
-          />
-        </div>
+        </Fragment>
+      </ShowcaseCard>
 
-        <div class="showcase__card showcase__card--secondary">
-          <div class="showcase__card-content">
-            <h3 class="showcase__card-subtitle">Stress-Free Sales</h3>
-            <p class="showcase__card-text">We handle everything from viewings to completion, keeping you informed every step of the way.</p>
-          </div>
-          <img
-            src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&h=500&fit=crop"
-            alt="Happy sellers"
-            class="showcase__card-image showcase__card-image--tall"
-          />
-        </div>
-      </div>
-    </section>
+      <ShowcaseCard
+        variant="secondary"
+        subtitle="Stress-Free Sales"
+        description="We handle everything from viewings to completion, keeping you informed every step of the way."
+        image="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&h=500&fit=crop"
+        imageAlt="Happy sellers"
+        tallImage
+      />
+    </ShowcaseGrid>
 
     <!-- Content Section -->
-    <section class="content">
-      <div class="content__container">
-
-        <!-- Row 1: Our Approach (block_key: our_approach) -->
-        <div class="content__row">
-          <div class="content__left">
-            <span class="content__label">Our Approach</span>
-            <h2 class="content__title">{ourApproachTitle}</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
-            {hasOurApproach && ourApproachContent ? (
-              <div class="content__text" set:html={ourApproachContent} />
-            ) : (
-              <>
-                <p class="content__text">
-                  Selling a property is one of the biggest financial decisions you'll make. That's why we take a personalised approach, combining local market expertise with modern marketing strategies to attract the right buyers and achieve the best price.
-                </p>
-                <p class="content__text">
-                  From the initial valuation to completion, we keep you informed every step of the way, providing honest advice and dedicated support throughout.
-                </p>
-              </>
-            )}
-            {ourApproachImage?.url && (
-              <img src={ourApproachImage.url} alt={ourApproachImage.alt || 'Our Approach'} class="content__image" loading="lazy" />
-            )}
-          </div>
-        </div>
-
-        <!-- Row 2: Selling Process (block_key: selling_process) -->
-        <div class="content__row">
-          <div class="content__left">
-            <span class="content__label">The Process</span>
-            <h2 class="content__title">{sellingProcessTitle}</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
-            {hasSellingProcess && sellingProcessContent ? (
-              <div class="content__text" set:html={sellingProcessContent} />
-            ) : (
-              <>
-                <p class="content__text">
-                  We provide everything you need to sell your property quickly and for the best price, with no hidden surprises along the way.
-                </p>
-                <ul class="content__list">
-                  <li>Free, no-obligation market valuations</li>
-                  <li>Professional photography and floor plans</li>
-                  <li>Listings on Rightmove, Zoopla and OnTheMarket</li>
-                  <li>Accompanied viewings at times that suit you</li>
-                  <li>Expert negotiation to maximise your sale price</li>
-                  <li>Sales progression through to completion</li>
-                </ul>
-              </>
-            )}
-            {sellingProcessImage?.url && (
-              <img src={sellingProcessImage.url} alt={sellingProcessImage.alt || 'Selling Process'} class="content__image" loading="lazy" />
-            )}
-          </div>
-        </div>
-
-        <!-- Row 3: Fees (block_key: fees) -->
-        <div class="content__row">
-          <div class="content__left">
-            <span class="content__label">Our Fees</span>
-            <h2 class="content__title">{feesTitle}</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
-            {hasFees && feesContent ? (
-              <div class="content__text" set:html={feesContent} />
-            ) : (
-              <p class="content__text">
-                Our track record speaks for itself. We consistently achieve asking price or above for our clients, and our dedication to exceptional service means you're always in safe hands.
-              </p>
-            )}
-            {feesImage?.url && (
-              <img src={feesImage.url} alt={feesImage.alt || 'Our Fees'} class="content__image" loading="lazy" />
-            )}
-            <div class="content__highlights">
-              <div class="content__highlight">
-                <span class="content__highlight-value">98%</span>
-                <span class="content__highlight-label">Asking price achieved</span>
-              </div>
-              <div class="content__highlight">
-                <span class="content__highlight-value">6 weeks</span>
-                <span class="content__highlight-label">Average time to offer</span>
-              </div>
-              <div class="content__highlight">
-                <span class="content__highlight-value">500+</span>
-                <span class="content__highlight-label">Properties sold</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 4: CTA -->
-        <div class="content__row content__row--cta">
-          <div class="content__left">
-            <span class="content__label">Get Started</span>
-            <h2 class="content__title">Ready to sell your property?</h2>
-          </div>
-          <div class="content__divider"></div>
-          <div class="content__right">
+    <ContentSection>
+      <!-- Row 1: Our Approach (block_key: our_approach) -->
+      <ContentRow
+        label="Our Approach"
+        blockKey="our_approach"
+        pageContent={pageContent}
+        title="Our Approach to Selling"
+      >
+        {!hasOurApproach && (
+          <Fragment>
             <p class="content__text">
-              Book a free valuation today and discover what your property could be worth. Our team is ready to help you every step of the way.
+              Selling a property is one of the biggest financial decisions you'll make. That's why we take a personalised approach, combining local market expertise with modern marketing strategies to attract the right buyers and achieve the best price.
             </p>
-            <div class="content__actions">
-              <a href="/valuation" class="content__btn content__btn--primary">
-                Book a Valuation
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="5" x2="19" y1="12" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </a>
-              <a href="/contact" class="content__btn content__btn--secondary">
-                Contact Us
-              </a>
-            </div>
-          </div>
-        </div>
+            <p class="content__text">
+              From the initial valuation to completion, we keep you informed every step of the way, providing honest advice and dedicated support throughout.
+            </p>
+          </Fragment>
+        )}
+      </ContentRow>
 
-      </div>
-    </section>
+      <!-- Row 2: Selling Process (block_key: selling_process) -->
+      <ContentRow
+        label="The Process"
+        blockKey="selling_process"
+        pageContent={pageContent}
+        title="The Selling Process"
+        listItems={!hasSellingProcess ? [
+          'Free, no-obligation market valuations',
+          'Professional photography and floor plans',
+          'Listings on Rightmove, Zoopla and OnTheMarket',
+          'Accompanied viewings at times that suit you',
+          'Expert negotiation to maximise your sale price',
+          'Sales progression through to completion',
+        ] : []}
+      >
+        {!hasSellingProcess && (
+          <p class="content__text">
+            We provide everything you need to sell your property quickly and for the best price, with no hidden surprises along the way.
+          </p>
+        )}
+      </ContentRow>
 
-  </div>
+      <!-- Row 3: Fees (block_key: fees) -->
+      <ContentRow
+        label="Our Fees"
+        blockKey="fees"
+        pageContent={pageContent}
+        title="Our Fees"
+        highlights={[
+          { value: '98%', label: 'Asking price achieved' },
+          { value: '6 weeks', label: 'Average time to offer' },
+          { value: '500+', label: 'Properties sold' },
+        ]}
+      >
+        {!hasFees && (
+          <p class="content__text">
+            Our track record speaks for itself. We consistently achieve asking price or above for our clients, and our dedication to exceptional service means you're always in safe hands.
+          </p>
+        )}
+      </ContentRow>
+
+      <!-- Row 4: CTA -->
+      <ContentRow
+        label="Get Started"
+        title="Ready to sell your property?"
+        isCta
+        actions={[
+          { label: 'Book a Valuation', url: '/valuation', variant: 'primary', icon: true },
+          { label: 'Contact Us', url: '/contact', variant: 'secondary' },
+        ]}
+      >
+        <p class="content__text">
+          Book a free valuation today and discover what your property could be worth. Our team is ready to help you every step of the way.
+        </p>
+      </ContentRow>
+    </ContentSection>
+  </StaticPageLayout>
 </Layout>
 
 <style lang="scss">
-  @use './static-template.scss';
+  @use '../styles/variables' as *;
+
+  .content__text {
+    font-size: 1.0625rem;
+    color: $text-secondary;
+    line-height: 1.75;
+    margin: 0 0 20px 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 </style>

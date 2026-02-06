@@ -1,0 +1,31 @@
+---
+// ========================================
+// FORM PAGE LAYOUT
+// Wrapper component for form pages
+// ========================================
+
+interface Props {
+  class?: string
+}
+
+const { class: className = '' } = Astro.props
+---
+
+<div class:list={['form-page', className]}>
+  <slot />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .form-page {
+    background: $bg-white;
+    font-family: $font-family-base;
+    padding-bottom: 80px;
+
+    @include mobile-only {
+      padding-bottom: 48px;
+    }
+  }
+</style>

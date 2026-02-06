@@ -1,0 +1,56 @@
+---
+// ========================================
+// SHOWCASE GRID
+// Container for showcase cards
+// ========================================
+
+import type { ShowcaseGridProps } from '../types'
+
+interface Props extends ShowcaseGridProps {
+  class?: string
+}
+
+const {
+  withTopPadding = false,
+  class: className = '',
+} = Astro.props
+---
+
+<section class:list={['showcase', { 'showcase--with-top-padding': withTopPadding }, className]}>
+  <div class="showcase__container">
+    <slot />
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+  @use '../../../styles/mixins' as *;
+
+  .showcase {
+    padding: 0 40px 100px;
+
+    @include mobile-only {
+      padding: 0 20px 64px;
+    }
+  }
+
+  .showcase--with-top-padding {
+    padding-top: 40px;
+
+    @include mobile-only {
+      padding-top: 32px;
+    }
+  }
+
+  .showcase__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+
+    @media (min-width: 900px) {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+</style>

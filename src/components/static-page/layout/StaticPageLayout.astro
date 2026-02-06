@@ -1,0 +1,25 @@
+---
+// ========================================
+// STATIC PAGE LAYOUT
+// Container wrapper for static pages
+// ========================================
+
+interface Props {
+  class?: string
+}
+
+const { class: className = '' } = Astro.props
+---
+
+<div class:list={['static-page', className]}>
+  <slot />
+</div>
+
+<style lang="scss">
+  @use '../../../styles/variables' as *;
+
+  .static-page {
+    background: $bg-white;
+    font-family: $font-family-base;
+  }
+</style>
