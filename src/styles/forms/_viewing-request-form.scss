@@ -1,9 +1,20 @@
 // ========================================
 // VIEWING REQUEST FORM STYLES
-// Form component for requesting property viewings
+// Compact form for property details sidebar
+// Matches contact/valuation form theme
 // ========================================
 
 @use '../variables' as *;
+
+// Local design tokens
+$radius-input: 10px;
+$radius-card: 16px;
+$shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+$transition-fast: 150ms ease;
+
+// Local colors for form inputs (can't use darken() with CSS vars)
+$bg-input: #F5F5F5;
+$bg-input-hover: #EFEFEF;
 
 // ========================================
 // FORM CONTAINER
@@ -11,16 +22,13 @@
 
 .viewing-form {
   width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
   font-family: $font-family-base;
 }
 
 .viewing-form__card {
   background: $bg-white;
-  border-radius: $radius-lg;
+  border-radius: $radius-card;
   box-shadow: $shadow-card;
-  border: 1px solid $border-light;
   overflow: hidden;
 }
 
@@ -31,25 +39,25 @@
 .viewing-form__header {
   display: flex;
   align-items: center;
-  gap: $spacing-4;
-  padding: $spacing-6 $spacing-6;
+  gap: $spacing-3;
+  padding: $spacing-5;
   background: $accent-coral;
   color: $bg-white;
 }
 
 .viewing-form__header-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: $radius-md;
+  border-radius: $radius-input;
   flex-shrink: 0;
 
   svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -59,17 +67,16 @@
 }
 
 .viewing-form__title {
-  font-size: $font-size-xl;
+  font-size: 1.125rem;
   font-weight: $font-weight-bold;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   line-height: $line-height-tight;
-  letter-spacing: -0.01em;
 }
 
 .viewing-form__subtitle {
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   margin: 0;
-  opacity: 0.8;
+  opacity: 0.85;
   line-height: $line-height-base;
   white-space: nowrap;
   overflow: hidden;
@@ -81,11 +88,10 @@
 // ========================================
 
 .viewing-form__body {
-  padding: $spacing-6;
-
-  @media (max-width: 480px) {
-    padding: $spacing-6 $spacing-5;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+  padding: $spacing-5;
 }
 
 // ========================================
@@ -93,88 +99,84 @@
 // ========================================
 
 .viewing-form__field {
-  margin-bottom: $spacing-5;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
 }
 
 .viewing-form__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-4;
+  gap: $spacing-3;
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: $spacing-5;
   }
 }
 
 .viewing-form__label {
-  display: block;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
+  font-size: 0.9375rem;
+  font-weight: 500;
   color: $text-primary;
-  margin-bottom: $spacing-2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .viewing-form__required {
   color: $accent-coral;
-  margin-left: 2px;
 }
 
-.viewing-form__input-wrapper {
-  position: relative;
-}
+// ========================================
+// INPUTS (Match contact form theme)
+// ========================================
 
 .viewing-form__input,
 .viewing-form__textarea {
   width: 100%;
-  padding: $spacing-3 $spacing-4;
+  height: 50px;
+  padding: 0 16px;
   font-family: $font-family-base;
-  font-size: $font-size-base;
+  font-size: 1rem;
   color: $text-primary;
-  background: $bg-off-white;
-  border: 1.5px solid $border-light;
-  border-radius: $radius-sm;
-  box-shadow: $shadow-xs;
-  transition: border-color $transition-fast, background $transition-fast, box-shadow $transition-fast;
+  background: $bg-input;
+  border: none;
+  border-radius: $radius-input;
+  transition: background $transition-fast, box-shadow $transition-fast;
 
   &::placeholder {
     color: $text-muted;
   }
 
   &:hover {
-    border-color: $border-medium;
-    background: $bg-white;
+    background: $bg-input-hover;
   }
 
   &:focus {
     outline: none;
-    border-color: $accent-coral;
     background: $bg-white;
-    box-shadow: 0 0 0 3px $accent-coral-light;
+    box-shadow: 0 0 0 2px $accent-coral;
   }
 }
 
-.viewing-form__input--date {
-  cursor: pointer;
-  padding-right: 44px;
-
-  &::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    position: absolute;
-    right: 0;
-    width: 44px;
-    height: 100%;
-    cursor: pointer;
-  }
+.viewing-form__textarea {
+  height: auto;
+  min-height: 100px;
+  padding: 14px 16px;
+  resize: vertical;
+  line-height: 1.5;
 }
 
-.viewing-form__input--select {
-  appearance: none;
-  cursor: pointer;
-  padding-right: 44px;
+// ========================================
+// DATE PICKER (Flatpickr)
+// ========================================
+
+.viewing-form__date-wrapper {
+  position: relative;
 }
 
-.viewing-form__input-icon {
+.viewing-form__date-icon {
   position: absolute;
   right: 14px;
   top: 50%;
@@ -183,256 +185,47 @@
   height: 18px;
   color: $text-muted;
   pointer-events: none;
-
-  &--select {
-    width: 16px;
-    height: 16px;
-  }
 }
 
-.viewing-form__textarea {
-  resize: vertical;
-  min-height: 100px;
-  line-height: $line-height-relaxed;
-}
-
-// ========================================
-// CALENDAR DATE PICKER
-// ========================================
-
-.viewing-form__field--full {
-  grid-column: 1 / -1;
-}
-
-.viewing-form__calendar {
-  background: $bg-white;
-  border: none;
-  border-radius: $radius-3xl;
-  padding: $spacing-8;
-  user-select: none;
-  box-shadow: $shadow-lg;
-}
-
-.viewing-form__calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: $spacing-6;
-}
-
-.viewing-form__calendar-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: transparent;
-  border: none;
-  border-radius: $radius-full;
+.viewing-form__input--date {
   cursor: pointer;
-  transition: background $transition-base;
-  font-family: $font-family-base;
-
-  svg {
-    width: 22px;
-    height: 22px;
-    color: $text-primary;
-    stroke-width: 2;
-  }
-
-  &:hover:not(:disabled) {
-    background: $bg-off-white;
-  }
-
-  &:focus {
-    outline: none;
-    background: $bg-off-white;
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-}
-
-.viewing-form__calendar-title {
-  font-size: $font-size-xl;
-  font-weight: $font-weight-bold;
-  color: $text-primary;
-  letter-spacing: -0.02em;
-}
-
-.viewing-form__calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  margin-bottom: $spacing-4;
-
-  span {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    color: $text-primary;
-    text-align: center;
-    padding: $spacing-2 0;
-  }
-}
-
-.viewing-form__calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: $spacing-2;
-}
-
-.viewing-form__calendar-day {
-  // Reset default button styles
-  all: unset;
-  box-sizing: border-box;
-
-  // Modern styling
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  font-family: $font-family-base;
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  color: $text-primary;
-  background: transparent;
-  border-radius: $radius-full;
-  cursor: pointer;
-  position: relative;
-  transition: all $transition-base;
-
-  // Hover state
-  &:hover:not(.is-disabled):not(.is-other-month):not(.is-selected) {
-    background: $bg-off-white;
-  }
-
-  // Focus state
-  &:focus-visible {
-    outline: none;
-    box-shadow: $focus-ring;
-  }
-
-  // Today's date - subtle indicator
-  &.is-today:not(.is-selected) {
-    font-weight: $font-weight-semibold;
-    color: $text-primary;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      background: $text-primary;
-      border-radius: $radius-full;
-    }
-  }
-
-  // Selected date - black circle with white text
-  &.is-selected {
-    background: $text-primary;
-    color: $bg-white;
-    font-weight: $font-weight-semibold;
-    transform: scale(1.1);
-    box-shadow: $shadow-md;
-
-    &::after {
-      display: none;
-    }
-
-    &:hover {
-      background: #000;
-      box-shadow: $shadow-lg;
-    }
-  }
-
-  // Previous/next month dates - light gray
-  &.is-other-month {
-    color: $border-medium;
-    cursor: default;
-    pointer-events: none;
-
-    &:hover {
-      background: transparent;
-    }
-  }
-
-  // Past/disabled dates - muted
-  &.is-disabled {
-    color: $border-medium;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-}
-
-// Selected date display
-.viewing-form__calendar-selected {
-  display: none;
-  align-items: center;
-  gap: $spacing-3;
-  margin-top: $spacing-6;
-  padding: $spacing-4 $spacing-5;
-  background: $bg-off-white;
-  border-radius: $radius-md;
-
-  &.is-visible {
-    display: flex;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-    color: $text-primary;
-    flex-shrink: 0;
-  }
-}
-
-.viewing-form__calendar-selected-text {
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  color: $text-primary;
+  padding-right: 44px;
 }
 
 // ========================================
-// TIME PICKER
+// TIME PICKER (Match input theme)
 // ========================================
 
 .viewing-form__time-picker {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: $spacing-2;
-
-  @media (max-width: 600px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .viewing-form__time-option {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-1;
-  padding: $spacing-3 $spacing-2;
-  background: $bg-off-white;
-  border: 1.5px solid $border-light;
-  border-radius: $radius-sm;
+  justify-content: center;
+  gap: 2px;
+  height: 60px;
+  padding: $spacing-2;
+  background: $bg-input;
+  border: none;
+  border-radius: $radius-input;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: background $transition-fast, box-shadow $transition-fast;
   font-family: $font-family-base;
 
   svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     color: $text-muted;
     transition: color $transition-fast;
   }
 
   &:hover {
-    border-color: $border-medium;
-    background: $bg-white;
+    background: $bg-input-hover;
 
     svg {
       color: $text-secondary;
@@ -441,13 +234,13 @@
 
   &:focus {
     outline: none;
-    border-color: $accent-coral;
-    box-shadow: 0 0 0 3px $accent-coral-light;
+    background: $bg-white;
+    box-shadow: 0 0 0 2px $accent-coral;
   }
 
   &.is-selected {
-    background: $accent-coral-light;
-    border-color: $accent-coral;
+    background: $bg-white;
+    box-shadow: 0 0 0 2px $accent-coral;
 
     svg {
       color: $accent-coral;
@@ -455,25 +248,24 @@
 
     .viewing-form__time-label {
       color: $accent-coral;
-      font-weight: $font-weight-semibold;
+      font-weight: 600;
     }
 
     .viewing-form__time-range {
       color: $accent-coral;
-      opacity: 0.8;
     }
   }
 }
 
 .viewing-form__time-label {
   font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  font-weight: 500;
   color: $text-primary;
-  line-height: $line-height-tight;
+  line-height: 1.2;
 }
 
 .viewing-form__time-range {
-  font-size: $font-size-xs;
+  font-size: 0.6875rem;
   color: $text-muted;
   line-height: 1;
 }
@@ -486,37 +278,21 @@
   display: flex;
   align-items: flex-start;
   gap: $spacing-3;
-  margin: $spacing-6 0;
-  padding: $spacing-4;
-  background: $bg-off-white;
-  border-radius: $radius-sm;
 }
 
 .viewing-form__checkbox-input {
   width: 20px;
   height: 20px;
-  margin: 0;
+  margin-top: 2px;
   flex-shrink: 0;
   cursor: pointer;
   accent-color: $accent-coral;
-  border: 1.5px solid $border-medium;
-  border-radius: 4px;
-
-  &:checked {
-    background: $accent-coral;
-    border-color: $accent-coral;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px $accent-coral-light;
-  }
 }
 
 .viewing-form__checkbox-label {
-  font-size: $font-size-base;
+  font-size: 0.9375rem;
   color: $text-secondary;
-  line-height: $line-height-base;
+  line-height: 1.5;
   cursor: pointer;
 }
 
@@ -530,15 +306,15 @@
   align-items: center;
   justify-content: center;
   gap: $spacing-2;
-  height: 56px;
+  height: 52px;
   padding: 0 $spacing-6;
   background: $accent-coral;
   color: $bg-white;
   border: none;
-  border-radius: $radius-sm;
+  border-radius: $radius-input;
   font-family: $font-family-base;
-  font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
 
@@ -549,8 +325,8 @@
 
   &:hover:not(:disabled) {
     background: $accent-coral-dark;
-    transform: translateY(-2px);
-    box-shadow: $shadow-lg;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($accent-coral, 0.3);
   }
 
   &:active:not(:disabled) {
@@ -560,6 +336,7 @@
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
   }
 }
 
@@ -568,16 +345,15 @@
 // ========================================
 
 .viewing-form__privacy {
-  font-size: $font-size-sm;
+  font-size: 0.8125rem;
   color: $text-muted;
   text-align: center;
-  margin: $spacing-4 0 0 0;
-  line-height: $line-height-base;
+  margin: 0;
+  line-height: 1.5;
 
   a {
     color: $text-secondary;
     text-decoration: underline;
-    text-underline-offset: 2px;
     transition: color $transition-fast;
 
     &:hover {
@@ -594,68 +370,47 @@
   display: none;
   align-items: flex-start;
   gap: $spacing-4;
-  padding: $spacing-6;
+  padding: $spacing-5;
   margin: 0;
 
   &.show {
     display: flex;
   }
-
-  @media (max-width: 480px) {
-    padding: $spacing-5;
-  }
 }
 
 .viewing-form__message-icon {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: $radius-full;
   flex-shrink: 0;
+  margin-top: 2px;
 
   svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
 }
 
 .viewing-form__message-content {
   flex: 1;
-  padding-top: 2px;
 }
 
 .viewing-form__message-title {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
+  font-size: 1rem;
+  font-weight: 600;
   margin: 0 0 4px 0;
-  line-height: $line-height-base;
 }
 
 .viewing-form__message-text {
-  font-size: $font-size-base;
+  font-size: 0.9375rem;
   margin: 0;
-  line-height: $line-height-base;
-  opacity: 0.85;
+  line-height: 1.5;
+  opacity: 0.9;
 }
 
 .viewing-form__message--success {
-  background: var(--color-success-light, #ECFDF5);
-  color: var(--color-success-dark, #065F46);
-
-  .viewing-form__message-icon {
-    background: var(--color-success-lighter, #D1FAE5);
-    color: var(--color-success, #10B981);
-  }
+  background: #ECFDF5;
+  color: #065F46;
 }
 
 .viewing-form__message--error {
-  background: var(--color-error-light, #FEF2F2);
-  color: var(--color-error-dark, #991B1B);
-
-  .viewing-form__message-icon {
-    background: var(--color-error-lighter, #FEE2E2);
-    color: var(--color-error, #EF4444);
-  }
+  background: #FEF2F2;
+  color: #991B1B;
 }

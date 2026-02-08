@@ -86,94 +86,74 @@ const { property } = Astro.props
         </div>
       </div>
 
-      <!-- Date & Time Row -->
-      <div class="viewing-form__row">
-        <div class="viewing-form__field viewing-form__field--full">
-          <label class="viewing-form__label">Preferred Date</label>
-          <input type="hidden" id="preferred_date" name="preferred_date" value="" />
-          <div class="viewing-form__calendar" id="calendar">
-            <div class="viewing-form__calendar-header">
-              <button type="button" class="viewing-form__calendar-nav" id="prev-month" aria-label="Previous month">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
-              <span class="viewing-form__calendar-title" id="calendar-title"></span>
-              <button type="button" class="viewing-form__calendar-nav" id="next-month" aria-label="Next month">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            </div>
-            <div class="viewing-form__calendar-weekdays">
-              <span>Sun</span>
-              <span>Mon</span>
-              <span>Tue</span>
-              <span>Wed</span>
-              <span>Thu</span>
-              <span>Fri</span>
-              <span>Sat</span>
-            </div>
-            <div class="viewing-form__calendar-grid" id="calendar-grid">
-              <!-- Days will be populated by JavaScript -->
-            </div>
-            <div class="viewing-form__calendar-selected" id="calendar-selected">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-              <span class="viewing-form__calendar-selected-text" id="calendar-selected-text"></span>
-            </div>
-          </div>
+      <!-- Date Selection -->
+      <div class="viewing-form__field">
+        <label for="preferred_date" class="viewing-form__label">Preferred Date</label>
+        <div class="viewing-form__date-wrapper">
+          <input
+            type="text"
+            id="preferred_date"
+            name="preferred_date"
+            placeholder="Select a date"
+            class="viewing-form__input viewing-form__input--date"
+            readonly
+          />
+          <svg class="viewing-form__date-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+            <line x1="16" x2="16" y1="2" y2="6"/>
+            <line x1="8" x2="8" y1="2" y2="6"/>
+            <line x1="3" x2="21" y1="10" y2="10"/>
+          </svg>
         </div>
+      </div>
 
-        <div class="viewing-form__field">
-          <label class="viewing-form__label">Preferred Time</label>
-          <input type="hidden" id="preferred_time" name="preferred_time" value="" />
-          <div class="viewing-form__time-picker">
-            <button type="button" class="viewing-form__time-option is-selected" data-value="">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-              <span class="viewing-form__time-label">Flexible</span>
-            </button>
-            <button type="button" class="viewing-form__time-option" data-value="morning">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"/>
-                <path d="M12 2v2"/>
-                <path d="M12 20v2"/>
-                <path d="m4.93 4.93 1.41 1.41"/>
-                <path d="m17.66 17.66 1.41 1.41"/>
-                <path d="M2 12h2"/>
-                <path d="M20 12h2"/>
-                <path d="m6.34 17.66-1.41 1.41"/>
-                <path d="m19.07 4.93-1.41 1.41"/>
-              </svg>
-              <span class="viewing-form__time-label">Morning</span>
-              <span class="viewing-form__time-range">9am - 12pm</span>
-            </button>
-            <button type="button" class="viewing-form__time-option" data-value="afternoon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"/>
-                <path d="M12 4v2"/>
-                <path d="M12 18v2"/>
-                <path d="m6.34 6.34-1.41-1.41"/>
-                <path d="m17.66 17.66 1.41 1.41"/>
-                <path d="M4 12H2"/>
-                <path d="M22 12h-2"/>
-              </svg>
-              <span class="viewing-form__time-label">Afternoon</span>
-              <span class="viewing-form__time-range">12pm - 5pm</span>
-            </button>
-            <button type="button" class="viewing-form__time-option" data-value="evening">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-              </svg>
-              <span class="viewing-form__time-label">Evening</span>
-              <span class="viewing-form__time-range">5pm - 7pm</span>
-            </button>
-          </div>
+      <!-- Time Selection -->
+      <div class="viewing-form__field">
+        <label class="viewing-form__label">Preferred Time</label>
+        <input type="hidden" id="preferred_time" name="preferred_time" value="" />
+        <div class="viewing-form__time-picker">
+          <button type="button" class="viewing-form__time-option is-selected" data-value="">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span class="viewing-form__time-label">Flexible</span>
+          </button>
+          <button type="button" class="viewing-form__time-option" data-value="morning">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2"/>
+              <path d="M12 20v2"/>
+              <path d="m4.93 4.93 1.41 1.41"/>
+              <path d="m17.66 17.66 1.41 1.41"/>
+              <path d="M2 12h2"/>
+              <path d="M20 12h2"/>
+              <path d="m6.34 17.66-1.41 1.41"/>
+              <path d="m19.07 4.93-1.41 1.41"/>
+            </svg>
+            <span class="viewing-form__time-label">Morning</span>
+            <span class="viewing-form__time-range">9am - 12pm</span>
+          </button>
+          <button type="button" class="viewing-form__time-option" data-value="afternoon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 4v2"/>
+              <path d="M12 18v2"/>
+              <path d="m6.34 6.34-1.41-1.41"/>
+              <path d="m17.66 17.66 1.41 1.41"/>
+              <path d="M4 12H2"/>
+              <path d="M22 12h-2"/>
+            </svg>
+            <span class="viewing-form__time-label">Afternoon</span>
+            <span class="viewing-form__time-range">12pm - 5pm</span>
+          </button>
+          <button type="button" class="viewing-form__time-option" data-value="evening">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+            <span class="viewing-form__time-label">Evening</span>
+            <span class="viewing-form__time-range">5pm - 7pm</span>
+          </button>
         </div>
       </div>
 
@@ -254,6 +234,169 @@ const { property } = Astro.props
   @use '../../styles/forms/viewing-request-form';
 </style>
 
+<style is:global>
+  @import 'flatpickr/dist/flatpickr.min.css';
+
+  /* Flatpickr Input Styling - Match contact form theme */
+  .viewing-form .flatpickr-input, .viewing-form__input--date {
+    width: 100%;
+    height: 50px;
+    padding: 0 44px 0 16px;
+    font-family: var(--font-family-base, system-ui, sans-serif);
+    font-size: 16px;
+    color: var(--color-text-primary, #1a1a1a);
+    background: #F5F5F5;
+    border: none;
+    border-radius: 10px;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+
+  .viewing-form .flatpickr-input::placeholder {
+    color: var(--color-text-muted, #999);
+  }
+
+  .viewing-form .flatpickr-input:hover {
+    background: #EFEFEF;
+  }
+
+  .viewing-form .flatpickr-input:focus,
+  .viewing-form .flatpickr-input.active {
+    outline: none;
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--color-accent-coral, #E07A5F);
+  }
+
+  /* Hide the original input when flatpickr creates altInput */
+  .viewing-form input[type="text"].flatpickr-input + input {
+    display: none;
+  }
+
+  /* Flatpickr Calendar Popup */
+  .flatpickr-calendar {
+    font-family: var(--font-family-base, system-ui, sans-serif);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--color-border-light, #e5e5e5);
+    padding: 8px;
+    width: 307px;
+  }
+
+  .flatpickr-months {
+    padding: 8px 4px;
+  }
+
+  .flatpickr-months .flatpickr-month {
+    height: 36px;
+  }
+
+  .flatpickr-current-month {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary, #1a1a1a);
+  }
+
+  .flatpickr-current-month .flatpickr-monthDropdown-months {
+    font-weight: 600;
+  }
+
+  .flatpickr-months .flatpickr-prev-month,
+  .flatpickr-months .flatpickr-next-month {
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.15s ease;
+  }
+
+  .flatpickr-months .flatpickr-prev-month:hover,
+  .flatpickr-months .flatpickr-next-month:hover {
+    background: #F5F5F5;
+  }
+
+  .flatpickr-months .flatpickr-prev-month svg,
+  .flatpickr-months .flatpickr-next-month svg {
+    fill: var(--color-text-secondary, #666);
+  }
+
+  .flatpickr-weekdays {
+    padding: 0 4px;
+  }
+
+  span.flatpickr-weekday {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-muted, #999);
+  }
+
+  .flatpickr-days {
+    padding: 0 4px 4px;
+  }
+
+  .dayContainer {
+    gap: 2px;
+  }
+
+  .flatpickr-day {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary, #1a1a1a);
+    border-radius: 50%;
+    border: none;
+    max-width: 38px;
+    height: 38px;
+    line-height: 38px;
+    transition: all 0.15s ease;
+  }
+
+  .flatpickr-day:hover {
+    background: #F5F5F5;
+    border: none;
+  }
+
+  .flatpickr-day.today {
+    border: none;
+    background: transparent;
+    color: var(--color-accent-coral, #E07A5F);
+    font-weight: 700;
+  }
+
+  .flatpickr-day.today:hover {
+    background: #F5F5F5;
+    color: var(--color-accent-coral, #E07A5F);
+  }
+
+  .flatpickr-day.selected,
+  .flatpickr-day.selected:hover {
+    background: var(--color-accent-coral, #E07A5F);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .flatpickr-day.flatpickr-disabled,
+  .flatpickr-day.flatpickr-disabled:hover {
+    color: #ccc;
+    background: transparent;
+    cursor: not-allowed;
+  }
+
+  .flatpickr-day.prevMonthDay,
+  .flatpickr-day.nextMonthDay {
+    color: #ccc;
+  }
+
+  /* Mobile styles */
+  .flatpickr-calendar.open {
+    z-index: 1000;
+  }
+
+  @media (max-width: 480px) {
+    .flatpickr-calendar {
+      width: calc(100vw - 32px);
+      max-width: 320px;
+    }
+  }
+</style>
+
 <script>
   import { getSessionId } from '../../lib/session';
 
@@ -324,155 +467,24 @@ const { property } = Astro.props
     });
   });
 
-  // Calendar functionality
+  // Flatpickr date picker
+  import flatpickr from 'flatpickr';
+
   const dateInput = document.querySelector('#preferred_date') as HTMLInputElement;
-  const calendarGrid = document.querySelector('#calendar-grid') as HTMLElement;
-  const calendarTitle = document.querySelector('#calendar-title') as HTMLElement;
-  const prevMonthBtn = document.querySelector('#prev-month') as HTMLButtonElement;
-  const nextMonthBtn = document.querySelector('#next-month') as HTMLButtonElement;
-  const calendarSelected = document.querySelector('#calendar-selected') as HTMLElement;
-  const calendarSelectedText = document.querySelector('#calendar-selected-text') as HTMLElement;
 
-  let currentMonth = new Date().getMonth();
-  let currentYear = new Date().getFullYear();
-  let selectedDate: Date | null = null;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-  const formatSelectedDate = (date: Date): string => {
-    const dayName = days[date.getDay()];
-    const dayNum = date.getDate();
-    const monthName = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${dayName}, ${dayNum} ${monthName} ${year}`;
-  };
-
-  const renderCalendar = () => {
-    if (!calendarGrid || !calendarTitle) return;
-
-    // Update title
-    calendarTitle.textContent = `${months[currentMonth]} ${currentYear}`;
-
-    // Disable prev button if current month
-    const isCurrentMonth = currentMonth === today.getMonth() && currentYear === today.getFullYear();
-    prevMonthBtn.disabled = isCurrentMonth;
-
-    // Get first day of month and number of days
-    const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    const daysInMonth = lastDay.getDate();
-
-    // Get day of week for first day (0 = Sunday)
-    const startDay = firstDay.getDay();
-
-    // Get days from previous month
-    const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
-
-    // Clear grid
-    calendarGrid.innerHTML = '';
-
-    // Add previous month's days (visible but grayed out)
-    for (let i = startDay - 1; i >= 0; i--) {
-      const day = prevMonthLastDay - i;
-      calendarGrid.appendChild(createDayButton(day, true, true));
-    }
-
-    // Add current month's days
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentYear, currentMonth, day);
-      const isPast = date < today;
-      const isToday = date.getTime() === today.getTime();
-      const isSelected = selectedDate && date.getTime() === selectedDate.getTime();
-
-      calendarGrid.appendChild(createDayButton(day, false, isPast, isToday, isSelected, date));
-    }
-
-    // Add next month's days to complete 6 rows (42 cells)
-    const totalDays = startDay + daysInMonth;
-    const targetCells = 42; // 6 rows × 7 columns
-    const remainingCells = targetCells - totalDays;
-    for (let day = 1; day <= remainingCells; day++) {
-      calendarGrid.appendChild(createDayButton(day, true, true));
-    }
-  };
-
-  const createDayButton = (
-    day: number,
-    isOtherMonth: boolean,
-    isDisabled: boolean,
-    isToday = false,
-    isSelected = false,
-    date?: Date
-  ): HTMLButtonElement => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'viewing-form__calendar-day';
-    btn.textContent = day.toString();
-
-    if (isOtherMonth) btn.classList.add('is-other-month');
-    if (isDisabled) btn.classList.add('is-disabled');
-    if (isToday) btn.classList.add('is-today');
-    if (isSelected) btn.classList.add('is-selected');
-
-    if (!isDisabled && !isOtherMonth && date) {
-      btn.addEventListener('click', () => {
+  if (dateInput) {
+    flatpickr(dateInput, {
+      dateFormat: 'D, d M Y',
+      altInput: true,
+      altFormat: 'D, d M Y',
+      minDate: 'today',
+      disableMobile: false,
+      animate: true,
+      onChange: () => {
         trackFormStart();
-        selectDate(date);
-      });
-    }
-
-    return btn;
-  };
-
-  const selectDate = (date: Date) => {
-    selectedDate = date;
-
-    // Update hidden input
-    if (dateInput) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      dateInput.value = `${year}-${month}-${day}`;
-    }
-
-    // Show selected date confirmation
-    if (calendarSelected && calendarSelectedText) {
-      calendarSelectedText.textContent = formatSelectedDate(date);
-      calendarSelected.classList.add('is-visible');
-    }
-
-    // Re-render calendar to show selection
-    renderCalendar();
-  };
-
-  prevMonthBtn?.addEventListener('click', () => {
-    currentMonth--;
-    if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
-    }
-    renderCalendar();
-  });
-
-  nextMonthBtn?.addEventListener('click', () => {
-    currentMonth++;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    }
-    renderCalendar();
-  });
-
-  // Initial render
-  renderCalendar();
+      },
+    });
+  }
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();

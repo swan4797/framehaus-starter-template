@@ -136,8 +136,8 @@ export function MapFiltersPanel({
         onClick={() => setIsOpen(!isOpen)}
         style={{
           position: 'absolute',
-          top: '5rem',
-          left: '1rem',
+          top: '1rem',
+          right: '1rem',
           zIndex: 1000,
           padding: '0.75rem 1rem',
           backgroundColor: '#3c5b4b',

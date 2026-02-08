@@ -1,0 +1,365 @@
+// ========================================
+// VALUATION PAGE STYLES
+// Clean, minimal valuation request form
+// ========================================
+
+// Import design system
+@use '../../variables' as *;
+@use '../../mixins' as *;
+
+// Local design tokens
+$radius-sm: 10px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+$transition-fast: 150ms ease;
+$transition-base: 200ms ease;
+
+// Local colors for form inputs (can't use darken() with CSS vars)
+$bg-input: #F5F5F5;
+$bg-input-hover: #EFEFEF;
+
+// ========================================
+// FORM SECTION
+// ========================================
+
+.valuation-form-section {
+  padding: 0 24px;
+  margin-bottom: 80px;
+
+  @include mobile-only {
+    padding: 0 20px;
+    margin-bottom: 48px;
+  }
+}
+
+.valuation-form-card {
+  max-width: 1020px;
+  margin: 0 auto;
+  background: $bg-white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: 48px;
+
+  @include mobile-only {
+    padding: 32px 24px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 24px 20px;
+    border-radius: $radius-md;
+  }
+}
+
+.valuation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+// ========================================
+// FORM SECTIONS
+// ========================================
+
+.valuation-form__section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid $border-light;
+
+  &:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.valuation-form__section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 4px 0;
+}
+
+// ========================================
+// FORM FIELDS
+// ========================================
+
+.valuation-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.valuation-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.valuation-form__label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.valuation-form__optional {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: $text-muted;
+}
+
+.valuation-form__input,
+.valuation-form__textarea,
+.valuation-form__select {
+  width: 100%;
+  height: 65px;
+  padding: 0 16px;
+  font-family: $font-family-base;
+  font-size: 1rem;
+  color: $text-primary;
+  background: $bg-input;
+  border: none;
+  border-radius: $radius-sm;
+  transition: background $transition-fast, box-shadow $transition-fast;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:hover {
+    background: $bg-input-hover;
+  }
+
+  &:focus {
+    outline: none;
+    background: $bg-white;
+    box-shadow: 0 0 0 2px $accent-coral;
+  }
+}
+
+.valuation-form__select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 48px;
+}
+
+.valuation-form__textarea {
+  height: auto;
+  min-height: 120px;
+  padding: 16px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+@include mobile-only {
+  .valuation-form__input,
+  .valuation-form__select {
+    height: 50px;
+  }
+}
+
+// Input with prefix (currency)
+.valuation-form__input-prefix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.valuation-form__prefix {
+  position: absolute;
+  left: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: $text-secondary;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.valuation-form__input--prefixed {
+  padding-left: 32px;
+}
+
+// ========================================
+// CHECKBOX
+// ========================================
+
+.valuation-form__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.valuation-form__checkbox-input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: $accent-coral;
+}
+
+.valuation-form__checkbox-label {
+  font-size: 0.9375rem;
+  color: $text-secondary;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+// ========================================
+// SUBMIT BUTTON
+// ========================================
+
+.valuation-form__actions {
+  padding-top: 8px;
+}
+
+.valuation-form__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 32px;
+  background: $accent-coral;
+  color: $bg-white;
+  font-family: $font-family-base;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    background: $accent-coral-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($accent-coral, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// ========================================
+// PRIVACY NOTICE
+// ========================================
+
+.valuation-form__privacy {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  margin: 0;
+  line-height: 1.5;
+
+  a {
+    color: $text-secondary;
+    text-decoration: underline;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $accent-coral;
+    }
+  }
+}
+
+// ========================================
+// MESSAGES (SUCCESS/ERROR)
+// ========================================
+
+.valuation-message {
+  display: none;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+  border-radius: $radius-md;
+
+  &.is-visible {
+    display: flex;
+  }
+}
+
+.valuation-message--success {
+  background: #ECFDF5;
+  color: #065F46;
+}
+
+.valuation-message--error {
+  background: #FEF2F2;
+  color: #991B1B;
+}
+
+.valuation-message__icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.valuation-message__content {
+  flex: 1;
+}
+
+.valuation-message__title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.valuation-message__text {
+  font-size: 0.9375rem;
+  margin: 0;
+  line-height: 1.5;
+  opacity: 0.9;
+
+  a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+}
+
+// ========================================
+// CONTACT ALTERNATIVE
+// ========================================
+
+.valuation-contact-alt {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: $bg-off-white;
+  border-radius: $radius-md;
+  text-align: center;
+}
+
+.valuation-contact-alt__text {
+  font-size: 0.9375rem;
+  color: $text-secondary;
+  margin: 0;
+  line-height: 1.6;
+
+  a {
+    color: $accent-coral;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $accent-coral-dark;
+      text-decoration: underline;
+    }
+  }
+}
